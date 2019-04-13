@@ -10,12 +10,12 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
-- script: dotnet restore
+- script: dotnet restore awemedia.chargestation.api/Awemedia.Chargestation.Api/Awemedia.Chargestation.Api.sln
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
     command: build
-    projects: '**/*.csproj'
+    projects: '/**/**/*.csproj'
     arguments: '--configuration Release' # Update this to match your need
 
 - script: |
