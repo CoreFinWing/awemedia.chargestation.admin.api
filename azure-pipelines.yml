@@ -10,7 +10,7 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
-- script: dotnet restore awemedia.chargestation.api/Awemedia.Chargestation.Api/Awemedia.Chargestation.Api.sln
+- script: dotnet restore ~/awemedia.chargestation.api/**/*.csproj
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
