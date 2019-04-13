@@ -10,6 +10,7 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
+- script: dotnet restore
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
