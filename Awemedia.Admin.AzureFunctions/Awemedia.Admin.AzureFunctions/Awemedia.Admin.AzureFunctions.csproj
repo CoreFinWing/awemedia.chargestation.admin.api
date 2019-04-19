@@ -6,8 +6,10 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="8.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.4.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.24" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.4.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Awemedia.Admin.AzureFunctions.Business\Awemedia.Admin.AzureFunctions.Business.csproj" />
