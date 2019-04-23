@@ -3,7 +3,6 @@ using AutoMapper;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Awemedia.Chargestation.Api;
 using Awemedia.Chargestation.Api.Infrastructure;
-using Awemedia.Chargestation.Api.Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +36,7 @@ namespace Awemedia.Chargestation.Api
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
-            // NLog
+           
 
             LogManager.LoadConfiguration(System.String.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
         }
@@ -49,7 +48,7 @@ namespace Awemedia.Chargestation.Api
                 {
                     options.UseSqlServer("Server=localhost;Database=Awemedia;user=sa;password=login@123;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
                 });
-            // Disabling the default behaviour for model validation for 400 response
+           
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
@@ -61,13 +60,9 @@ namespace Awemedia.Chargestation.Api
         {
             ConfigureServices(builder.Services);
         }
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+      
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {           
-            // Exception handling and logging
-            app.UseMiddleware(typeof(ErrorHandlingMiddleware));
-            // created middleware to authenticate the api end points
-            app.UseAuthorizationMiddleware();
             app.UseMvc();
         }
     }
