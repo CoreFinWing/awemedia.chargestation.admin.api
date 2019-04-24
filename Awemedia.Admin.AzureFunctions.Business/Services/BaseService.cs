@@ -69,5 +69,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return _repository.GetById(guid);
         }
+      
     }
 }

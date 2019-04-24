@@ -1,33 +1,51 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Awemedia.Admin.AzureFunctions.Business.Interfaces;
+using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
+using AutoMapper;
+using System.Net.Http;
+using Awemedia.Chargestation.AzureFunctions.Helpers;
+using System.Net;
+using Awemedia.Admin.AzureFunctions.Business.Models;
+using Awemedia.Admin.AzureFunctions.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
-    public static class ChargeStationFuntion
+    public class ChargeStationFuntion
     {
-        [FunctionName("ChargeStationFuntion")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+        private readonly IChargeStationService _chargeStationServcie;
+        private readonly IErrorHandler _errorHandler;
+        public ChargeStationFuntion(IChargeStationService chargeStationServcie, IMapper mapper, IErrorHandler errorHandler)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            _chargeStationServcie = chargeStationServcie;
+            _errorHandler = errorHandler;
+        }
 
-            string name = req.Query["name"];
+        [FunctionName("Chargestations")]
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+        public HttpResponseMessage Get(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage req)
+        {
+            if (!req.IsAuthorized())
+            {
+                return req.CreateResponse(HttpStatusCode.Unauthorized);
+            }
 
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+            return req.CreateResponse(HttpStatusCode.OK, _chargeStationServcie.GetAll());
+        }
+        [FunctionName("Chargestations_GetFiltered")]
+
+        public HttpResponseMessage GetFiltered(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage req)
+        {
+            if (!req.IsAuthorized())
+            {
+                return req.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            var queryDictionary = QueryHelpers.ParseQuery(req.RequestUri.Query);
+            BaseFilterResponse _baseFilterResponse = queryDictionary.ToObject<BaseFilterResponse>();
+            return req.CreateResponse(HttpStatusCode.OK, _chargeStationServcie.GetFiltered(_baseFilterResponse));
         }
     }
 }

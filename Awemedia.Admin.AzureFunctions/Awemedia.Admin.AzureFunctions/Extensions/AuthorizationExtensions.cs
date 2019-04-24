@@ -1,44 +1,47 @@
-﻿using Awemedia.Chargestation.Api.Helpers;
+﻿using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Net.Http;
-using System.Text;
+using System.Security.Claims;
 
 namespace Awemedia.Chargestation.AzureFunctions.Helpers
 {
     public static class AuthorizationExtensions
     {
-        private static readonly string clientId = "mobileapp";
-        private static readonly string clientSecret = "dGVzdA==";
-
         public static bool IsAuthorized(this HttpRequestMessage req)
         {
-            string decodedString = string.Empty;
-            bool validFlag = false;
-            if (!string.IsNullOrEmpty(Convert.ToString(req.Headers.Authorization)))
+            try
             {
-                string encodedString = req.Headers.Authorization.Parameter;
-                if(!string.IsNullOrEmpty(encodedString))
+                if (!string.IsNullOrEmpty(Convert.ToString(req.Headers.Authorization)))
                 {
-                    decodedString = encodedString.Base64ToString();
-                    string[] parts = decodedString.ToString().Split(new char[] { ':' });
-                    string _clientId = parts[0];
-                    string _clientSecret = parts[1];
-                    if (IsVarifiedCredentials(_clientId, _clientSecret))
+                    string jwtToken = req.Headers.Authorization.Parameter;
+                    TokenValidationParameters validationParameters = new TokenValidationParameters
                     {
-                        validFlag = true;
-                    }
+                        ValidateIssuerSigningKey = true,
+                        ValidateIssuer = true,
+                        ValidateLifetime = true,
+                        ValidateAudience = true,
+                        ValidAudience = Environment.GetEnvironmentVariable("ValidAudience"),
+                        ValidIssuer = Environment.GetEnvironmentVariable("ValidIssuer"),
+                        IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
+                        {
+                            var json = new WebClient().DownloadString(parameters.ValidIssuer + "/.well-known/jwks.json");
+                            var keys = JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
+                            return (IEnumerable<SecurityKey>)keys;
+                        }
+                    };
+                    ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out SecurityToken validatedToken);
                 }
+                return true;
             }
-            else
+            catch (Exception)
             {
-                validFlag = false;
+                return false;
             }
-            return validFlag;
-        }
-        private static bool IsVarifiedCredentials(string _clientId, string _clientSecret)
-        {
-            return _clientId.Equals(clientId) && _clientSecret.Equals(clientSecret);
         }
     }
 }

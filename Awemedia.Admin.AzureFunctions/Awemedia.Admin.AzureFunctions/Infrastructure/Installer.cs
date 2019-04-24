@@ -22,6 +22,7 @@ namespace Awemedia.Chargestation.Api.Infrastructure
             services.AddTransient<IBaseRepository<ChargeStation>, BaseRepository<ChargeStation>>();
             services.AddTransient<IBaseService<ChargeStation>, BaseService<ChargeStation>>();
 
+            services.AddTransient<IChargeStationService, ChargeStationService>();
             services.AddTransient<ILoggerService, LoggerService>();
             services.AddTransient<IErrorHandler, ErrorHandler>();
         }

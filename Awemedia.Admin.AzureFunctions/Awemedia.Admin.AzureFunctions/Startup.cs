@@ -3,7 +3,6 @@ using AutoMapper;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Awemedia.Chargestation.Api;
 using Awemedia.Chargestation.Api.Infrastructure;
-using Awemedia.Chargestation.Api.Infrastructure.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -64,10 +63,6 @@ namespace Awemedia.Chargestation.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {           
-            // Exception handling and logging
-            app.UseMiddleware(typeof(ErrorHandlingMiddleware));
-            // created middleware to authenticate the api end points
-            app.UseAuthorizationMiddleware();
             app.UseMvc();
         }
     }
