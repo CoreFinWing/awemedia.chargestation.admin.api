@@ -9,6 +9,7 @@ using System.Net;
 using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Linq;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
@@ -22,30 +23,20 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             _errorHandler = errorHandler;
         }
 
-        [FunctionName("Chargestations")]
-
-        public HttpResponseMessage Get(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage req)
-        {
-            if (!req.IsAuthorized())
-            {
-                return req.CreateResponse(HttpStatusCode.Unauthorized);
-            }
-
-            return req.CreateResponse(HttpStatusCode.OK, _chargeStationServcie.GetAll());
-        }
         [FunctionName("Chargestations_GetFiltered")]
 
         public HttpResponseMessage GetFiltered(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage httpRequestMessage)
         {
-            if (!req.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized())
             {
-                return req.CreateResponse(HttpStatusCode.Unauthorized);
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
-            var queryDictionary = QueryHelpers.ParseQuery(req.RequestUri.Query);
-            BaseFilterResponse _baseFilterResponse = queryDictionary.ToObject<BaseFilterResponse>();
-            return req.CreateResponse(HttpStatusCode.OK, _chargeStationServcie.GetFiltered(_baseFilterResponse));
+            BaseFilterRequest _baseFilterResponse = null;
+            var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
+            if (queryDictionary.Count() > 0)
+                _baseFilterResponse = queryDictionary.ToObject<BaseFilterRequest>();
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationServcie.GetFiltered(_baseFilterResponse));
         }
     }
 }

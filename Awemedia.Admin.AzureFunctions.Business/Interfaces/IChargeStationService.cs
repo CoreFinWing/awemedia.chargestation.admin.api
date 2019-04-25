@@ -8,6 +8,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
     public interface IChargeStationService
     {
         IEnumerable<ChargeStationResponse> GetAll();
-        IEnumerable<ChargeStationResponse> GetFiltered(BaseFilterResponse baseFilterResponse);
+        IEnumerable<ChargeStationResponse> GetFiltered(BaseFilterRequest baseFilterRequest);
     }
 }

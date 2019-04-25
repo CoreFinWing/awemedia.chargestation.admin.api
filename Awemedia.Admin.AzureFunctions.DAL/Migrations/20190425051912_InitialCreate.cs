@@ -88,12 +88,12 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "fkIdx_197",
+                name: "fkIdx_Events_Device",
                 table: "Events",
                 column: "DeviceId");
 
             migrationBuilder.CreateIndex(
-                name: "fkIdx_186",
+                name: "fkIdx_Events_EventType",
                 table: "Events",
                 column: "EventTypeId");
         }

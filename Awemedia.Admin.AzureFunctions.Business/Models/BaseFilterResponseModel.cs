@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
-    public class BaseFilterResponse
+    public class BaseFilterRequest
     {
         public string PageNum { get; set; }
         public string ItemsPerPage { get; set; }
