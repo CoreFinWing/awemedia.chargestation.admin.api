@@ -24,7 +24,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=tcp:awemedia-chargestation-sqlsvr-test.database.windows.net,1433;Initial Catalog=awemedia-chargestation-db-test;Persist Security Info=False;User ID=it-admin;Password=sdf@23Yusda;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_staging"));
             }
         }
 

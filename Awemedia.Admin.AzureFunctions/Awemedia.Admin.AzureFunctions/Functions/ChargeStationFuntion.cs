@@ -10,23 +10,17 @@ using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Linq;
+using AzureFunctions.Autofac;
+using Awemedia.Admin.AzureFunctions.Resolver;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
+    [DependencyInjectionConfig(typeof(DIConfig))]
     public class ChargeStationFuntion
     {
-        private readonly IChargeStationService _chargeStationServcie;
-        private readonly IErrorHandler _errorHandler;
-        public ChargeStationFuntion(IChargeStationService chargeStationServcie, IMapper mapper, IErrorHandler errorHandler)
-        {
-            _chargeStationServcie = chargeStationServcie;
-            _errorHandler = errorHandler;
-        }
-
         [FunctionName("Chargestations_GetFiltered")]
-
         public HttpResponseMessage GetFiltered(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage httpRequestMessage)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationServcie, [Inject]IErrorHandler errorHandler)
         {
             if (!httpRequestMessage.IsAuthorized())
             {

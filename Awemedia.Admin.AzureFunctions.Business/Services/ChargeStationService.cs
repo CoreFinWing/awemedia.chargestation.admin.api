@@ -1,7 +1,7 @@
-﻿using AutoMapper;
-using Awemedia.Admin.AzureFunctions.Business.Interfaces;
+﻿using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
+using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,16 +13,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     public class ChargeStationService : IChargeStationService
     {
         private readonly IBaseService<ChargeStation> _baseService;
-        private readonly IMapper _mapper;
 
-        public ChargeStationService(IBaseService<ChargeStation> baseService, IMapper mapper)
+        public ChargeStationService(IBaseService<ChargeStation> baseService)
         {
             _baseService = baseService;
-            _mapper = mapper;
         }
         public IEnumerable<ChargeStationResponse> GetAll()
         {
-            return _baseService.GetAll().Select(t => _mapper.Map<ChargeStation, ChargeStationResponse>(t));
+            return _baseService.GetAll().Select(t => MappingProfile.MapChargeStationResponseObject(t));
         }
 
         public IEnumerable<ChargeStationResponse> GetFiltered(BaseFilterRequest baseFilterRequest)
@@ -35,7 +33,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 {
                     baseFilterRequest.SearchText = baseFilterRequest.SearchText.ToLower();
                     exp = GetFilteredBySearch(baseFilterRequest);
-                    chargeStationResponses = _baseService.Where(exp).Select(t => _mapper.Map<ChargeStation, ChargeStationResponse>(t)).AsQueryable();
+                    chargeStationResponses = _baseService.Where(exp).Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
                 }
                 chargeStationResponses = chargeStationResponses.OrderBy(baseFilterRequest.SortBy + (Convert.ToBoolean(baseFilterRequest.Desc) ? " descending" : ""));
                 chargeStationResponses = chargeStationResponses.Skip((Convert.ToInt32(baseFilterRequest.PageNum) - 1) * Convert.ToInt32(baseFilterRequest.ItemsPerPage)).Take(Convert.ToInt32(baseFilterRequest.ItemsPerPage));

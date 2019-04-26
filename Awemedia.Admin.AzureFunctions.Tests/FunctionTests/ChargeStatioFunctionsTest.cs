@@ -44,14 +44,13 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         public ChargeStationFunctionsTest()
         {
             var context = new AwemediaContext(dbContextOptions);
-            _mapper = new Mapper(new MapperConfiguration(cfg =>
-            cfg.AddProfile(new MappingProfile())));
+            
             _errorHandler = new ErrorHandler();
             _repository = new BaseRepository<ChargeStation>(context, _errorHandler);
             _chargeStationRepository = new BaseRepository<ChargeStation>(context, _errorHandler);
             _chargeStationBaseService = new BaseService<ChargeStation>(_chargeStationRepository);
-            _chargeStationService = new ChargeStationService(_chargeStationBaseService, _mapper);
-            _chargeStationFuntion = new ChargeStationFuntion(_chargeStationService, _mapper, _errorHandler);
+            _chargeStationService = new ChargeStationService(_chargeStationBaseService);
+            _chargeStationFuntion = new ChargeStationFuntion();
         }
 
         [Fact]
@@ -59,7 +58,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             httpRequestMessage.Content = new StringContent("{\"PageNum\":\"1\",\"ItemsPerPage\":\"1\",\"SortBy\":\"ChargeControllerId\",\"Reverse\":\"false\",\"SearchText\":\"test\"}", Encoding.UTF8, "application/json");
-            var okResult = _chargeStationFuntion.GetFiltered(httpRequestMessage);
+            var okResult = _chargeStationFuntion.GetFiltered(httpRequestMessage, _chargeStationService, _errorHandler);
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }

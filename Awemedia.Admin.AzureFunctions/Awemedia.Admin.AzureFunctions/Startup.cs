@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using AutoMapper;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Awemedia.Chargestation.Api;
@@ -42,18 +43,16 @@ namespace Awemedia.Chargestation.Api
         }
         private void ConfigureServices(IServiceCollection services)
         {
-
-            services.AddAutoMapper();
             services.AddDbContext<AwemediaContext>(options =>
                 {
-                    options.UseSqlServer("Server=localhost;Database=Awemedia;user=sa;password=login@123;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+                    options.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_staging"));
                 });
            
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
-            Installer.ConfigureServices(services);
+           
         }
 
         public void Configure(IWebJobsBuilder builder)
