@@ -104,10 +104,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DeviceId")
-                        .HasName("fkIdx_197");
+                        .HasName("fkIdx_Events_Device");
 
                     b.HasIndex("EventTypeId")
-                        .HasName("fkIdx_186");
+                        .HasName("fkIdx_Events_EventType");
 
                     b.ToTable("Events");
                 });

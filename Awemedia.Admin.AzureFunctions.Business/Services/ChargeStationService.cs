@@ -18,32 +18,28 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             _baseService = baseService;
         }
-        public IEnumerable<ChargeStationResponse> GetAll()
-        {
-            return _baseService.GetAll().Select(t => MappingProfile.MapChargeStationResponseObject(t));
-        }
 
-        public IEnumerable<ChargeStationResponse> GetFiltered(BaseFilterRequest baseFilterRequest)
+        public IEnumerable<ChargeStationResponse> Get(ChargeStationSearchFilter chargeStationSearchFilter)
         {
             Expression<Func<ChargeStation, bool>> exp = null;
-            IQueryable<ChargeStationResponse> chargeStationResponses = GetAll().AsQueryable();
-            if (baseFilterRequest != null)
+            IQueryable<ChargeStationResponse> chargeStationResponses = _baseService.GetAll().Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+            if (chargeStationSearchFilter != null)
             {
-                if (!string.IsNullOrEmpty(baseFilterRequest.SearchText))
+                if (!string.IsNullOrEmpty(chargeStationSearchFilter.SearchText))
                 {
-                    baseFilterRequest.SearchText = baseFilterRequest.SearchText.ToLower();
-                    exp = GetFilteredBySearch(baseFilterRequest);
+                    chargeStationSearchFilter.SearchText = chargeStationSearchFilter.SearchText.ToLower();
+                    exp = GetFilteredBySearch(chargeStationSearchFilter);
                     chargeStationResponses = _baseService.Where(exp).Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
                 }
-                chargeStationResponses = chargeStationResponses.OrderBy(baseFilterRequest.SortBy + (Convert.ToBoolean(baseFilterRequest.Desc) ? " descending" : ""));
-                chargeStationResponses = chargeStationResponses.Skip((Convert.ToInt32(baseFilterRequest.PageNum) - 1) * Convert.ToInt32(baseFilterRequest.ItemsPerPage)).Take(Convert.ToInt32(baseFilterRequest.ItemsPerPage));
+                chargeStationResponses = chargeStationResponses.OrderBy(chargeStationSearchFilter.SortBy + (Convert.ToBoolean(chargeStationSearchFilter.Desc) ? " descending" : ""));
+                chargeStationResponses = chargeStationResponses.Skip((Convert.ToInt32(chargeStationSearchFilter.PageNum) - 1) * Convert.ToInt32(chargeStationSearchFilter.ItemsPerPage)).Take(Convert.ToInt32(chargeStationSearchFilter.ItemsPerPage));
             }
             return chargeStationResponses.ToList();
         }
 
-        private static Expression<Func<ChargeStation, bool>> GetFilteredBySearch(BaseFilterRequest baseFilterRequest)
+        private static Expression<Func<ChargeStation, bool>> GetFilteredBySearch(ChargeStationSearchFilter chargeStationSearchFilter)
         {
-            return e => e.ChargeControllerId.ToLower().Contains(baseFilterRequest.SearchText) || e.CreatedDate.ToString().ToLower().Contains(baseFilterRequest.SearchText) || e.Geolocation.ToLower().Contains(baseFilterRequest.SearchText) || e.Id.ToString().ToLower().Contains(baseFilterRequest.SearchText) || e.MerchantId.ToLower().Contains(baseFilterRequest.SearchText) || e.ModifiedDate.ToString().ToLower().Contains(baseFilterRequest.SearchText);
+            return e => e.ChargeControllerId.ToLower().Contains(chargeStationSearchFilter.SearchText) || e.CreatedDate.ToString().ToLower().Contains(chargeStationSearchFilter.SearchText) || e.Geolocation.ToLower().Contains(chargeStationSearchFilter.SearchText) || e.Id.ToString().ToLower().Contains(chargeStationSearchFilter.SearchText) || e.MerchantId.ToLower().Contains(chargeStationSearchFilter.SearchText) || e.ModifiedDate.ToString().ToLower().Contains(chargeStationSearchFilter.SearchText);
         }
     }
 }

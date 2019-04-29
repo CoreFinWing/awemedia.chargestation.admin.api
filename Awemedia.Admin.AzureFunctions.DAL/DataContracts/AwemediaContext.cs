@@ -73,10 +73,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
             modelBuilder.Entity<Events>(entity =>
             {
                 entity.HasIndex(e => e.DeviceId)
-                    .HasName("fkIdx_197");
+                    .HasName("fkIdx_Events_Device");
 
                 entity.HasIndex(e => e.EventTypeId)
-                    .HasName("fkIdx_186");
+                    .HasName("fkIdx_Events_EventType");
 
                 entity.Property(e => e.DateTime)
                     .IsRequired()

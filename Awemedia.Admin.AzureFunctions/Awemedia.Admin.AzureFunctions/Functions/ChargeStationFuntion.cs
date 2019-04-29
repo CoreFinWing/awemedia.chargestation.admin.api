@@ -18,19 +18,19 @@ namespace Awemedia.Admin.AzureFunctions.Functions
     [DependencyInjectionConfig(typeof(DIConfig))]
     public class ChargeStationFuntion
     {
-        [FunctionName("Chargestations_GetFiltered")]
+        [FunctionName("Chargestations")]
         public HttpResponseMessage GetFiltered(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationServcie, [Inject]IErrorHandler errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
-            {
-                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            }
-            BaseFilterRequest _baseFilterResponse = null;
+            //if (!httpRequestMessage.IsAuthorized())
+            //{
+            //    return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            //}
+            ChargeStationSearchFilter _chargeStationSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
-                _baseFilterResponse = queryDictionary.ToObject<BaseFilterRequest>();
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationServcie.GetFiltered(_baseFilterResponse));
+                _chargeStationSearchFilter = queryDictionary.ToObject<ChargeStationSearchFilter>();
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationServcie.Get(_chargeStationSearchFilter));
         }
     }
 }
