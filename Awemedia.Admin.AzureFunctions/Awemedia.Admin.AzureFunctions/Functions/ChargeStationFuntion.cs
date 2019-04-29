@@ -1,33 +1,36 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Awemedia.Admin.AzureFunctions.Business.Interfaces;
+using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
+using AutoMapper;
+using System.Net.Http;
+using Awemedia.Chargestation.AzureFunctions.Helpers;
+using System.Net;
+using Awemedia.Admin.AzureFunctions.Business.Models;
+using Awemedia.Admin.AzureFunctions.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Linq;
+using AzureFunctions.Autofac;
+using Awemedia.Admin.AzureFunctions.Resolver;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
-    public static class ChargeStationFuntion
+    [DependencyInjectionConfig(typeof(DIConfig))]
+    public class ChargeStationFuntion
     {
-        [FunctionName("ChargeStationFuntion")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+        [FunctionName("Chargestations")]
+        public HttpResponseMessage GetFiltered(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationServcie, [Inject]IErrorHandler errorHandler)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
-
-            string name = req.Query["name"];
-
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
-
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            ChargeStationSearchFilter _chargeStationSearchFilter = null;
+            var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
+            if (queryDictionary.Count() > 0)
+                _chargeStationSearchFilter = queryDictionary.ToObject<ChargeStationSearchFilter>();
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationServcie.Get(_chargeStationSearchFilter));
         }
     }
 }

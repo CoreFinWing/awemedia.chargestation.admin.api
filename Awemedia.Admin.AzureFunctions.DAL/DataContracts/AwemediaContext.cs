@@ -24,7 +24,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=localhost;Database=Awemedia;user=sa;password=login@123;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_staging"));
             }
         }
 
@@ -73,10 +73,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
             modelBuilder.Entity<Events>(entity =>
             {
                 entity.HasIndex(e => e.DeviceId)
-                    .HasName("fkIdx_197");
+                    .HasName("fkIdx_Events_Device");
 
                 entity.HasIndex(e => e.EventTypeId)
-                    .HasName("fkIdx_186");
+                    .HasName("fkIdx_Events_EventType");
 
                 entity.Property(e => e.DateTime)
                     .IsRequired()
