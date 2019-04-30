@@ -16,6 +16,7 @@ namespace Awemedia.Chargestation.AzureFunctions.Helpers
         {
             try
             {
+                bool isAuthorized = false;
                 if (!string.IsNullOrEmpty(Convert.ToString(req.Headers.Authorization)))
                 {
                     string jwtToken = req.Headers.Authorization.Parameter;
@@ -35,8 +36,9 @@ namespace Awemedia.Chargestation.AzureFunctions.Helpers
                         }
                     };
                     ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out SecurityToken validatedToken);
+                    isAuthorized = true;
                 }
-                return true;
+                return isAuthorized;
             }
             catch (Exception)
             {
@@ -44,4 +46,4 @@ namespace Awemedia.Chargestation.AzureFunctions.Helpers
             }
         }
     }
-} 
+}
