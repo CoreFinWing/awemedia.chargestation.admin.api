@@ -6,10 +6,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
     public class ChargeStationSearchFilter
     {
-        public string PageNum { get; set; }
-        public string ItemsPerPage { get; set; }
-        public string SortBy { get; set; }
-        public string Desc { get; set; }
-        public string SearchText { get; set; }
+        public string Start { get; set; }
+        public string Size { get; set; }
+        public string Order { get; set; }
+        public string Dir { get; set; }
+        public string Search { get; set; }
     }
 }
