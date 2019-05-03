@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    [Migration("20190425051912_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20190503053631_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -65,6 +65,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
 
+                    b.Property<string>("DeviceId")
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
+
                     b.Property<string>("Geolocation")
                         .IsUnicode(false);
 
@@ -87,12 +91,16 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<Guid?>("ChargeStationId");
+
                     b.Property<string>("DateTime")
                         .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(false);
 
-                    b.Property<Guid>("DeviceId");
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .IsUnicode(false);
 
                     b.Property<string>("EventData")
                         .IsRequired()
@@ -104,9 +112,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.Property<bool>("IsActive");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DeviceId")
-                        .HasName("fkIdx_Events_Device");
 
                     b.HasIndex("EventTypeId")
                         .HasName("fkIdx_Events_EventType");
@@ -140,11 +145,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Events", b =>
                 {
-                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.ChargeStation", "Device")
-                        .WithMany("Events")
-                        .HasForeignKey("DeviceId")
-                        .HasConstraintName("FK_DeviceId_ChargestationId");
-
                     b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.EventType", "EventType")
                         .WithMany("Events")
                         .HasForeignKey("EventTypeId")
