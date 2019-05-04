@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -35,7 +35,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     MerchantId = table.Column<string>(unicode: false, maxLength: 50, nullable: false),
                     ChargeControllerId = table.Column<string>(unicode: false, maxLength: 50, nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: false),
-                    ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: false)
+                    ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: false),
+                    DeviceId = table.Column<string>(unicode: false, maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -68,17 +69,12 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     DateTime = table.Column<string>(unicode: false, maxLength: 50, nullable: false),
                     IsActive = table.Column<bool>(nullable: false),
                     EventTypeId = table.Column<int>(nullable: false),
-                    DeviceId = table.Column<Guid>(nullable: false)
+                    DeviceId = table.Column<string>(unicode: false, nullable: false),
+                    ChargeStationId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Events", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DeviceId_ChargestationId",
-                        column: x => x.DeviceId,
-                        principalTable: "ChargeStation",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_EventID_EventTypeId",
                         column: x => x.EventTypeId,
@@ -86,11 +82,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "fkIdx_Events_Device",
-                table: "Events",
-                column: "DeviceId");
 
             migrationBuilder.CreateIndex(
                 name: "fkIdx_Events_EventType",
@@ -104,10 +95,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                 name: "ChargeOptions");
 
             migrationBuilder.DropTable(
-                name: "Events");
+                name: "ChargeStation");
 
             migrationBuilder.DropTable(
-                name: "ChargeStation");
+                name: "Events");
 
             migrationBuilder.DropTable(
                 name: "EventType");

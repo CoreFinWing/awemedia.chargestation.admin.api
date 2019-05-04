@@ -60,6 +60,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
+                entity.Property(e => e.DeviceId)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.Geolocation).IsUnicode(false);
 
                 entity.Property(e => e.MerchantId)
@@ -72,9 +76,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<Events>(entity =>
             {
-                entity.HasIndex(e => e.DeviceId)
-                    .HasName("fkIdx_Events_Device");
-
                 entity.HasIndex(e => e.EventTypeId)
                     .HasName("fkIdx_Events_EventType");
 
@@ -83,16 +84,14 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
+                entity.Property(e => e.DeviceId)
+                    .IsRequired()
+                    .IsUnicode(false);
+
                 entity.Property(e => e.EventData)
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
-
-                entity.HasOne(d => d.Device)
-                    .WithMany(p => p.Events)
-                    .HasForeignKey(d => d.DeviceId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_DeviceId_ChargestationId");
 
                 entity.HasOne(d => d.EventType)
                     .WithMany(p => p.Events)
