@@ -24,7 +24,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_staging"));
+                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_local"));
             }
         }
 
@@ -32,6 +32,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             modelBuilder.Entity<ChargeOptions>(entity =>
             {
+                entity.HasIndex(e => new { e.ChargeDuration, e.Price, e.Currency })
+                  .HasName("IX_ChargeOptions")
+                  .IsUnique();
+
                 entity.Property(e => e.ChargeDuration)
                     .IsRequired()
                     .HasMaxLength(50)

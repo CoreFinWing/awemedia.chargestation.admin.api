@@ -13,7 +13,6 @@ using Awemedia.Admin.AzureFunctions;
 using System.Text;
 using System.Net.Http.Headers;
 using Awemedia.Admin.AzureFunctions.Business;
-using Awemedia.Chargestation.AzureFunctions.Infrastructure;
 using Awemedia.chargestation.API.tests.Common;
 using Awemedia.Admin.AzureFunctions.Functions;
 
