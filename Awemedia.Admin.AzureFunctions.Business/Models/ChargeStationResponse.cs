@@ -8,13 +8,16 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
     public class ChargeStationResponse : BaseResponse
     {
-        [Required]
-        public Guid Id { get; set; }
+
+        public string Id { get; set; }
         [Required]
         public string Geolocation { get; set; }
         [Required]
         public string MerchantId { get; set; }
         [Required]
         public string ChargeControllerId { get; set; }
+        [Required]
+        public string DeviceId { get; set; }
+        public string DeviceToken { get; set; }
     }
 }

@@ -33,8 +33,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
             modelBuilder.Entity<ChargeOptions>(entity =>
             {
                 entity.HasIndex(e => new { e.ChargeDuration, e.Price, e.Currency })
-                  .HasName("IX_ChargeOptions")
-                  .IsUnique();
+                    .HasName("IX_ChargeOptions")
+                    .IsUnique();
 
                 entity.Property(e => e.ChargeDuration)
                     .IsRequired()
@@ -55,6 +55,14 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<ChargeStation>(entity =>
             {
+                entity.HasIndex(e => e.DeviceId)
+                    .HasName("IX_ChargeStations_DeviceId")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.Uid)
+                    .HasName("IX_ChargeStations_UID")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.ChargeControllerId)
@@ -65,8 +73,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.DeviceId)
+                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.DeviceToken).IsUnicode(false);
 
                 entity.Property(e => e.Geolocation).IsUnicode(false);
 
@@ -76,6 +87,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .IsUnicode(false);
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Uid)
+                    .HasColumnName("UID")
+                    .ValueGeneratedOnAdd();
             });
 
             modelBuilder.Entity<Events>(entity =>

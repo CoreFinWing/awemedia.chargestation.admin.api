@@ -2,6 +2,8 @@
 using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using System;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
 {
@@ -14,9 +16,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ChargeControllerId = chargeStation.ChargeControllerId,
                 CreatedDate = chargeStation.CreatedDate,
                 Geolocation = chargeStation.Geolocation,
-                Id = chargeStation.Id,
+                Id = GuidToString(chargeStation.Id),
                 MerchantId = chargeStation.MerchantId,
                 ModifiedDate = chargeStation.ModifiedDate,
+                DeviceId = chargeStation.DeviceId
             };
         }
         public static ChargeOptionsResponse MapChargeOptionsResponseObjects(ChargeOptions chargeOptions)
@@ -44,6 +47,32 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ModifiedDate = DateTime.Now,
                 Price = chargeOptionsResponse.Price,
             };
+        }
+        public static ChargeStation MapChargeStationObject(ChargeStationResponse chargeStationResponse)
+        {
+            return new ChargeStation()
+            {
+                ChargeControllerId = chargeStationResponse.ChargeControllerId,
+                CreatedDate = DateTime.Now,
+                Geolocation = chargeStationResponse.Geolocation,
+                Id = StringToGuid(chargeStationResponse.DeviceId),
+                MerchantId = chargeStationResponse.MerchantId,
+                ModifiedDate = DateTime.Now,
+                DeviceId = chargeStationResponse.DeviceId
+            };
+        }
+
+        private static Guid StringToGuid(string value)
+        {
+            var md5 = MD5.Create();
+            var hash = md5.ComputeHash(Encoding.Default.GetBytes(value));
+            return new Guid(hash);
+        }
+
+        private static string GuidToString(Guid guid)
+        {
+            byte[] reversedGuid = guid.ToByteArray();
+            return Encoding.Default.GetString(reversedGuid);
         }
     }
 }
