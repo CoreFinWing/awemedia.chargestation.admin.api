@@ -40,8 +40,8 @@ namespace Awemedia.Admin.AzureFunctions.Functions
            [HttpTrigger(AuthorizationLevel.Anonymous, "Post", Route = null)] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationServcie, [Inject]IErrorHandler _errorHandler)
         {
             var body = httpRequestMessage.GetBodyAsync<ChargeStationResponse>();
-            //if (!httpRequestMessage.IsAuthorized())
-            //    return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            if (!httpRequestMessage.IsAuthorized())
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (!httpRequestMessage.GetBodyAsync<ChargeStationResponse>().IsValid)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", body.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
             if (string.IsNullOrEmpty(httpRequestMessage.Content.ReadAsStringAsync().Result))
