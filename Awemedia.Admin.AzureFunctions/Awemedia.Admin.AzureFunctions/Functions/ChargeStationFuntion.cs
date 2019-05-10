@@ -23,7 +23,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
     {
         [FunctionName("Chargestations")]
         public HttpResponseMessage GetFiltered(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationServcie, [Inject]IErrorHandler errorHandler)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Chargestations")] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationServcie, [Inject]IErrorHandler errorHandler)
         {
             if (!httpRequestMessage.IsAuthorized())
             {
@@ -37,7 +37,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
         [FunctionName("AddChargeStation")]
         public HttpResponseMessage AddChargeStation(
-           [HttpTrigger(AuthorizationLevel.Anonymous, "Post", Route = null)] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationServcie, [Inject]IErrorHandler _errorHandler)
+           [HttpTrigger(AuthorizationLevel.Anonymous, "Post", Route = "Chargestations")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationServcie, [Inject]IErrorHandler _errorHandler)
         {
             var body = httpRequestMessage.GetBodyAsync<ChargeStationResponse>();
             if (!httpRequestMessage.IsAuthorized())

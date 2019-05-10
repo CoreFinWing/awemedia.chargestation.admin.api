@@ -29,7 +29,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
     {
         [FunctionName("Chargeoptions")]
         public HttpResponseMessage Get(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionsService _chargeOptionsServcie, [Inject]IErrorHandler _errorHandler)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "Chargeoptions")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionsService _chargeOptionsServcie, [Inject]IErrorHandler _errorHandler)
         {
             bool IsActive = false;
             if (!httpRequestMessage.IsAuthorized())
@@ -45,7 +45,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
         [FunctionName("AddChargeOptions")]
         public HttpResponseMessage Add(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionsService _chargeOptionsServcie, [Inject]IErrorHandler _errorHandler)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "Chargeoptions")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionsService _chargeOptionsServcie, [Inject]IErrorHandler _errorHandler)
         {
             var body = httpRequestMessage.GetBodyAsync<ChargeOptionsResponse>();
             if (!httpRequestMessage.IsAuthorized())
@@ -62,7 +62,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
         [FunctionName("Active_InActive_ChargeOptions")]
         public HttpResponseMessage Active_InActive(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = null)] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionsService _chargeOptionsServcie, [Inject]IErrorHandler _errorHandler)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Chargeoptions")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionsService _chargeOptionsServcie, [Inject]IErrorHandler _errorHandler)
         {
             var body = httpRequestMessage.GetBodyAsync<List<BaseChargeOptionsFilterResponse>>();
             if (!httpRequestMessage.IsAuthorized())
