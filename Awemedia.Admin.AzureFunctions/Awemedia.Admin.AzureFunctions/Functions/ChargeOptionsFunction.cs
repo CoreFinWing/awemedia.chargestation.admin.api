@@ -62,7 +62,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
         [FunctionName("Active_InActive_ChargeOptions")]
         public HttpResponseMessage Active_InActive(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "Chargeoptions")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionsService _chargeOptionsServcie, [Inject]IErrorHandler _errorHandler)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "Chargeoptions")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionsService _chargeOptionsServcie, [Inject]IErrorHandler _errorHandler)
         {
             var body = httpRequestMessage.GetBodyAsync<List<BaseChargeOptionsFilterResponse>>();
             if (!httpRequestMessage.IsAuthorized())
