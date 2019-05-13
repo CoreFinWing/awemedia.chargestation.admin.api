@@ -23,6 +23,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler
         InternalServerError=11,
         IncorrectDeviceId=12,
         DeviceNotRegistered=13,
-        NoCacheHeaderFound=14
+        NoCacheHeaderFound=14,
+        DuplicateRecordFound=15,
+        BodyNotFound=16
     }
 }

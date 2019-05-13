@@ -38,6 +38,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (exists)
             {
                 _repository.Update(entry);
+                return entry;
             }
             _repository.Insert(entry);
             return entry;
@@ -69,6 +70,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return _repository.GetById(guid);
         }
-      
+
     }
 }

@@ -42,5 +42,22 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return e => e.ChargeControllerId.ToLower().Contains(chargeStationSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search) || e.Geolocation.ToLower().Contains(chargeStationSearchFilter.Search) || e.Id.ToString().ToLower().Contains(chargeStationSearchFilter.Search) || e.MerchantId.ToLower().Contains(chargeStationSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search);
         }
+
+        public Guid AddChargeStation(ChargeStationResponse chargeStationResponse, Guid guid = default(Guid))
+        {
+            if (chargeStationResponse == null)
+            {
+                return default(Guid);
+            }
+            ChargeStation model = _baseService.AddOrUpdate(MappingProfile.MapChargeStationObject(chargeStationResponse), guid);
+            return model.Id;
+        }
+        public object IsChargeStationExists(Guid guid)
+        {
+            if (_baseService.GetById(guid) == null)
+                return DBNull.Value;
+            else
+                return _baseService.GetById(guid).Id;
+        }
     }
 }

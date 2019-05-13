@@ -4,14 +4,16 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    partial class AwemediaContextModelSnapshot : ModelSnapshot
+    [Migration("20190507053617_AddedUniqueIndex")]
+    partial class AddedUniqueIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,11 +70,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("DeviceId")
-                        .IsRequired()
                         .HasMaxLength(50)
-                        .IsUnicode(false);
-
-                    b.Property<string>("DeviceToken")
                         .IsUnicode(false);
 
                     b.Property<string>("Geolocation")
@@ -86,20 +84,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<int>("Uid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("UID")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
                     b.HasKey("Id");
-
-                    b.HasIndex("DeviceId")
-                        .IsUnique()
-                        .HasName("IX_ChargeStations_DeviceId");
-
-                    b.HasIndex("Uid")
-                        .IsUnique()
-                        .HasName("IX_ChargeStations_UID");
 
                     b.ToTable("ChargeStation");
                 });

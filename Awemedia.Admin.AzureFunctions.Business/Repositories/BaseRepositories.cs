@@ -49,8 +49,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
         {
             if (entity == null) throw new ArgumentNullException(string.Format(_errorHandler.GetMessage(ErrorMessagesEnum.EntityNull), "", "Input data is null"));
 
-            var oldEntity = _context.Find<T>(entity);
-            _context.Entry(oldEntity).CurrentValues.SetValues(entity);
+            _context.Entry(entity).State = EntityState.Modified;
             _context.SaveChanges();
         }
         public void Delete(T entity)
@@ -76,6 +75,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
             return _entities.Find(guid);
         }
 
-        
+
     }
 }

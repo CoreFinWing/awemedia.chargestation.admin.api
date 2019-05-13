@@ -12,5 +12,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
         public string DeviceId { get; set; }
+        public int Uid { get; set; }
+        public string DeviceToken { get; set; }
     }
 }

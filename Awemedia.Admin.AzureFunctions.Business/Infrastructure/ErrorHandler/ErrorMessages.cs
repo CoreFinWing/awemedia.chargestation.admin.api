@@ -46,6 +46,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler
                     return "Device not registered";
                 case ErrorMessagesEnum.NoCacheHeaderFound:
                     return "No Cache-control header is found";
+                case ErrorMessagesEnum.DuplicateRecordFound:
+                    return "Duplicate Record Found";
+                case ErrorMessagesEnum.BodyNotFound:
+                    return "Request Body not found";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(message), message, null);
             }
