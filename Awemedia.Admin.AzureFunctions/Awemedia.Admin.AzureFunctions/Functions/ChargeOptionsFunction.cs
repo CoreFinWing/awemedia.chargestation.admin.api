@@ -58,7 +58,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             bool isAdded = _chargeOptionsServcie.Add(chargeOptionsResponse, out bool isDuplicateRecord);
             if (isDuplicateRecord)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.Conflict, _errorHandler.GetMessage(ErrorMessagesEnum.DuplicateRecordFound));
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, "success");
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }
         [FunctionName("Active_InActive_ChargeOptions")]
         public HttpResponseMessage Active_InActive(
@@ -73,7 +73,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.NotFound, _errorHandler.GetMessage(ErrorMessagesEnum.PostedDataNotFound));
             List<BaseChargeOptionsFilterResponse> baseChargeOptionsResponses = JsonHelper.JsonDeserialize<List<BaseChargeOptionsFilterResponse>>(httpRequestMessage.Content.ReadAsStringAsync().Result);
             _chargeOptionsServcie.MarkActiveInActive(baseChargeOptionsResponses);
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, "success");
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }
     }
 }
