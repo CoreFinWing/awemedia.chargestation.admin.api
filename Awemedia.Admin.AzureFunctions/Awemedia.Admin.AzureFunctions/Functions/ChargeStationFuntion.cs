@@ -25,10 +25,10 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage GetFiltered(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-stations")] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationServcie, [Inject]IErrorHandler errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
-            {
-                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            }
+            //if (!httpRequestMessage.IsAuthorized())
+            //{
+            //    return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            //}
             ChargeStationSearchFilter _chargeStationSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)

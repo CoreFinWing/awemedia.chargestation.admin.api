@@ -16,7 +16,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ChargeControllerId = chargeStation.ChargeControllerId,
                 CreatedDate = chargeStation.CreatedDate,
                 Geolocation = chargeStation.Geolocation,
-                Id = GuidToString(chargeStation.Id),
+                Id = chargeStation.Id.ToString("N"),
                 MerchantId = chargeStation.MerchantId,
                 ModifiedDate = chargeStation.ModifiedDate,
                 DeviceId = chargeStation.DeviceId
@@ -67,12 +67,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             var md5 = MD5.Create();
             var hash = md5.ComputeHash(Encoding.Default.GetBytes(value));
             return new Guid(hash);
-        }
-
-        private static string GuidToString(Guid guid)
-        {
-            byte[] reversedGuid = guid.ToByteArray();
-            return Encoding.Default.GetString(reversedGuid);
         }
     }
 }

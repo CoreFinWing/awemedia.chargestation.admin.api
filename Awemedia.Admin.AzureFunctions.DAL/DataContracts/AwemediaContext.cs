@@ -19,12 +19,13 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public virtual DbSet<ChargeStation> ChargeStation { get; set; }
         public virtual DbSet<Events> Events { get; set; }
         public virtual DbSet<EventType> EventType { get; set; }
+        public virtual DbSet<Notification> Notification { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_staging"));
+                optionsBuilder.UseSqlServer("server=192.168.72.193;database=awemedia;user=admin;password=login@123;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             }
         }
 
@@ -128,6 +129,27 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.Property(e => e.DeviceId)
+                    .IsRequired()
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DeviceToken)
+                    .IsRequired()
+                    .IsUnicode(false);
+
+                entity.Property(e => e.LoggedDateTime).HasColumnType("datetime");
+
+                entity.Property(e => e.NotificationResult)
+                    .IsRequired()
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Payload)
+                    .IsRequired()
                     .IsUnicode(false);
             });
         }
