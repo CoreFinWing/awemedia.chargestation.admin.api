@@ -19,7 +19,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 Id = chargeStation.Id.ToString("N"),
                 MerchantId = chargeStation.MerchantId,
                 ModifiedDate = chargeStation.ModifiedDate,
-                DeviceId = chargeStation.DeviceId
+                DeviceId = chargeStation.DeviceId,
+                Uid=chargeStation.Uid
             };
         }
         public static ChargeOptionsResponse MapChargeOptionsResponseObjects(ChargeOptions chargeOptions)
