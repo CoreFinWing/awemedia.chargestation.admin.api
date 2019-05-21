@@ -19,5 +19,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         [Required]
         public string DeviceId { get; set; }
         public string DeviceToken { get; set; }
+        public int Uid { get; set; }
     }
 }
