@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
-    public class ChargeStationResponse : BaseResponse
+    public class ChargeStation : BaseModel
     {
 
         public string Id { get; set; }

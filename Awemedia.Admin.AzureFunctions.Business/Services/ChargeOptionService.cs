@@ -10,22 +10,22 @@ using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
-    public class ChargeOptionsService : IChargeOptionsService
+    public class ChargeOptionsService : IChargeOptionService
     {
-        private readonly IBaseService<ChargeOptions> _baseService;
+        private readonly IBaseService<DAL.DataContracts.ChargeOptions> _baseService;
 
-        public ChargeOptionsService(IBaseService<ChargeOptions> baseService)
+        public ChargeOptionsService(IBaseService<DAL.DataContracts.ChargeOptions> baseService)
         {
             _baseService = baseService;
         }
-        public bool Add(ChargeOptionsResponse chargeOptionsResponse, out bool isDuplicateRecord, int id = 0)
+        public bool Add(ChargeOption chargeOptionsResponse, out bool isDuplicateRecord, int id = 0)
         {
             isDuplicateRecord = false;
             if (chargeOptionsResponse == null)
                 return false;
             try
             {
-                ChargeOptions chargeOptions = _baseService.AddOrUpdate(MappingProfile.MapChargeOptionsObjects(chargeOptionsResponse), id);
+                DAL.DataContracts.ChargeOptions chargeOptions = _baseService.AddOrUpdate((DAL.DataContracts.ChargeOptions)MappingProfile.MapChargeOptionsObjects(chargeOptionsResponse), id);
                 return chargeOptions == null ? false : true;
             }
             catch (DbUpdateException ex)
@@ -36,7 +36,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             }
         }
 
-        public void MarkActiveInActive(List<BaseChargeOptionsFilterResponse> baseChargeOptionsFilterResponses)
+        public void MarkActiveInActive(List<BaseChargeOptionsFilterModel> baseChargeOptionsFilterResponses)
         {
             if (baseChargeOptionsFilterResponses != null)
             {
@@ -44,7 +44,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 {
                     foreach (var item in baseChargeOptionsFilterResponses)
                     {
-                        ChargeOptions chargeOption = _baseService.GetById(item.Id);
+                        DAL.DataContracts.ChargeOptions chargeOption = _baseService.GetById(item.Id);
                         if (chargeOption != null)
                         {
                             chargeOption.IsActive = item.IsActive;
@@ -55,17 +55,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 }
             }
         }
-        public IEnumerable<ChargeOptionsResponse> Get(bool isActive = true)
+        public IEnumerable<ChargeOption> Get(bool isActive = true)
         {
             if (isActive)
                 return _baseService.GetAll().Select(t => MappingProfile.MapChargeOptionsResponseObjects(t)).Where(item => item.IsActive.Equals(isActive));
             else
                 return _baseService.GetAll().Select(t => MappingProfile.MapChargeOptionsResponseObjects(t));
-        }
-
-        public ChargeOptionsResponse GetById(int id)
-        {
-            throw new NotImplementedException();
         }
     }
 }
