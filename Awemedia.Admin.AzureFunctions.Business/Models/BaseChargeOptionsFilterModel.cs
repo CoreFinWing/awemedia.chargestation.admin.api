@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
-    public class BaseChargeOptionsFilterResponse
+    public class BaseChargeOptionsFilterModel
     {
         [Required]
         public int Id { get; set; }

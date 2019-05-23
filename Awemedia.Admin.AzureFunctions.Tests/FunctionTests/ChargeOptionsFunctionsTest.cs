@@ -18,8 +18,8 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
     public class ChargeOptionsFunctionsTest
     {
         private const string Name = "AwemediaConnection";
-        private readonly ChargeOptionsFunction chargeOptionsFunction;
-        private readonly IChargeOptionsService chargeOptionsService;
+        private readonly ChargeOptionFunctions chargeOptionFunctions;
+        private readonly IChargeOptionService chargeOptionsService;
         private readonly IBaseService<ChargeOptions> _baseService;
         private readonly IBaseRepository<ChargeOptions> _repository;
        
@@ -42,14 +42,14 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             _repository = new BaseRepository<ChargeOptions>(context, _errorHandler);
             _baseService = new BaseService<ChargeOptions>(_repository);
             chargeOptionsService = new ChargeOptionsService(_baseService);
-            chargeOptionsFunction = new ChargeOptionsFunction();
+            chargeOptionFunctions = new ChargeOptionFunctions();
         }
         [Fact]
         public void Get_WhenCalled_ReturnsAllItems()
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             httpRequestMessage.Headers.CacheControl.MaxAge = new TimeSpan(0, 2, 0);
-            var okResult = chargeOptionsFunction.Get(httpRequestMessage, chargeOptionsService, _errorHandler);
+            var okResult = chargeOptionFunctions.Get(httpRequestMessage, chargeOptionsService, _errorHandler);
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }
@@ -59,7 +59,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             httpRequestMessage.Content = new StringContent("{\"Price\":\"11.00\",\"Currency\":\"RM\",\"ChargeDuration\":\"150 Mins\"}", Encoding.UTF8, "application/json");
-            var okResult = chargeOptionsFunction.Add(httpRequestMessage, chargeOptionsService, _errorHandler);
+            var okResult = chargeOptionFunctions.Post(httpRequestMessage, chargeOptionsService, _errorHandler);
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }
@@ -68,7 +68,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             httpRequestMessage.Content = new StringContent("[{\"Id\":\"4\",\"IsActive\":\"true\"},{\"Id\":\"6\",\"IsActive\":\"false\"}]", Encoding.UTF8, "application/json");
-            var okResult = chargeOptionsFunction.Active_InActive(httpRequestMessage, chargeOptionsService, _errorHandler);
+            var okResult = chargeOptionFunctions.Put(httpRequestMessage, chargeOptionsService, _errorHandler);
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }
@@ -78,7 +78,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             httpRequestMessage.Content = new StringContent("{\"Price\":\"11.00\",\"Currency\":\"RM\",\"ChargeDuration\":\"150 Mins\"}", Encoding.UTF8, "application/json");
-            var okResult = chargeOptionsFunction.Add(httpRequestMessage, chargeOptionsService, _errorHandler);
+            var okResult = chargeOptionFunctions.Post(httpRequestMessage, chargeOptionsService, _errorHandler);
             Assert.NotNull(okResult);
             Assert.Equal("Conflict", okResult.StatusCode.ToString());
         }

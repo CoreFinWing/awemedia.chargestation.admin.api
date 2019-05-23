@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Linq.Dynamic.Core;
+using ChargeStation = Awemedia.Admin.AzureFunctions.DAL.DataContracts.ChargeStation;
+using ChargeStationModel = Awemedia.Admin.AzureFunctions.Business.Models.ChargeStation;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
@@ -19,10 +21,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _baseService = baseService;
         }
 
-        public IEnumerable<ChargeStationResponse> Get(ChargeStationSearchFilter chargeStationSearchFilter)
+        public IEnumerable<ChargeStationModel> Get(ChargeStationSearchFilter chargeStationSearchFilter)
         {
             Expression<Func<ChargeStation, bool>> exp = null;
-            IQueryable<ChargeStationResponse> chargeStationResponses = _baseService.GetAll().Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+            IQueryable<ChargeStationModel> chargeStations = _baseService.GetAll().Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
             if (chargeStationSearchFilter != null)
 
             {
@@ -30,12 +32,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 {
                     chargeStationSearchFilter.Search = chargeStationSearchFilter.Search.ToLower();
                     exp = GetFilteredBySearch(chargeStationSearchFilter);
-                    chargeStationResponses = _baseService.Where(exp).Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+                    chargeStations = _baseService.Where(exp).Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
                 }
-                chargeStationResponses = chargeStationResponses.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
-                chargeStationResponses = chargeStationResponses.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
+                chargeStations = chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
+                chargeStations = chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
             }
-            return chargeStationResponses.ToList();
+            return chargeStations.ToList();
         }
 
         private static Expression<Func<ChargeStation, bool>> GetFilteredBySearch(ChargeStationSearchFilter chargeStationSearchFilter)
@@ -43,13 +45,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             return e => e.ChargeControllerId.ToLower().Contains(chargeStationSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search) || e.Geolocation.ToLower().Contains(chargeStationSearchFilter.Search) || e.Id.ToString().ToLower().Contains(chargeStationSearchFilter.Search) || e.MerchantId.ToLower().Contains(chargeStationSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search);
         }
 
-        public Guid AddChargeStation(ChargeStationResponse chargeStationResponse, Guid guid = default(Guid))
+        public Guid AddChargeStation(ChargeStationModel chargeStation, Guid guid = default(Guid))
         {
-            if (chargeStationResponse == null)
+            if (chargeStation == null)
             {
                 return default(Guid);
             }
-            ChargeStation model = _baseService.AddOrUpdate(MappingProfile.MapChargeStationObject(chargeStationResponse), guid);
+            ChargeStation model = _baseService.AddOrUpdate(MappingProfile.MapChargeStationObject(chargeStation), guid);
             return model.Id;
         }
         public object IsChargeStationExists(Guid guid)

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
-    public class BaseResponse
+    public class BaseModel
     {
         [JsonConverter(typeof(DateFormatConverter), "yyyy-MM-dd hh:mm:ss")]
         public DateTime CreatedDate { get; set; }

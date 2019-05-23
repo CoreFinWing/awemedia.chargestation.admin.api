@@ -25,11 +25,10 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         private readonly IBaseRepository<ChargeStation> _repository;
         private readonly IBaseRepository<ChargeStation> _chargeStationRepository;
         private readonly IChargeStationService _chargeStationService;
-        private readonly Mapper _mapper;
         private readonly IErrorHandler _errorHandler;
         private static DbContextOptions<AwemediaContext> dbContextOptions { get; set; }
         private static readonly string connectionString = string.Empty;
-        private readonly ChargeStationFuntion _chargeStationFuntion;
+        private readonly ChargeStationFuntions chargeStationFuntions;
 
         static ChargeStationFunctionsTest()
         {
@@ -43,13 +42,13 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         public ChargeStationFunctionsTest()
         {
             var context = new AwemediaContext(dbContextOptions);
-            
+
             _errorHandler = new ErrorHandler();
             _repository = new BaseRepository<ChargeStation>(context, _errorHandler);
             _chargeStationRepository = new BaseRepository<ChargeStation>(context, _errorHandler);
             _chargeStationBaseService = new BaseService<ChargeStation>(_chargeStationRepository);
             _chargeStationService = new ChargeStationService(_chargeStationBaseService);
-            _chargeStationFuntion = new ChargeStationFuntion();
+            chargeStationFuntions = new ChargeStationFuntions();
         }
 
         [Fact]
@@ -57,7 +56,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             httpRequestMessage.Content = new StringContent("{\"PageNum\":\"1\",\"ItemsPerPage\":\"1\",\"SortBy\":\"ChargeControllerId\",\"Reverse\":\"false\",\"SearchText\":\"test\"}", Encoding.UTF8, "application/json");
-            var okResult = _chargeStationFuntion.GetFiltered(httpRequestMessage, _chargeStationService, _errorHandler);
+            var okResult = chargeStationFuntions.GetFiltered(httpRequestMessage, _chargeStationService, _errorHandler);
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }

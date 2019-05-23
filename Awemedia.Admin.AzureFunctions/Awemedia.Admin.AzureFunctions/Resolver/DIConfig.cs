@@ -25,7 +25,7 @@ namespace Awemedia.Admin.AzureFunctions.Resolver
 
                 builder.RegisterType<ErrorHandler>().As<IErrorHandler>();
                 builder.RegisterType<ChargeStationService>().As<IChargeStationService>();
-                builder.RegisterType<ChargeOptionsService>().As<IChargeOptionsService>();
+                builder.RegisterType<ChargeOptionsService>().As<IChargeOptionService>();
             }, functionName);
         }
     }

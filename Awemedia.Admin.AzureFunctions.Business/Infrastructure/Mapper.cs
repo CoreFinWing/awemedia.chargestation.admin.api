@@ -9,9 +9,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
 {
     public class MappingProfile
     {
-        public static ChargeStationResponse MapChargeStationResponseObject(ChargeStation chargeStation)
+        public static Models.ChargeStation MapChargeStationResponseObject(DAL.DataContracts.ChargeStation chargeStation)
         {
-            return new ChargeStationResponse()
+            return new Models.ChargeStation()
             {
                 ChargeControllerId = chargeStation.ChargeControllerId,
                 CreatedDate = chargeStation.CreatedDate,
@@ -23,9 +23,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 Uid=chargeStation.Uid
             };
         }
-        public static ChargeOptionsResponse MapChargeOptionsResponseObjects(ChargeOptions chargeOptions)
+        public static Models.ChargeOption MapChargeOptionsResponseObjects(DAL.DataContracts.ChargeOptions chargeOptions)
         {
-            return new ChargeOptionsResponse()
+            return new Models.ChargeOption()
             {
                 ChargeDuration = chargeOptions.ChargeDuration,
                 CreatedDate = chargeOptions.CreatedDate,
@@ -36,9 +36,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 Price = chargeOptions.Price,
             };
         }
-        public static ChargeOptions MapChargeOptionsObjects(ChargeOptionsResponse chargeOptionsResponse)
+        public static DAL.DataContracts.ChargeOptions MapChargeOptionsObjects(Models.ChargeOption chargeOptionsResponse)
         {
-            return new ChargeOptions()
+            return new DAL.DataContracts.ChargeOptions()
             {
                 ChargeDuration = chargeOptionsResponse.ChargeDuration,
                 CreatedDate = DateTime.Now,
@@ -49,9 +49,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 Price = chargeOptionsResponse.Price,
             };
         }
-        public static ChargeStation MapChargeStationObject(ChargeStationResponse chargeStationResponse)
+        public static DAL.DataContracts.ChargeStation MapChargeStationObject(Models.ChargeStation chargeStationResponse)
         {
-            return new ChargeStation()
+            return new DAL.DataContracts.ChargeStation()
             {
                 ChargeControllerId = chargeStationResponse.ChargeControllerId,
                 CreatedDate = DateTime.Now,
