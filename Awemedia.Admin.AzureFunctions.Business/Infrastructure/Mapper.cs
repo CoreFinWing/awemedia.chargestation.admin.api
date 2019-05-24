@@ -16,7 +16,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ChargeControllerId = chargeStation.ChargeControllerId,
                 CreatedDate = chargeStation.CreatedDate,
                 Geolocation = chargeStation.Geolocation,
-                Id = chargeStation.Id.ToString("N"),
+                Id = chargeStation.Id.ToString(),
                 MerchantId = chargeStation.MerchantId,
                 ModifiedDate = chargeStation.ModifiedDate,
                 DeviceId = chargeStation.DeviceId,

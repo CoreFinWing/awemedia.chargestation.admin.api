@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
@@ -43,14 +44,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _repository.Insert(entry);
             return entry;
         }
-        public T AddOrUpdate(T entry, Guid guid)
+        public T AddOrUpdate(T entry, Guid guid, [Optional] string[] excludedProps)
         {
             var targetRecord = _repository.GetById(guid);
             var exists = targetRecord != null;
 
             if (exists)
             {
-                _repository.Update(entry);
+                _repository.Update(entry, excludedProps);
+                return entry;
             }
             _repository.Insert(entry);
             return entry;
