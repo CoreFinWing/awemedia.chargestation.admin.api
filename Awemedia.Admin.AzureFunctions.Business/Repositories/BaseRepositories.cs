@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
+using System.Runtime.InteropServices;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Repositories
 {
@@ -45,11 +46,22 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
             _context.SaveChanges();
             return entity;
         }
-        public void Update(T entity)
+        public void Update(T entity, [Optional] string[] excludedProps)
         {
             if (entity == null) throw new ArgumentNullException(string.Format(_errorHandler.GetMessage(ErrorMessagesEnum.EntityNull), "", "Input data is null"));
-
+         
             _context.Entry(entity).State = EntityState.Modified;
+            if (excludedProps != null)
+            {
+                if (excludedProps.Any())
+                {
+                    foreach (var name in excludedProps)
+                    {
+                        _context.Entry(entity).Property(name).IsModified = false;
+                    }
+                }
+            }
+            
             _context.SaveChanges();
         }
         public void Delete(T entity)

@@ -44,12 +44,28 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (!chargeStationBody.IsValid)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", chargeStationBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
-            ChargeStation ChargeStationResponse = chargeStationBody.Value;
-            Guid guid = ChargeStationResponse.DeviceId.StringToGuid();
+            ChargeStation chargeStation = chargeStationBody.Value;
+            Guid guid = chargeStation.DeviceId.StringToGuid();
             object device = _chargeStationService.IsChargeStationExists(guid);
             if (device != DBNull.Value)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DuplicateRecordFound));
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.AddChargeStation(ChargeStationResponse));
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.AddChargeStation(chargeStation));
+        }
+        [FunctionName("UpdateChargeStation")]
+        public HttpResponseMessage Put(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-stations")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler)
+        {
+            var chargeStationBody = httpRequestMessage.GetBodyAsync<ChargeStation>();
+            if (!httpRequestMessage.IsAuthorized())
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            if (!chargeStationBody.IsValid)
+                return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", chargeStationBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
+            ChargeStation chargeStation = chargeStationBody.Value;
+            Guid guid = Guid.Parse(chargeStation.Id);
+            object device = _chargeStationService.IsChargeStationExists(guid);
+            if (device == DBNull.Value)
+                return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DeviceNotRegistered));
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, guid));
         }
     }
 }

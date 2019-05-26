@@ -56,10 +56,28 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public object IsChargeStationExists(Guid guid)
         {
-            if (_baseService.GetById(guid) == null)
+            var chargeStation = _baseService.GetById(guid);
+            if (chargeStation == null)
                 return DBNull.Value;
             else
-                return _baseService.GetById(guid).Id;
+                return chargeStation.Id;
+        }
+
+        public Guid UpdateChargeStation(ChargeStationModel chargeStationModel, Guid guid)
+        {
+            if (chargeStationModel == null)
+            {
+                return default(Guid);
+            }
+            string[] excludedProps = { "Uid" };
+            ChargeStation chargeStation = _baseService.GetById(guid);
+            if (chargeStation != null)
+            {
+                chargeStation.MerchantId = chargeStationModel.MerchantId;
+                chargeStation.ModifiedDate = DateTime.Now;
+            }
+            ChargeStation model = _baseService.AddOrUpdate(chargeStation, guid, excludedProps);
+            return model.Id;
         }
     }
 }
