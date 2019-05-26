@@ -75,9 +75,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 chargeStation.MerchantId = chargeStationModel.MerchantId;
                 chargeStation.ModifiedDate = DateTime.Now;
-                chargeStation.ChargeControllerId = chargeStationModel.ChargeControllerId;
-                chargeStation.Geolocation = chargeStationModel.Geolocation;
-                chargeStation.DeviceId = chargeStationModel.DeviceId;
             }
             ChargeStation model = _baseService.AddOrUpdate(chargeStation, guid, excludedProps);
             return model.Id;
