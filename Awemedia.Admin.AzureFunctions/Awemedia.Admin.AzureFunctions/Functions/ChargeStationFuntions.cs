@@ -53,14 +53,17 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
         [FunctionName("UpdateChargeStation")]
         public HttpResponseMessage Put(
-           [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-stations")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler)
+           [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-stations/{chargeStationId}/{merchantId}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, string merchantId, string chargeStationId)
         {
-            var chargeStationBody = httpRequestMessage.GetBodyAsync<ChargeStation>();
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            if (!chargeStationBody.IsValid)
-                return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", chargeStationBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
-            ChargeStation chargeStation = chargeStationBody.Value;
+            if (string.IsNullOrEmpty(merchantId) || string.IsNullOrEmpty(chargeStationId))
+                return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+            ChargeStation chargeStation = new ChargeStation
+            {
+                Id = chargeStationId,
+                MerchantId = merchantId
+            };
             Guid guid = Guid.Parse(chargeStation.Id);
             object device = _chargeStationService.IsChargeStationExists(guid);
             if (device == DBNull.Value)
