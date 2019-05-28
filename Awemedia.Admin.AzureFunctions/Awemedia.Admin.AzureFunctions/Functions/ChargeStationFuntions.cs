@@ -15,6 +15,7 @@ using Awemedia.Admin.AzureFunctions.Resolver;
 using Awemedia.Chargestation.AzureFunctions.Extensions;
 using Awemedia.Admin.AzureFunctions.Business.Helpers;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
@@ -53,15 +54,18 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
         [FunctionName("UpdateChargeStation")]
         public HttpResponseMessage Put(
-           [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-stations")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler)
+           [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-stations/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, string chargeStationId)
         {
-            var chargeStationBody = httpRequestMessage.GetBodyAsync<ChargeStation>();
+            var merchantId = JObject.Parse(httpRequestMessage.Content.ReadAsStringAsync().Result);
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            if (!chargeStationBody.IsValid)
-                return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", chargeStationBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
-            ChargeStation chargeStation = chargeStationBody.Value;
-            Guid guid = Guid.Parse(chargeStation.Id);
+            if (string.IsNullOrEmpty(merchantId["MerchantId"].ToString()))
+                httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+            Guid guid = Guid.Parse(chargeStationId);
+            ChargeStation chargeStation = new ChargeStation
+            {
+                MerchantId = merchantId["MerchantId"].ToString()
+            };
             object device = _chargeStationService.IsChargeStationExists(guid);
             if (device == DBNull.Value)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DeviceNotRegistered));
