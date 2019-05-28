@@ -15,6 +15,7 @@ using Awemedia.Admin.AzureFunctions.Resolver;
 using Awemedia.Chargestation.AzureFunctions.Extensions;
 using Awemedia.Admin.AzureFunctions.Business.Helpers;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
@@ -53,18 +54,18 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
         [FunctionName("UpdateChargeStation")]
         public HttpResponseMessage Put(
-           [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-stations/{chargeStationId}/{merchantId}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, string merchantId, string chargeStationId)
+           [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-stations/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, string chargeStationId)
         {
+            var merchantId = JObject.Parse(httpRequestMessage.Content.ReadAsStringAsync().Result);
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            if (string.IsNullOrEmpty(merchantId) || string.IsNullOrEmpty(chargeStationId))
-                return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+            if (string.IsNullOrEmpty(merchantId["MerchantId"].ToString()))
+                httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+            Guid guid = Guid.Parse(chargeStationId);
             ChargeStation chargeStation = new ChargeStation
             {
-                Id = chargeStationId,
-                MerchantId = merchantId
+                MerchantId = merchantId["MerchantId"].ToString()
             };
-            Guid guid = Guid.Parse(chargeStation.Id);
             object device = _chargeStationService.IsChargeStationExists(guid);
             if (device == DBNull.Value)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DeviceNotRegistered));
