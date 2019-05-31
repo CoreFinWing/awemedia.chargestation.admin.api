@@ -11,11 +11,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public int Id { get; set; }
         [Required]
         public string BusinessName { get; set; }
-        public string LicenseNum { get; set; }
+        public string LicenseNumber { get; set; }
         public string Dba { get; set; }
         public string ContactName { get; set; }
         [Required]
-        public string PhoneNum { get; set; }
+        public string PhoneNumber { get; set; }
         [Required]
         public string Email { get; set; }
         public string ProfitSharePercentage { get; set; }
