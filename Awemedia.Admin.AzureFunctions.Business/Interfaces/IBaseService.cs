@@ -9,6 +9,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
     public interface IBaseService<T>
     {
         IEnumerable<T> GetAll();
+        IEnumerable<T> GetAll(params string[] includes);
         T GetById(int id);
         T GetById(Guid guid);
         IEnumerable<T> Where(Expression<Func<T, bool>> exp);

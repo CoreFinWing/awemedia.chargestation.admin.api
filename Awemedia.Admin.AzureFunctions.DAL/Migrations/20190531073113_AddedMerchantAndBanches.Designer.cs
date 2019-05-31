@@ -4,14 +4,16 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    partial class AwemediaContextModelSnapshot : ModelSnapshot
+    [Migration("20190531073113_AddedMerchantAndBanches")]
+    partial class AddedMerchantAndBanches
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

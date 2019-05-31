@@ -26,14 +26,14 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage GetFiltered(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-stations")] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationService, [Inject]IErrorHandler errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
-            {
-                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            }
-            ChargeStationSearchFilter _chargeStationSearchFilter = null;
+            //if (!httpRequestMessage.IsAuthorized())
+            //{
+            //    return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            //}
+            BaseSearchFilter _chargeStationSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
-                _chargeStationSearchFilter = queryDictionary.ToObject<ChargeStationSearchFilter>();
+                _chargeStationSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.Get(_chargeStationSearchFilter));
         }
         [FunctionName("AddChargeStation")]

@@ -20,7 +20,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return _repository.GetAll();
         }
-
+        public IEnumerable<T> GetAll(params string[] include)
+        {
+            return _repository.GetAll(include);
+        }
         public T GetById(int id)
         {
             return _repository.GetById(id);

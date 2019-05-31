@@ -30,6 +30,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
         {
             return _entities.ToList();
         }
+        public IEnumerable<T> GetAll(params string[] include)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            foreach (string item in include)
+            {
+                query = query.Include(item);
+            }
+            return query.ToList();
+        }
         public T GetById(int id)
         {
             return _entities.Find(id);
@@ -49,7 +58,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
         public void Update(T entity, [Optional] string[] excludedProps)
         {
             if (entity == null) throw new ArgumentNullException(string.Format(_errorHandler.GetMessage(ErrorMessagesEnum.EntityNull), "", "Input data is null"));
-         
+
             _context.Entry(entity).State = EntityState.Modified;
             if (excludedProps != null)
             {
@@ -61,7 +70,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
                     }
                 }
             }
-            
+
             _context.SaveChanges();
         }
         public void Delete(T entity)
