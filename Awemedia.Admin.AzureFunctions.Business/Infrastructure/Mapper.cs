@@ -68,7 +68,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
         {
             return new Models.Merchant()
             {
-                BusinessName = merchant.BusinessName,
+                RegisteredBusinessName = merchant.BusinessName,
                 ChargeStationsOrdered = merchant.ChargeStationsOrdered,
                 Dba = merchant.Dba,
                 DepositMoneyPaid = merchant.DepositMoneyPaid,
