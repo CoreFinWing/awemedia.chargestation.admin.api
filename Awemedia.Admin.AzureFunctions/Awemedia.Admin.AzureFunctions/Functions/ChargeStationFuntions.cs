@@ -30,10 +30,10 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
-            ChargeStationSearchFilter _chargeStationSearchFilter = null;
+            BaseSearchFilter _chargeStationSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
-                _chargeStationSearchFilter = queryDictionary.ToObject<ChargeStationSearchFilter>();
+                _chargeStationSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.Get(_chargeStationSearchFilter));
         }
         [FunctionName("AddChargeStation")]

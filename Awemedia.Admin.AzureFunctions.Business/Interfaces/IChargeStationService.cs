@@ -7,7 +7,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
 {
     public interface IChargeStationService
     {
-        IEnumerable<ChargeStation> Get(ChargeStationSearchFilter chargeStationSearchFilter);
+        IEnumerable<ChargeStation> Get(BaseSearchFilter chargeStationSearchFilter);
         Guid AddChargeStation(ChargeStation chargeStation, Guid guid = new Guid());
         Guid UpdateChargeStation(ChargeStation chargeStation,Guid guid);
         object IsChargeStationExists(Guid guid);

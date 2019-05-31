@@ -21,7 +21,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _baseService = baseService;
         }
 
-        public IEnumerable<ChargeStationModel> Get(ChargeStationSearchFilter chargeStationSearchFilter)
+        public IEnumerable<ChargeStationModel> Get(BaseSearchFilter chargeStationSearchFilter)
         {
             Expression<Func<ChargeStation, bool>> exp = null;
             IQueryable<ChargeStationModel> chargeStations = _baseService.GetAll().Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
@@ -40,7 +40,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             return chargeStations.ToList();
         }
 
-        private static Expression<Func<ChargeStation, bool>> GetFilteredBySearch(ChargeStationSearchFilter chargeStationSearchFilter)
+        private static Expression<Func<ChargeStation, bool>> GetFilteredBySearch(BaseSearchFilter chargeStationSearchFilter)
         {
             return e => e.ChargeControllerId.ToLower().Contains(chargeStationSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search) || e.Geolocation.ToLower().Contains(chargeStationSearchFilter.Search) || e.Id.ToString().ToLower().Contains(chargeStationSearchFilter.Search) || e.MerchantId.ToLower().Contains(chargeStationSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search);
         }

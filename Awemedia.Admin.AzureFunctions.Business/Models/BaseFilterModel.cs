@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
-    public class ChargeStationSearchFilter
+    public class BaseSearchFilter
     {
         public string Start { get; set; }
         public string Size { get; set; }
