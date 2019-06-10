@@ -9,6 +9,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
     {
         IEnumerable<ChargeOption> Get(bool isActive=true);
         bool Add(ChargeOption chargeOption, out bool isDuplicateRecord, int id = 0);
-        void MarkActiveInActive(List<BaseChargeOptionsFilterModel> baseChargeOptionsFilterResponses);
+        void MarkActiveInActive(List<BaseDeletionModel> baseChargeOptionsFilterResponses);
     }
 }

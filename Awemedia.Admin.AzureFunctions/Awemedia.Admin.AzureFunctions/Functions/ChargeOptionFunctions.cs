@@ -60,12 +60,12 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage Put(
             [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-options")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionService _chargeOptionService, [Inject]IErrorHandler _errorHandler)
         {
-            var baseChargeOptionsFilterModelbody = httpRequestMessage.GetBodyAsync<List<BaseChargeOptionsFilterModel>>();
+            var baseChargeOptionsFilterModelbody = httpRequestMessage.GetBodyAsync<List<BaseDeletionModel>>();
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (!baseChargeOptionsFilterModelbody.IsValid)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", baseChargeOptionsFilterModelbody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
-            List<BaseChargeOptionsFilterModel> baseChargeOptionsResponses = baseChargeOptionsFilterModelbody.Value;
+            List<BaseDeletionModel> baseChargeOptionsResponses = baseChargeOptionsFilterModelbody.Value;
             _chargeOptionService.MarkActiveInActive(baseChargeOptionsResponses);
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }

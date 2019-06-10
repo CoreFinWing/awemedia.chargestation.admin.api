@@ -36,7 +36,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             }
         }
 
-        public void MarkActiveInActive(List<BaseChargeOptionsFilterModel> baseChargeOptionsFilterResponses)
+        public void MarkActiveInActive(List<BaseDeletionModel> baseChargeOptionsFilterResponses)
         {
             if (baseChargeOptionsFilterResponses != null)
             {

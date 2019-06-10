@@ -27,6 +27,7 @@ namespace Awemedia.Admin.AzureFunctions.Resolver
                 builder.RegisterType<ChargeStationService>().As<IChargeStationService>();
                 builder.RegisterType<ChargeOptionsService>().As<IChargeOptionService>();
                 builder.RegisterType<MerchantService>().As<IMerchantService>();
+                builder.RegisterType<BranchService>().As<IBranchService>();
             }, functionName);
         }
     }

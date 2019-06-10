@@ -43,6 +43,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
         {
             return _entities.Find(id);
         }
+        public T GetById(int id, params string[] include)
+        {
+            var entity = _entities.Find(id);
+            foreach (string item in include)
+            {
+                _context.Entry(entity).Collection(item).Load();
+            }
+            return entity;
+        }
 
         public IEnumerable<T> Where(Expression<Func<T, bool>> exp)
         {
