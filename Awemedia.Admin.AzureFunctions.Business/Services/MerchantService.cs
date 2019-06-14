@@ -16,11 +16,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     public class MerchantService : IMerchantService
     {
         private readonly IBaseService<Merchant> _baseService;
-        private readonly IBranchService _branchService;
-        public MerchantService(IBaseService<Merchant> baseService, IBranchService branchService)
+        public MerchantService(IBaseService<Merchant> baseService)
         {
             _baseService = baseService;
-            _branchService = branchService;
         }
         public IEnumerable<MerchantModel> Get(BaseSearchFilter merchantSearchFilter)
         {
@@ -50,22 +48,19 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 return 0;
             }
-            Merchant merchant = _baseService.AddOrUpdate(MappingProfile.MapMerchantObject(merchantModel, new DAL.DataContracts.Merchant()), 0);
+            var merchant = _baseService.AddOrUpdate(MappingProfile.MapMerchantObject(merchantModel, new DAL.DataContracts.Merchant()), 0);
             merchantModel.Id = merchant.Id;
-            _branchService.AddBranch(merchantModel.Branch.ToList(), merchantModel.Id);
             return merchant.Id;
         }
 
         public void UpdateMerchant(MerchantModel merchantModel, int id)
         {
-            Merchant merchant = _baseService.GetById(id);
+            var merchant = _baseService.GetById(id);
             if (merchant != null)
             {
-                _branchService.UpdateBranch(merchantModel.Branch.ToList(), 0);
                 _baseService.AddOrUpdate(MappingProfile.MapMerchantObject(merchantModel, merchant), id);
             }
         }
-
         public object IsMerchantExists(int id)
         {
             var merchant = _baseService.GetById(id);
@@ -74,28 +69,52 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             else
                 return merchant.Id;
         }
-        public void MarkActiveInActive(List<BaseDeletionModel> baseDeletionModels)
+        public void MarkActiveInActive(dynamic merchantsToSetActiveInActive)
         {
-            if (baseDeletionModels != null)
+            if (merchantsToSetActiveInActive != null)
             {
-                if (baseDeletionModels.Any())
+                if (merchantsToSetActiveInActive.Length > 0)
                 {
-                    foreach (var item in baseDeletionModels)
+                    foreach (var item in merchantsToSetActiveInActive)
                     {
-                        DAL.DataContracts.Merchant merchant = _baseService.GetById(item.Id, "Branch");
+                        int merchantId = Convert.ToInt32(item.GetType().GetProperty("Id").GetValue(item, null));
+                        bool IsActive = Convert.ToBoolean(item.GetType().GetProperty("IsActive").GetValue(item, null));
+                        var merchant = _baseService.GetById(merchantId, "Branch");
                         if (merchant != null)
                         {
-                            merchant.IsActive = item.IsActive;
+                            merchant.IsActive = IsActive;
                             merchant.ModifiedDate = DateTime.Now;
+                            if (IsActive)
+                                merchant.NumOfActiveLocations = merchant.Branch.Count;
+                            else
+                                merchant.NumOfActiveLocations = 0;
                             if (merchant.Branch.Count > 0)
                             {
-                                _branchService.MarkActiveInActive(merchant.Branch.ToList(), item.IsActive);
+                                foreach (var branch in merchant.Branch)
+                                {
+                                    branch.IsActive = IsActive;
+                                    branch.ModifiedDate = DateTime.Now;
+                                }
                             }
-                            _baseService.AddOrUpdate(merchant, item.Id);
+                            _baseService.AddOrUpdate(merchant, merchantId);
                         }
                     }
                 }
             }
+        }
+        public void UpdateLocationCount(int count, int merchantId)
+        {
+            var merchant = _baseService.GetById(merchantId);
+            if (merchant != null)
+            {
+                merchant.NumOfActiveLocations = count;
+                _baseService.AddOrUpdate(merchant, merchantId);
+            }
+        }
+
+        public Merchant GetById(int id)
+        {
+            return _baseService.GetById(id);
         }
     }
 }

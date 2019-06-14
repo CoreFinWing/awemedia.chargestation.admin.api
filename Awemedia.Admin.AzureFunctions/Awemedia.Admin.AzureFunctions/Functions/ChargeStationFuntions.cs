@@ -34,7 +34,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _chargeStationSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.Get(_chargeStationSearchFilter));
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _chargeStationService.Get(_chargeStationSearchFilter), total = _chargeStationService.Get(_chargeStationSearchFilter).Count()});
         }
         [FunctionName("AddChargeStation")]
         public HttpResponseMessage Post(

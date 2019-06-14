@@ -20,6 +20,7 @@ using Awemedia.Admin.AzureFunctions.Extensions;
 using Awemedia.Chargestation.AzureFunctions.Extensions;
 using Awemedia.Admin.AzureFunctions.Resolver;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
@@ -38,7 +39,17 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _merchantSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _merchantService.Get(_merchantSearchFilter));
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _merchantService.Get(_merchantSearchFilter), total = _merchantService.Get(_merchantSearchFilter).Count() });
+        }
+        [FunctionName("merchant")]
+        public HttpResponseMessage GetById(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "merchants/{Id}")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler, int Id)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _merchantService.GetById(Id));
         }
         [FunctionName("AddMerchant")]
         public HttpResponseMessage Post(
@@ -52,28 +63,24 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             if (!merchantBody.IsValid)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", merchantBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
             Merchant merchant = merchantBody.Value;
-            if (merchant.Branch != null)
-            {
-                if (merchant.Branch.Count > 0)
-                {
-                    return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _merchantService.AddMerchant(merchant));
-                }
-            }
-            return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.BranchIsRequired));
-
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _merchantService.AddMerchant(merchant));
         }
         [FunctionName("Active_InActive_Merchant")]
         public HttpResponseMessage Patch(
             [HttpTrigger(AuthorizationLevel.Anonymous, "Patch", Route = "merchants/mark_active_inactive")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler)
         {
-            var baseDeletionModelbody = httpRequestMessage.GetBodyAsync<List<BaseDeletionModel>>();
+            var jsonContent = httpRequestMessage.Content.ReadAsStringAsync().Result;
+            var definition = new[] { new { Id = "", IsActive = "" } };
+            var merchantsSetToActiveInActive = JsonConvert.DeserializeAnonymousType(jsonContent, definition);
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            if (!baseDeletionModelbody.IsValid)
-                return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", baseDeletionModelbody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
-            List<BaseDeletionModel> baseChargeOptionsResponses = baseDeletionModelbody.Value;
-            _merchantService.MarkActiveInActive(baseChargeOptionsResponses);
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
+            if (merchantsSetToActiveInActive.Count() > 0)
+            {
+                _merchantService.MarkActiveInActive(merchantsSetToActiveInActive);
+                return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
+            }
+            return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+
         }
         [FunctionName("UpdateMerchant")]
         public HttpResponseMessage Put(
@@ -87,15 +94,8 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             if (id <= 0)
                 httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
             Merchant merchant = merchantBody.Value;
-            if (merchant.Branch != null)
-            {
-                if (merchant.Branch.Count > 0)
-                {
-                    _merchantService.UpdateMerchant(merchant, id);
-                    return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
-                }
-            }
-            return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.BranchIsRequired));
+            _merchantService.UpdateMerchant(merchant, id);
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }
     }
 }

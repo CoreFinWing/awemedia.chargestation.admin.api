@@ -26,6 +26,5 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string SecondaryPhone { get; set; }
         public string IndustryName { get; set; }
         public IndustryType IndustryType { get; set; }
-        public ICollection<Branch> Branch { get; set; }
     }
 }

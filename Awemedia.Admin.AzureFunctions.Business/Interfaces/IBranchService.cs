@@ -7,9 +7,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
 {
     public interface IBranchService
     {
-        IEnumerable<Branch> Get();
-        void AddBranch(List<Branch> branches,int merchantId);
-        void UpdateBranch(List<Branch> branches, int branchId);
-        void MarkActiveInActive(List<DAL.DataContracts.Branch> branches,bool IsActive);
+        IEnumerable<Branch> Get(BaseSearchFilter chargeStationSearchFilter);
+        void AddBranch(Branch branch, int merchantId);
+        void UpdateBranch(Branch branchModel, int id);
+        void MarkActiveInActive(dynamic branchesSetToActiveInActive);
+        Branch GetById(int id);
     }
 }

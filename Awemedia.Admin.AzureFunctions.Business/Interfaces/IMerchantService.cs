@@ -11,6 +11,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
         int AddMerchant(Merchant merchantModel, int id = 0);
         void UpdateMerchant(Merchant merchantModel, int id);
         object IsMerchantExists(int id);
-        void MarkActiveInActive(List<BaseDeletionModel> baseChargeOptionsFilterResponses);
+        void MarkActiveInActive(dynamic merchantsToSetActiveInActive);
+        void UpdateLocationCount(int count,int merchantId);
+        DAL.DataContracts.Merchant GetById(int id);
     }
 }

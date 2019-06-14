@@ -83,8 +83,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 SecondaryContact = merchant.SecondaryContact,
                 SecondaryPhone = merchant.SecondaryPhone,
                 CreatedDate = merchant.CreatedDate.GetValueOrDefault(),
-                ModifiedDate = merchant.ModifiedDate.GetValueOrDefault(),
-                Branch = MapBranchModelObject(merchant.Branch.ToList())
+                ModifiedDate = merchant.ModifiedDate.GetValueOrDefault()
             };
         }
         public static DAL.DataContracts.Merchant MapMerchantObject(Models.Merchant merchant, DAL.DataContracts.Merchant _merchant)
@@ -107,7 +106,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _merchant.IsActive = true;
             return _merchant;
         }
-        public static ICollection<Models.Branch> MapBranchModelObject(List<DAL.DataContracts.Branch> branch)
+        public static ICollection<Models.Branch> MapBranchModelsObject(List<DAL.DataContracts.Branch> branch)
         {
             Models.Branch _branch = null;
             List<Models.Branch> branches = new List<Models.Branch>();
@@ -155,7 +154,22 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             return _branch;
 
         }
-
+        public static Models.Branch MapBranchModelObject(DAL.DataContracts.Branch branch)
+        {
+            return new Models.Branch()
+            {
+                Address=branch.Address,
+                ContactName=branch.ContactName,
+                CreatedDate=branch.CreatedDate.GetValueOrDefault(),
+                Email=branch.Email,
+                Geolocation=branch.Geolocation,
+                Id=branch.Id,
+                MerchantId=branch.MerchantId,
+                ModifiedDate=branch.ModifiedDate.GetValueOrDefault(),
+                Name=branch.Name,
+                PhoneNum=branch.PhoneNum,
+            };
+        }
         private static Guid StringToGuid(string value)
         {
             var md5 = MD5.Create();

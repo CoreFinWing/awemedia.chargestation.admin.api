@@ -46,10 +46,10 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             _errorHandler = new ErrorHandler();
             _branchRepository = new BaseRepository<Branch>(context, _errorHandler);
             _branchBaseService = new BaseService<Branch>(_branchRepository);
-            _branchService = new BranchService(_branchBaseService);
+            _branchService = new BranchService(_branchBaseService,_merchantService);
             _repository = new BaseRepository<Merchant>(context, _errorHandler);
             _merchantBaseService = new BaseService<Merchant>(_repository);
-            _merchantService = new MerchantService(_merchantBaseService, _branchService);
+            _merchantService = new MerchantService(_merchantBaseService);
             merchantFunctions = new MerchantFunctions();
         }
         [Fact]
