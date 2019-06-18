@@ -21,6 +21,7 @@ using Awemedia.Admin.AzureFunctions.Business.Helpers;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.WebUtilities;
+using Awemedia.Admin.AzureFunctions.Extensions;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
@@ -31,15 +32,15 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-options")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionService _chargeOptionService, [Inject]IErrorHandler _errorHandler)
         {
-            bool IsActive = false;
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            BaseSearchFilter _chargeOptionSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count > 0)
             {
-                IsActive = Convert.ToBoolean(queryDictionary.Values.ElementAt(0).ToString());
+                _chargeOptionSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
             }
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeOptionService.Get(IsActive));
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _chargeOptionService.Get(_chargeOptionSearchFilter, Convert.ToBoolean(String.IsNullOrEmpty(_chargeOptionSearchFilter.IsActive) == true ? "false" : _chargeOptionSearchFilter.IsActive)), total = _chargeOptionService.Get(_chargeOptionSearchFilter, Convert.ToBoolean(String.IsNullOrEmpty(_chargeOptionSearchFilter.IsActive) == true ? "false" : _chargeOptionSearchFilter.IsActive)).Count() });
         }
         [FunctionName("AddChargeOptions")]
         public HttpResponseMessage Post(
@@ -60,14 +61,17 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage Put(
             [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-options")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionService _chargeOptionService, [Inject]IErrorHandler _errorHandler)
         {
-            var baseChargeOptionsFilterModelbody = httpRequestMessage.GetBodyAsync<List<BaseChargeOptionsFilterModel>>();
+            var jsonContent = httpRequestMessage.Content.ReadAsStringAsync().Result;
+            var definition = new[] { new { Id = "", IsActive = "" } };
+            var optionsSetToActiveInActive = JsonConvert.DeserializeAnonymousType(jsonContent, definition);
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            if (!baseChargeOptionsFilterModelbody.IsValid)
-                return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", baseChargeOptionsFilterModelbody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
-            List<BaseChargeOptionsFilterModel> baseChargeOptionsResponses = baseChargeOptionsFilterModelbody.Value;
-            _chargeOptionService.MarkActiveInActive(baseChargeOptionsResponses);
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
+            if (optionsSetToActiveInActive.Length > 0)
+            {
+                _chargeOptionService.MarkActiveInActive(optionsSetToActiveInActive);
+                return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
+            }
+            return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
         }
     }
 }

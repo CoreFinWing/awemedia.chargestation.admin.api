@@ -1,12 +1,12 @@
 ﻿using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Business.Models;
-using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Linq.Expressions;
+using System.Linq.Dynamic.Core;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
@@ -25,8 +25,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 return false;
             try
             {
-                DAL.DataContracts.ChargeOptions chargeOptions = _baseService.AddOrUpdate((DAL.DataContracts.ChargeOptions)MappingProfile.MapChargeOptionsObjects(chargeOptionsResponse), id);
-                return chargeOptions == null ? false : true;
+                return _baseService.AddOrUpdate(MappingProfile.MapChargeOptionsObjects(chargeOptionsResponse), id) == null ? false : true;
             }
             catch (DbUpdateException ex)
             {
@@ -36,31 +35,53 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             }
         }
 
-        public void MarkActiveInActive(List<BaseChargeOptionsFilterModel> baseChargeOptionsFilterResponses)
+        public void MarkActiveInActive(dynamic optionsSetToActiveInActive)
         {
-            if (baseChargeOptionsFilterResponses != null)
+            if (optionsSetToActiveInActive != null)
             {
-                if (baseChargeOptionsFilterResponses.Any())
+                if (optionsSetToActiveInActive.Length > 0)
                 {
-                    foreach (var item in baseChargeOptionsFilterResponses)
+                    foreach (var item in optionsSetToActiveInActive)
                     {
-                        DAL.DataContracts.ChargeOptions chargeOption = _baseService.GetById(item.Id);
+                        int chargeOptionId = Convert.ToInt32(item.GetType().GetProperty("Id").GetValue(item, null));
+                        bool IsActive = Convert.ToBoolean(item.GetType().GetProperty("IsActive").GetValue(item, null));
+                        var chargeOption = _baseService.GetById(chargeOptionId);
                         if (chargeOption != null)
                         {
-                            chargeOption.IsActive = item.IsActive;
+                            chargeOption.IsActive = IsActive;
                             chargeOption.ModifiedDate = DateTime.Now;
-                            _baseService.AddOrUpdate(chargeOption, item.Id);
+                            _baseService.AddOrUpdate(chargeOption, chargeOptionId);
                         }
                     }
                 }
             }
         }
-        public IEnumerable<ChargeOption> Get(bool isActive = true)
+        public IEnumerable<ChargeOption> Get(BaseSearchFilter chargeOptionSearchFilter, bool isActive = true)
         {
+            Expression<Func<DAL.DataContracts.ChargeOptions, bool>> exp = null;
+            IQueryable<ChargeOption> chargeOptions = _baseService.GetAll().Select(t => MappingProfile.MapChargeOptionsResponseObjects(t)).AsQueryable();
+            if (chargeOptionSearchFilter != null)
+
+            {
+                if (!string.IsNullOrEmpty(chargeOptionSearchFilter.Search))
+                {
+                    chargeOptionSearchFilter.Search = chargeOptionSearchFilter.Search.ToLower();
+                    exp = GetFilteredBySearch(chargeOptionSearchFilter);
+                    chargeOptions = _baseService.Where(exp).Select(t => MappingProfile.MapChargeOptionsResponseObjects(t)).AsQueryable();
+                }
+                chargeOptions = chargeOptions.OrderBy(chargeOptionSearchFilter.Order + (Convert.ToBoolean(chargeOptionSearchFilter.Dir) ? " descending" : ""));
+                chargeOptions = chargeOptions.Skip((Convert.ToInt32(chargeOptionSearchFilter.Start) - 1) * Convert.ToInt32(chargeOptionSearchFilter.Size)).Take(Convert.ToInt32(chargeOptionSearchFilter.Size));
+            }
             if (isActive)
-                return _baseService.GetAll().Select(t => MappingProfile.MapChargeOptionsResponseObjects(t)).Where(item => item.IsActive.Equals(isActive));
+                return chargeOptions.Where(item => item.IsActive.Equals(isActive)).ToList();
             else
-                return _baseService.GetAll().Select(t => MappingProfile.MapChargeOptionsResponseObjects(t));
+                return chargeOptions.ToList();
+
+
+        }
+        private static Expression<Func<DAL.DataContracts.ChargeOptions, bool>> GetFilteredBySearch(BaseSearchFilter chargeOptionsSearchFilter)
+        {
+            return e => e.ChargeDuration.ToLower().Contains(chargeOptionsSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Currency.ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Id.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Price.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search);
         }
     }
 }

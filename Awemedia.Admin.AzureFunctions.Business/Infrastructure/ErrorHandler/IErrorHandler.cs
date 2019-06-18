@@ -25,6 +25,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler
         DeviceNotRegistered=13,
         NoCacheHeaderFound=14,
         DuplicateRecordFound=15,
-        BodyNotFound=16
+        BodyNotFound=16,
+        BranchIsRequired=17
     }
 }

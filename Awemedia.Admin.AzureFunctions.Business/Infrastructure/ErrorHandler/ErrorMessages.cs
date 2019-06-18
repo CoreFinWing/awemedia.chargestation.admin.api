@@ -50,6 +50,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler
                     return "Duplicate Record Found";
                 case ErrorMessagesEnum.BodyNotFound:
                     return "Request Body not found";
+                case ErrorMessagesEnum.BranchIsRequired:
+                    return "Merchant shoud have atleast one branch.";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(message), message, null);
             }

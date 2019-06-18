@@ -28,5 +28,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public DateTime? ModifiedDate { get; set; }
         public IndustryType IndustryType { get; set; }
         public ICollection<Branch> Branch { get; set; }
+        public bool IsActive { get; set; }
+        public int NumOfActiveLocations { get; set; }
     }
 }

@@ -70,7 +70,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 return default(Guid);
             }
             string[] excludedProps = { "Uid" };
-            ChargeStation chargeStation = _baseService.GetById(guid);
+            var chargeStation = _baseService.GetById(guid);
             if (chargeStation != null)
             {
                 chargeStation.MerchantId = chargeStationModel.MerchantId;

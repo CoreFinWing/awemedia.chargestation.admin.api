@@ -40,18 +40,27 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         private static Expression<Func<Merchant, bool>> GetFilteredBySearch(BaseSearchFilter merchantSearchFilter)
         {
-            return e => e.BusinessName.ToLower().Contains(merchantSearchFilter.Search) || e.ChargeStationsOrdered.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.Dba.ToLower().Contains(merchantSearchFilter.Search) || e.Id.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.DepositMoneyPaid.ToLower().Contains(merchantSearchFilter.Search) || e.Email.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.LicenseNum.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(merchantSearchFilter.Search) ||  e.ContactName.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.PhoneNum.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.ProfitSharePercentage.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.SecondaryContact.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.SecondaryPhone.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.IndustryType.Name.ToString().ToLower().Contains(merchantSearchFilter.Search);
+            return e => e.BusinessName.ToLower().Contains(merchantSearchFilter.Search) || e.ChargeStationsOrdered.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.Dba.ToLower().Contains(merchantSearchFilter.Search) || e.Id.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.DepositMoneyPaid.ToLower().Contains(merchantSearchFilter.Search) || e.Email.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.LicenseNum.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.ContactName.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.PhoneNum.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.ProfitSharePercentage.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.SecondaryContact.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.SecondaryPhone.ToString().ToLower().Contains(merchantSearchFilter.Search) || e.IndustryType.Name.ToString().ToLower().Contains(merchantSearchFilter.Search);
         }
-        public int AddChargeStation(MerchantModel merchantModel, int id = 0)
+        public int AddMerchant(MerchantModel merchantModel, int id = 0)
         {
-            throw new NotImplementedException();
+            if (merchantModel == null)
+            {
+                return 0;
+            }
+            var merchant = _baseService.AddOrUpdate(MappingProfile.MapMerchantObject(merchantModel, new DAL.DataContracts.Merchant()), 0);
+            merchantModel.Id = merchant.Id;
+            return merchant.Id;
         }
 
-        public int UpdateChargeStation(MerchantModel merchantModel, int id)
+        public void UpdateMerchant(MerchantModel merchantModel, int id)
         {
-            throw new NotImplementedException();
+            var merchant = _baseService.GetById(id);
+            if (merchant != null)
+            {
+                _baseService.AddOrUpdate(MappingProfile.MapMerchantObject(merchantModel, merchant), id);
+            }
         }
-
         public object IsMerchantExists(int id)
         {
             var merchant = _baseService.GetById(id);
@@ -59,6 +68,53 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 return DBNull.Value;
             else
                 return merchant.Id;
+        }
+        public void MarkActiveInActive(dynamic merchantsToSetActiveInActive)
+        {
+            if (merchantsToSetActiveInActive != null)
+            {
+                if (merchantsToSetActiveInActive.Length > 0)
+                {
+                    foreach (var item in merchantsToSetActiveInActive)
+                    {
+                        int merchantId = Convert.ToInt32(item.GetType().GetProperty("Id").GetValue(item, null));
+                        bool IsActive = Convert.ToBoolean(item.GetType().GetProperty("IsActive").GetValue(item, null));
+                        var merchant = _baseService.GetById(merchantId, "Branch");
+                        if (merchant != null)
+                        {
+                            merchant.IsActive = IsActive;
+                            merchant.ModifiedDate = DateTime.Now;
+                            if (IsActive)
+                                merchant.NumOfActiveLocations = merchant.Branch.Count;
+                            else
+                                merchant.NumOfActiveLocations = 0;
+                            if (merchant.Branch.Count > 0)
+                            {
+                                foreach (var branch in merchant.Branch)
+                                {
+                                    branch.IsActive = IsActive;
+                                    branch.ModifiedDate = DateTime.Now;
+                                }
+                            }
+                            _baseService.AddOrUpdate(merchant, merchantId);
+                        }
+                    }
+                }
+            }
+        }
+        public void UpdateLocationCount(int count, int merchantId)
+        {
+            var merchant = _baseService.GetById(merchantId);
+            if (merchant != null)
+            {
+                merchant.NumOfActiveLocations = count;
+                _baseService.AddOrUpdate(merchant, merchantId);
+            }
+        }
+
+        public Merchant GetById(int id)
+        {
+            return _baseService.GetById(id);
         }
     }
 }

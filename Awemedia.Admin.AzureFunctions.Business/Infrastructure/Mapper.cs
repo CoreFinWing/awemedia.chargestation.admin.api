@@ -82,12 +82,31 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ProfitSharePercentage = merchant.ProfitSharePercentage,
                 SecondaryContact = merchant.SecondaryContact,
                 SecondaryPhone = merchant.SecondaryPhone,
-                CreatedDate=merchant.CreatedDate.GetValueOrDefault(),
-                ModifiedDate=merchant.ModifiedDate.GetValueOrDefault(),
-                Branch = MapBranchModelObject(merchant.Branch.ToList())
+                CreatedDate = merchant.CreatedDate.GetValueOrDefault(),
+                ModifiedDate = merchant.ModifiedDate.GetValueOrDefault()
             };
         }
-        public static ICollection<Models.Branch> MapBranchModelObject(List<DAL.DataContracts.Branch> branch)
+        public static DAL.DataContracts.Merchant MapMerchantObject(Models.Merchant merchant, DAL.DataContracts.Merchant _merchant)
+        {
+            _merchant.BusinessName = merchant.RegisteredBusinessName;
+            _merchant.ChargeStationsOrdered = merchant.ChargeStationsOrdered;
+            _merchant.Dba = merchant.Dba;
+            _merchant.DepositMoneyPaid = merchant.DepositMoneyPaid;
+            _merchant.Email = merchant.Email;
+            _merchant.Id = merchant.Id;
+            _merchant.IndustryTypeId = merchant.IndustryTypeId;
+            _merchant.LicenseNum = merchant.LicenseNumber;
+            _merchant.ContactName = merchant.ContactName;
+            _merchant.PhoneNum = merchant.PhoneNumber;
+            _merchant.ProfitSharePercentage = merchant.ProfitSharePercentage;
+            _merchant.SecondaryContact = merchant.SecondaryContact;
+            _merchant.SecondaryPhone = merchant.SecondaryPhone;
+            _merchant.CreatedDate = DateTime.Now;
+            _merchant.ModifiedDate = DateTime.Now;
+            _merchant.IsActive = true;
+            return _merchant;
+        }
+        public static ICollection<Models.Branch> MapBranchModelsObject(List<DAL.DataContracts.Branch> branch)
         {
             Models.Branch _branch = null;
             List<Models.Branch> branches = new List<Models.Branch>();
@@ -117,7 +136,40 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             return branches;
 
         }
-       
+
+        public static DAL.DataContracts.Branch MapBranchObject(Models.Branch branch, DAL.DataContracts.Branch _branch)
+        {
+
+            _branch.Address = branch.Address;
+            _branch.ContactName = branch.ContactName;
+            _branch.CreatedDate = DateTime.Now;
+            _branch.Email = branch.Email;
+            _branch.Geolocation = branch.Geolocation;
+            _branch.MerchantId = branch.MerchantId;
+            _branch.ModifiedDate = DateTime.Now;
+            _branch.Name = branch.Name;
+            _branch.PhoneNum = branch.PhoneNum;
+            _branch.Id = branch.Id;
+            _branch.IsActive = true;
+            return _branch;
+
+        }
+        public static Models.Branch MapBranchModelObject(DAL.DataContracts.Branch branch)
+        {
+            return new Models.Branch()
+            {
+                Address=branch.Address,
+                ContactName=branch.ContactName,
+                CreatedDate=branch.CreatedDate.GetValueOrDefault(),
+                Email=branch.Email,
+                Geolocation=branch.Geolocation,
+                Id=branch.Id,
+                MerchantId=branch.MerchantId,
+                ModifiedDate=branch.ModifiedDate.GetValueOrDefault(),
+                Name=branch.Name,
+                PhoneNum=branch.PhoneNum,
+            };
+        }
         private static Guid StringToGuid(string value)
         {
             var md5 = MD5.Create();

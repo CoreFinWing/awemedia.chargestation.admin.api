@@ -11,10 +11,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
         IEnumerable<T> GetAll();
         IEnumerable<T> GetAll(params string[] includes);
         T GetById(int id);
+        T GetById(int id, params string[] includes);
         T GetById(Guid guid);
         IEnumerable<T> Where(Expression<Func<T, bool>> exp);
         T AddOrUpdate(T entry, int Id);
         T AddOrUpdate(T entry, Guid guid, [Optional]string[] excludedProps);
+        T AddOrUpdate(T entry, int Id, [Optional]string[] excludedProps);
         void Remove(int id);
         bool InsertBulk(IEnumerable<T> entity);
     }

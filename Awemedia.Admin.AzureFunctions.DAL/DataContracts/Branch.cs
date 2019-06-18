@@ -16,7 +16,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public DateTime? ModifiedDate { get; set; }
         public int MerchantId { get; set; }
         public string Geolocation { get; set; }
-
+        public bool IsActive { get; set; }
         public Merchant Merchant { get; set; }
     }
 }

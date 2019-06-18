@@ -20,12 +20,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string Email { get; set; }
         public string ProfitSharePercentage { get; set; }
         public string ChargeStationsOrdered { get; set; }
-        public string DepositMoneyPaid { get; set; }
+        public string DepositMoneyPaid { get; set; }    
         public int? IndustryTypeId { get; set; }
         public string SecondaryContact { get; set; }
         public string SecondaryPhone { get; set; }
         public string IndustryName { get; set; }
         public IndustryType IndustryType { get; set; }
-        public ICollection<Branch> Branch { get; set; }
     }
 }

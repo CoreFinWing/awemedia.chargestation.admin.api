@@ -11,5 +11,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string Order { get; set; }
         public string Dir { get; set; }
         public string Search { get; set; }
+        public string IsActive { get; set; }
     }
 }
