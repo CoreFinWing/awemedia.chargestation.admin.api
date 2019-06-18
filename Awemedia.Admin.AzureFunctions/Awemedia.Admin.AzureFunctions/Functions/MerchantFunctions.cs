@@ -67,7 +67,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
         [FunctionName("Active_InActive_Merchant")]
         public HttpResponseMessage Patch(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "Patch", Route = "merchants/mark_active_inactive")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "Patch", Route = "merchants")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler)
         {
             var jsonContent = httpRequestMessage.Content.ReadAsStringAsync().Result;
             var definition = new[] { new { Id = "", IsActive = "" } };

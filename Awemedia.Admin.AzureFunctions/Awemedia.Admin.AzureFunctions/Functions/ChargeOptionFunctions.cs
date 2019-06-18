@@ -30,7 +30,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
     {
         [FunctionName("charge-options")]
         public HttpResponseMessage Get(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-options/{IsActive}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionService _chargeOptionService, [Inject]IErrorHandler _errorHandler, bool IsActive)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-options")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionService _chargeOptionService, [Inject]IErrorHandler _errorHandler)
         {
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
@@ -40,7 +40,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             {
                 _chargeOptionSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
             }
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _chargeOptionService.Get(_chargeOptionSearchFilter, IsActive), total = _chargeOptionService.Get(_chargeOptionSearchFilter, IsActive).Count() });
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _chargeOptionService.Get(_chargeOptionSearchFilter, Convert.ToBoolean(String.IsNullOrEmpty(_chargeOptionSearchFilter.IsActive) == true ? "false" : _chargeOptionSearchFilter.IsActive)), total = _chargeOptionService.Get(_chargeOptionSearchFilter, Convert.ToBoolean(String.IsNullOrEmpty(_chargeOptionSearchFilter.IsActive) == true ? "false" : _chargeOptionSearchFilter.IsActive)).Count() });
         }
         [FunctionName("AddChargeOptions")]
         public HttpResponseMessage Post(
