@@ -7,7 +7,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
 {
     public interface IBranchService
     {
-        IEnumerable<Branch> Get(BaseSearchFilter chargeStationSearchFilter);
+        IEnumerable<Branch> Get(BaseSearchFilter chargeStationSearchFilter,out int totalRecords);
         void AddBranch(Branch branch, int merchantId);
         void UpdateBranch(Branch branchModel, int id);
         void MarkActiveInActive(dynamic branchesSetToActiveInActive);

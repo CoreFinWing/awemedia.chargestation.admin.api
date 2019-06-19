@@ -39,7 +39,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _merchantSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _merchantService.Get(_merchantSearchFilter), total = _merchantService.Get(_merchantSearchFilter).Count() });
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _merchantService.Get(_merchantSearchFilter, out int totalRecords), total = totalRecords });
         }
         [FunctionName("merchant")]
         public HttpResponseMessage GetById(

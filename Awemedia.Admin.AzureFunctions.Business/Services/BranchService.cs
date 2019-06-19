@@ -30,10 +30,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 _merchantService.UpdateLocationCount(activeLocationCount, merchantId);
             }
         }
-        public IEnumerable<Branch> Get(BaseSearchFilter branchSearchFilter)
+        public IEnumerable<Branch> Get(BaseSearchFilter branchSearchFilter, out int totalRecords)
         {
             Expression<Func<DAL.DataContracts.Branch, bool>> exp = null;
+            totalRecords = 0;
             IQueryable<Branch> branches = _baseService.GetAll().Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
+            totalRecords = branches.Count();
             if (branchSearchFilter != null)
             {
                 if (!string.IsNullOrEmpty(branchSearchFilter.Search))

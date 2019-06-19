@@ -7,7 +7,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
 {
     public interface IChargeOptionService
     {
-        IEnumerable<ChargeOption> Get(BaseSearchFilter chargeOptionSearchFilter, bool isActive = true);
+        IEnumerable<ChargeOption> Get(BaseSearchFilter chargeOptionSearchFilter, out int totalRecords, bool isActive = true);
         bool Add(ChargeOption chargeOption, out bool isDuplicateRecord, int id = 0);
         void MarkActiveInActive(dynamic optionsSetToActiveInActive);
     }

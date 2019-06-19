@@ -56,10 +56,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 }
             }
         }
-        public IEnumerable<ChargeOption> Get(BaseSearchFilter chargeOptionSearchFilter, bool isActive = true)
+        public IEnumerable<ChargeOption> Get(BaseSearchFilter chargeOptionSearchFilter, out int totalRecords, bool isActive = true)
         {
             Expression<Func<DAL.DataContracts.ChargeOptions, bool>> exp = null;
+            totalRecords = 0;
             IQueryable<ChargeOption> chargeOptions = _baseService.GetAll().Select(t => MappingProfile.MapChargeOptionsResponseObjects(t)).AsQueryable();
+            totalRecords = chargeOptions.Count();
             if (chargeOptionSearchFilter != null)
 
             {

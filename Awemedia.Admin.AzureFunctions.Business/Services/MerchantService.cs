@@ -20,10 +20,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             _baseService = baseService;
         }
-        public IEnumerable<MerchantModel> Get(BaseSearchFilter merchantSearchFilter)
+        public IEnumerable<MerchantModel> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords)
         {
             Expression<Func<Merchant, bool>> exp = null;
+            totalRecords = 0;
             IQueryable<MerchantModel> merchants = _baseService.GetAll("Branch", "IndustryType").Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
+            totalRecords = merchants.Count();
             if (merchantSearchFilter != null)
 
             {
