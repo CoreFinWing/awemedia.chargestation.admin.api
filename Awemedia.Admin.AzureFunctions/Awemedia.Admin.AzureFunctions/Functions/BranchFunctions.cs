@@ -38,7 +38,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _branchSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _branchService.Get(_branchSearchFilter), total = _branchService.Get(_branchSearchFilter).Count() });
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _branchService.Get(_branchSearchFilter, out int totalRecords), total = totalRecords });
         }
         [FunctionName("Branch")]
         public HttpResponseMessage GetById(

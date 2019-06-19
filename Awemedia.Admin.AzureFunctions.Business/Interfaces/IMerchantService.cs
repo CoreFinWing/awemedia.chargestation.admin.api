@@ -7,7 +7,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
 {
     public interface IMerchantService
     {
-        IEnumerable<Merchant> Get(BaseSearchFilter merchantSearchFilter);
+        IEnumerable<Merchant> Get(BaseSearchFilter merchantSearchFilter,out int totalRecords);
         int AddMerchant(Merchant merchantModel, int id = 0);
         void UpdateMerchant(Merchant merchantModel, int id);
         object IsMerchantExists(int id);

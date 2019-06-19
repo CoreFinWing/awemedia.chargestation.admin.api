@@ -21,10 +21,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _baseService = baseService;
         }
 
-        public IEnumerable<ChargeStationModel> Get(BaseSearchFilter chargeStationSearchFilter)
+        public IEnumerable<ChargeStationModel> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords)
         {
             Expression<Func<ChargeStation, bool>> exp = null;
+            totalRecords = 0;
             IQueryable<ChargeStationModel> chargeStations = _baseService.GetAll().Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+            totalRecords = chargeStations.Count();
             if (chargeStationSearchFilter != null)
 
             {
