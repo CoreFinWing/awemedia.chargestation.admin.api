@@ -34,20 +34,26 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             Expression<Func<DAL.DataContracts.Branch, bool>> exp = null;
             totalRecords = 0;
-            IQueryable<Branch> branches = _baseService.GetAll().Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
+            IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll().AsQueryable();
             totalRecords = branches.Count();
             if (branchSearchFilter != null)
             {
+                if (!string.IsNullOrEmpty(branchSearchFilter.MerchantId))
+                {
+                    int merchantId = Convert.ToInt32(branchSearchFilter.MerchantId);
+                    branches = _baseService.Where(m => m.MerchantId.Equals(merchantId)).AsQueryable();
+                    totalRecords = branches.Count();
+                }
                 if (!string.IsNullOrEmpty(branchSearchFilter.Search))
                 {
                     branchSearchFilter.Search = branchSearchFilter.Search.ToLower();
                     exp = GetFilteredBySearch(branchSearchFilter);
-                    branches = _baseService.Where(exp).Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
+                    branches = branches.Where(exp).AsQueryable();
                 }
                 branches = branches.OrderBy(branchSearchFilter.Order + (Convert.ToBoolean(branchSearchFilter.Dir) ? " descending" : ""));
                 branches = branches.Skip((Convert.ToInt32(branchSearchFilter.Start) - 1) * Convert.ToInt32(branchSearchFilter.Size)).Take(Convert.ToInt32(branchSearchFilter.Size));
             }
-            return branches.ToList();
+            return branches.Select(t => MappingProfile.MapBranchModelObject(t)).ToList();
         }
         private static Expression<Func<DAL.DataContracts.Branch, bool>> GetFilteredBySearch(BaseSearchFilter branchSearchFilter)
         {
