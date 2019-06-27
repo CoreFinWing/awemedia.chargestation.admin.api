@@ -61,8 +61,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             Expression<Func<DAL.DataContracts.ChargeOptions, bool>> exp = null;
             totalRecords = 0;
             IQueryable<ChargeOption> chargeOptions = _baseService.GetAll().Select(t => MappingProfile.MapChargeOptionsResponseObjects(t)).AsQueryable();
+            totalRecords = chargeOptions.Count();
             if (isActive)
+            {
                 chargeOptions = chargeOptions.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                totalRecords = chargeOptions.Count();
+            }
             if (chargeOptionSearchFilter != null)
             {
                 if (!string.IsNullOrEmpty(chargeOptionSearchFilter.Search))
@@ -74,7 +78,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 chargeOptions = chargeOptions.OrderBy(chargeOptionSearchFilter.Order + (Convert.ToBoolean(chargeOptionSearchFilter.Dir) ? " descending" : ""));
                 chargeOptions = chargeOptions.Skip((Convert.ToInt32(chargeOptionSearchFilter.Start) - 1) * Convert.ToInt32(chargeOptionSearchFilter.Size)).Take(Convert.ToInt32(chargeOptionSearchFilter.Size));
             }
-            totalRecords = chargeOptions.Count();
+
             return chargeOptions.ToList();
         }
         private static Expression<Func<DAL.DataContracts.ChargeOptions, bool>> GetFilteredBySearch(BaseSearchFilter chargeOptionsSearchFilter)
