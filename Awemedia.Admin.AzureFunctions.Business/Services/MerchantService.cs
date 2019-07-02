@@ -58,9 +58,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public void UpdateMerchant(MerchantModel merchantModel, int id)
         {
             var merchant = _baseService.GetById(id);
+            string[] excludedProps = { "Id" };
             if (merchant != null)
             {
-                _baseService.AddOrUpdate(MappingProfile.MapMerchantObject(merchantModel, merchant), id);
+                merchantModel.Id = id;
+                _baseService.AddOrUpdate(MappingProfile.MapMerchantObject(merchantModel, merchant), id, excludedProps);
             }
         }
         public object IsMerchantExists(int id)
