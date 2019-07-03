@@ -101,7 +101,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _merchant.ProfitSharePercentage = merchant.ProfitSharePercentage;
             _merchant.SecondaryContact = merchant.SecondaryContact;
             _merchant.SecondaryPhone = merchant.SecondaryPhone;
-            _merchant.CreatedDate = DateTime.Now;
+            _merchant.CreatedDate = merchant.CreatedDate;
             _merchant.ModifiedDate = DateTime.Now;
             _merchant.IsActive = true;
             return _merchant;
@@ -158,16 +158,16 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
         {
             return new Models.Branch()
             {
-                Address=branch.Address,
-                ContactName=branch.ContactName,
-                CreatedDate=branch.CreatedDate.GetValueOrDefault(),
-                Email=branch.Email,
-                Geolocation=branch.Geolocation,
-                Id=branch.Id,
-                MerchantId=branch.MerchantId,
-                ModifiedDate=branch.ModifiedDate.GetValueOrDefault(),
-                Name=branch.Name,
-                PhoneNum=branch.PhoneNum,
+                Address = branch.Address,
+                ContactName = branch.ContactName,
+                CreatedDate = branch.CreatedDate.GetValueOrDefault(),
+                Email = branch.Email,
+                Geolocation = branch.Geolocation,
+                Id = branch.Id,
+                MerchantId = branch.MerchantId,
+                ModifiedDate = branch.ModifiedDate.GetValueOrDefault(),
+                Name = branch.Name,
+                PhoneNum = branch.PhoneNum,
             };
         }
         private static Guid StringToGuid(string value)
