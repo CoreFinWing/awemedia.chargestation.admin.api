@@ -81,5 +81,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             ChargeStation model = _baseService.AddOrUpdate(chargeStation, guid, excludedProps);
             return model.Id;
         }
+        public DAL.DataContracts.ChargeStation GetById(Guid guid)
+        {
+            return _baseService.GetById(guid);
+        }
     }
 }
