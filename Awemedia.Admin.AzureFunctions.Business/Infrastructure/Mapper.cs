@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -170,11 +171,22 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 PhoneNum = branch.PhoneNum,
             };
         }
-        private static Guid StringToGuid(string value)
+        public static Guid StringToGuid(string value)
         {
             var md5 = MD5.Create();
             var hash = md5.ComputeHash(Encoding.Default.GetBytes(value));
             return new Guid(hash);
+        }
+        public static DAL.DataContracts.Notification MapNotificationResponseObject(Business.Models.Notification notificationResponse)
+        {
+            return new DAL.DataContracts.Notification()
+            {
+                DeviceId = notificationResponse.DeviceId,
+                LoggedDateTime = DateTime.Now,
+                DeviceToken = notificationResponse.DeviceToken,
+                NotificationResult = notificationResponse.NotificationResult,
+                Payload = JsonConvert.SerializeObject(notificationResponse.Payload)
+            };
         }
     }
 }

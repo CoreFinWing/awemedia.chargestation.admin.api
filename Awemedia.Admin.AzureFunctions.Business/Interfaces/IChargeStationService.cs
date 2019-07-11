@@ -11,5 +11,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
         Guid AddChargeStation(ChargeStation chargeStation, Guid guid = new Guid());
         Guid UpdateChargeStation(ChargeStation chargeStation,Guid guid);
         object IsChargeStationExists(Guid guid);
+        AzureFunctions.DAL.DataContracts.ChargeStation GetById(Guid guid);
+        AzureFunctions.DAL.DataContracts.ChargeStation GetById(int id);
     }
 }
