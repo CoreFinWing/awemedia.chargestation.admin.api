@@ -71,5 +71,33 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DeviceNotRegistered));
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, guid));
         }
+
+        [FunctionName("start-charge")]
+        public HttpResponseMessage Get(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "charge-stations/{id}/start-charge")] HttpRequestMessage httpRequestMessage, [Inject]INotificationService _notificationService, [Inject] IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, string id)
+        {
+            var notificationPayloadBody = httpRequestMessage.GetBodyAsync<NotificationPayload>();
+            if (!httpRequestMessage.IsAuthorized())
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            if (!notificationPayloadBody.IsValid)
+                return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", notificationPayloadBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
+            NotificationPayload notificationPayload = notificationPayloadBody.Value;
+            notificationPayload.Command = "Start Charge";
+            var maxDuration = Environment.GetEnvironmentVariable("MaxDuration");
+            if (Convert.ToInt32(notificationPayload.CommandParams["Duration"]) <= Convert.ToInt32(maxDuration))
+            {
+                var chargeStation = _chargeStationService.GetById(Convert.ToInt32(id));
+                Notification paymentNotification = new Notification
+                {
+                    DeviceId = chargeStation.DeviceId,
+                    LoggedDateTime = DateTime.Now,
+                    Payload = notificationPayload,
+                    NotificationTitle = "Payment status notification."
+                };
+                _notificationService.SendNotification(paymentNotification);
+                return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
+            }
+            return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, "Validation Failed.");
+        }
     }
 }

@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
-   public class NotificationPayload
+    public class NotificationPayload
     {
-        public CommandParams CommandParams { get; set; }
+        public Dictionary<string, string> CommandParams { get; set; }
         public string Command { get; set; }
     }
 }

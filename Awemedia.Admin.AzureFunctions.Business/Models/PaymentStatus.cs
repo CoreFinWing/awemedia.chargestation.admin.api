@@ -24,9 +24,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string MerchantAccountCode { get; set; }
         [Required]
         public string Note { get; set; }
-        [Required]
-        public string Duration { get; set; }
-        [Required]
-        public int PortCount { get; set; }
+        public Dictionary<string, string> Params { get; set; }
     }
 }

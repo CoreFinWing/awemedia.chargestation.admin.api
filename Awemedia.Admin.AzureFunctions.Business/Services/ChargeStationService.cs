@@ -85,5 +85,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return _baseService.GetById(guid);
         }
+        public DAL.DataContracts.ChargeStation GetById(int id)
+        {
+            return _baseService.Where(c => c.Uid.Equals(id)).FirstOrDefault();
+        }
     }
 }
