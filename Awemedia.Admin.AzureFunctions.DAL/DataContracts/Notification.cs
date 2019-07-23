@@ -11,5 +11,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public DateTime LoggedDateTime { get; set; }
         public string DeviceId { get; set; }
         public string NotificationResult { get; set; }
+        public string Status { get; set; }
     }
 }
