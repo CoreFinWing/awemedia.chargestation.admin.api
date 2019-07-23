@@ -104,7 +104,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _merchant.ProfitSharePercentage = merchant.ProfitSharePercentage;
             _merchant.SecondaryContact = merchant.SecondaryContact;
             _merchant.SecondaryPhone = merchant.SecondaryPhone;
+            _merchant.CreatedDate = merchant.Id == 0 ? DateTime.Now : merchant.CreatedDate;
             _merchant.ModifiedDate = DateTime.Now;
+            _merchant.IsActive = true;
             return _merchant;
         }
         public static ICollection<Models.Branch> MapBranchModelsObject(List<DAL.DataContracts.Branch> branch)
