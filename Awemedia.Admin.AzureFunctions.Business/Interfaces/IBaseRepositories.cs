@@ -11,7 +11,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
         IEnumerable<T> GetAll();
         IEnumerable<T> GetAll(params string[] includes);
         T GetById(int id);
-        T GetById(int id, params string[] includes);
+        T GetById(int id, [Optional]string[] includeNavigational,[Optional] string[] includes);
         T GetById(Guid guid);
         IEnumerable<T> Where(Expression<Func<T, bool>> exp);
         T Insert(T entity);

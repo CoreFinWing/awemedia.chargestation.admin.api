@@ -16,6 +16,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     public class MerchantService : IMerchantService
     {
         private readonly IBaseService<Merchant> _baseService;
+        readonly string[] navigationalProperties = new string[] { "IndustryType" };
+        readonly string[] includedProperties = new string[] { "Branch" };
         public MerchantService(IBaseService<Merchant> baseService)
         {
             _baseService = baseService;
@@ -81,9 +83,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 {
                     foreach (var item in merchantsToSetActiveInActive)
                     {
+
                         int merchantId = Convert.ToInt32(item.GetType().GetProperty("Id").GetValue(item, null));
                         bool IsActive = Convert.ToBoolean(item.GetType().GetProperty("IsActive").GetValue(item, null));
-                        var merchant = _baseService.GetById(merchantId, "Branch");
+                        var merchant = _baseService.GetById(merchantId, navigationalProperties, includedProperties);
                         if (merchant != null)
                         {
                             merchant.IsActive = IsActive;
@@ -116,9 +119,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             }
         }
 
-        public Merchant GetById(int id)
+        public MerchantModel GetById(int id)
         {
-            return _baseService.GetById(id);
+            
+            return MappingProfile.MapMerchantModelObject(_baseService.GetById(id, navigationalProperties, includedProperties));
         }
     }
 }

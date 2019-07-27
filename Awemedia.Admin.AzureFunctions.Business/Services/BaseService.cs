@@ -28,9 +28,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return _repository.GetById(id);
         }
-        public T GetById(int id, params string[] include)
+        public T GetById(int id,string[] navigationalProperties, string[] include)
         {
-            return _repository.GetById(id,include);
+            return _repository.GetById(id, navigationalProperties,include);
         }
 
         public IEnumerable<T> Where(Expression<Func<T, bool>> exp)

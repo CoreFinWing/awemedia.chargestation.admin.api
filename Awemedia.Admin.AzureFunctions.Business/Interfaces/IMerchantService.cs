@@ -13,6 +13,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
         object IsMerchantExists(int id);
         void MarkActiveInActive(dynamic merchantsToSetActiveInActive);
         void UpdateLocationCount(int count,int merchantId);
-        DAL.DataContracts.Merchant GetById(int id);
+        Merchant GetById(int id);
     }
 }

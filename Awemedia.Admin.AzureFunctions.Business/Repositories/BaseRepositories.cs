@@ -43,9 +43,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
         {
             return _entities.Find(id);
         }
-        public T GetById(int id, params string[] include)
+        public T GetById(int id, string[] includeNavigational, string[] include)
         {
             var entity = _entities.Find(id);
+            foreach (string item in includeNavigational)
+            {
+                _context.Entry(entity).Navigation(item).Load();
+            }
             foreach (string item in include)
             {
                 _context.Entry(entity).Collection(item).Load();

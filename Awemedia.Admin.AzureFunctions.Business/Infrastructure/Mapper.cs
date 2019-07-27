@@ -75,7 +75,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 DepositMoneyPaid = merchant.DepositMoneyPaid,
                 Email = merchant.Email,
                 Id = merchant.Id,
-                IndustryName = merchant.IndustryType.Name,
+                IndustryName = merchant.IndustryType == null ? null : merchant.IndustryType.Name,
                 IndustryTypeId = merchant.IndustryTypeId,
                 LicenseNumber = merchant.LicenseNum,
                 ContactName = merchant.ContactName,
@@ -84,7 +84,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 SecondaryContact = merchant.SecondaryContact,
                 SecondaryPhone = merchant.SecondaryPhone,
                 CreatedDate = merchant.CreatedDate.GetValueOrDefault(),
-                ModifiedDate = merchant.ModifiedDate.GetValueOrDefault()
+                ModifiedDate = merchant.ModifiedDate.GetValueOrDefault(),
+                Branch = MapBranchModelsObject(merchant.Branch.ToList()),
+                IsActive = merchant.IsActive,
+                NumOfActiveLocations = merchant.NumOfActiveLocations
             };
         }
         public static DAL.DataContracts.Merchant MapMerchantObject(Models.Merchant merchant, DAL.DataContracts.Merchant _merchant)
@@ -102,7 +105,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _merchant.ProfitSharePercentage = merchant.ProfitSharePercentage;
             _merchant.SecondaryContact = merchant.SecondaryContact;
             _merchant.SecondaryPhone = merchant.SecondaryPhone;
-            _merchant.CreatedDate = merchant.CreatedDate;
+            _merchant.CreatedDate = merchant.Id == 0 ? DateTime.Now : merchant.CreatedDate;
             _merchant.ModifiedDate = DateTime.Now;
             _merchant.IsActive = true;
             return _merchant;
@@ -111,9 +114,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
         {
             Models.Branch _branch = null;
             List<Models.Branch> branches = new List<Models.Branch>();
-            foreach (var item in branch)
+            if (branch != null)
             {
-                if (branch != null)
+                foreach (var item in branch)
                 {
                     if (branch.Any())
                     {
