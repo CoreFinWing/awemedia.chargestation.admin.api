@@ -23,12 +23,15 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public virtual DbSet<IndustryType> IndustryType { get; set; }
         public virtual DbSet<Merchant> Merchant { get; set; }
         public virtual DbSet<Notification> Notification { get; set; }
+        public virtual DbSet<SessionStatus> SessionStatus { get; set; }
+        public virtual DbSet<SessionType> SessionType { get; set; }
+        public virtual DbSet<UserSession> UserSession { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_staging"));
+                optionsBuilder.UseSqlServer("Server=tcp:awemedia-chargestation-sqlsvr-test.database.windows.net,1433;Initial Catalog=awemedia-chargestation-db-test;Persist Security Info=False;User ID=it-admin;Password=sdf@23Yusda;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
             }
         }
 
@@ -77,10 +80,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<ChargeOptions>(entity =>
             {
-                entity.HasIndex(e => new { e.ChargeDuration, e.Price, e.Currency })
-                    .HasName("IX_ChargeOptions")
-                    .IsUnique();
-
                 entity.Property(e => e.ChargeDuration)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -100,14 +99,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<ChargeStation>(entity =>
             {
-                entity.HasIndex(e => e.DeviceId)
-                    .HasName("IX_ChargeStations_DeviceId")
-                    .IsUnique();
-
-                entity.HasIndex(e => e.Uid)
-                    .HasName("IX_ChargeStations_UID")
-                    .IsUnique();
-
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.ChargeControllerId)
@@ -140,9 +131,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<Events>(entity =>
             {
-                entity.HasIndex(e => e.EventTypeId)
-                    .HasName("fkIdx_Events_EventType");
-
                 entity.Property(e => e.DateTime)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -267,6 +255,85 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 entity.Property(e => e.Payload)
                     .IsRequired()
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<SessionStatus>(entity =>
+            {
+                entity.Property(e => e.Status)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<SessionType>(entity =>
+            {
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<UserSession>(entity =>
+            {
+                entity.HasIndex(e => e.SessionStatus)
+                    .HasName("fkIdx_SessionStatus");
+
+                entity.HasIndex(e => e.SessionType)
+                    .HasName("fkIdx_SessionType");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.AppKey)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ApplicationId)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ChargeParams)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ChargeRentalRevnue).HasColumnType("money");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.DeviceId)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.InvoiceNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.SessionEndTime).HasColumnType("datetime");
+
+                entity.Property(e => e.SessionStartTime).HasColumnType("datetime");
+
+                entity.Property(e => e.TransactionId)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UserAccountId)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.SessionStatusNavigation)
+                    .WithMany(p => p.UserSession)
+                    .HasForeignKey(d => d.SessionStatus)
+                    .HasConstraintName("FK_SessionStatus_UserSession");
+
+                entity.HasOne(d => d.SessionTypeNavigation)
+                    .WithMany(p => p.UserSession)
+                    .HasForeignKey(d => d.SessionType)
+                    .HasConstraintName("FK_SessionType_UserSession");
             });
         }
     }
