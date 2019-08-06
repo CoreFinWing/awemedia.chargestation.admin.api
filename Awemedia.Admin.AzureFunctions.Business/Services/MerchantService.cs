@@ -121,7 +121,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         public MerchantModel GetById(int id)
         {
-            
             return MappingProfile.MapMerchantModelObject(_baseService.GetById(id, navigationalProperties, includedProperties));
         }
     }

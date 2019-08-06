@@ -27,6 +27,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             totalRecords = 0;
             IQueryable<ChargeStationModel> chargeStations = _baseService.GetAll().Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
             totalRecords = chargeStations.Count();
+            if (!string.IsNullOrEmpty(chargeStationSearchFilter.MerchantId))
+            {
+                chargeStations = chargeStations.Where(m => m.MerchantId.Equals(chargeStationSearchFilter.MerchantId.ToString())).AsQueryable();
+                totalRecords = chargeStations.Count();
+            }
             if (chargeStationSearchFilter != null)
 
             {
