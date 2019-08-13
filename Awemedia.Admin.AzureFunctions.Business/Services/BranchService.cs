@@ -65,10 +65,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             string[] excludedProps = { "Id", "MerchantId" };
             if (branchModel != null)
             {
-                var branch = _baseService.GetById(branchModel.Id);
+                branchModel.Id = id;
+                var branch = _baseService.GetById(id);
                 if (branch != null)
                 {
-                    _baseService.AddOrUpdate(MappingProfile.MapBranchObject(branchModel, branch), branchModel.Id, excludedProps);
+                    _baseService.AddOrUpdate(MappingProfile.MapBranchObject(branchModel, branch), id, excludedProps);
                 }
             }
         }
