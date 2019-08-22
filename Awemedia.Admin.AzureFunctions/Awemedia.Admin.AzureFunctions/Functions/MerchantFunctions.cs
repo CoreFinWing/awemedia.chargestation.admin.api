@@ -97,9 +97,9 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             _merchantService.UpdateMerchant(merchant, id);
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }
-        [FunctionName("Search")]
+        [FunctionName("AutoCompleteSearchMerchant")]
         public HttpResponseMessage Search(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "merchant-search")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auto-complete-search-merchant")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler)
         {
             if (!httpRequestMessage.IsAuthorized())
             {
