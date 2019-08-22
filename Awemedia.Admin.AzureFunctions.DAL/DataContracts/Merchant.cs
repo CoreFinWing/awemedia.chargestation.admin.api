@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 {
@@ -26,9 +25,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public string SecondaryPhone { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
-        public IndustryType IndustryType { get; set; }
-        public ICollection<Branch> Branch { get; set; }
         public bool IsActive { get; set; }
         public int NumOfActiveLocations { get; set; }
+
+        public IndustryType IndustryType { get; set; }
+        public ICollection<Branch> Branch { get; set; }
     }
 }

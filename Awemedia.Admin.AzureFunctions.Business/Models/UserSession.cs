@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
-namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
+namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
-    public partial class UserSession
+    public class UserSession
     {
         public Guid Id { get; set; }
         public decimal? ChargeRentalRevnue { get; set; }
@@ -18,11 +19,12 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public string AppKey { get; set; }
         public string UserAccountId { get; set; }
         public string Email { get; set; }
-        public int? SessionType { get; set; }
-        public int? SessionStatus { get; set; }
+        public string SessionType { get; set; }
+        public string SessionStatus { get; set; }
         public string ChargeParams { get; set; }
         public string Mobile { get; set; }
         public Guid? ChargeStationId { get; set; }
+        public string MerchantName { get; set; }
 
         public ChargeStation ChargeStation { get; set; }
         public SessionStatus SessionStatusNavigation { get; set; }

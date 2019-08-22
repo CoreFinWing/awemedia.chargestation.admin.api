@@ -20,10 +20,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 CreatedDate = chargeStation.CreatedDate,
                 Geolocation = chargeStation.Geolocation,
                 Id = chargeStation.Id.ToString(),
-                MerchantId = chargeStation.MerchantId,
+                BranchId = chargeStation.BranchId.GetValueOrDefault(),
                 ModifiedDate = chargeStation.ModifiedDate,
                 DeviceId = chargeStation.DeviceId,
-                Uid = chargeStation.Uid
+                Uid = chargeStation.Uid,
+                MerchantName = chargeStation.Branch.Merchant.BusinessName,
+                Branch = MapBranchModelObject(chargeStation.Branch)
             };
         }
         public static Models.ChargeOption MapChargeOptionsResponseObjects(DAL.DataContracts.ChargeOptions chargeOptions)
@@ -60,7 +62,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 CreatedDate = DateTime.Now,
                 Geolocation = chargeStationResponse.Geolocation,
                 Id = StringToGuid(chargeStationResponse.DeviceId),
-                MerchantId = chargeStationResponse.MerchantId,
+                BranchId = chargeStationResponse.BranchId,
                 ModifiedDate = DateTime.Now,
                 DeviceId = chargeStationResponse.DeviceId
             };
@@ -172,6 +174,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ModifiedDate = branch.ModifiedDate.GetValueOrDefault(),
                 Name = branch.Name,
                 PhoneNum = branch.PhoneNum,
+                Merchant = MapMerchantModelObject(branch.Merchant),
+                MerchantName=branch.Merchant.BusinessName
             };
         }
         public static Guid StringToGuid(string value)
@@ -189,6 +193,32 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 DeviceToken = notificationResponse.DeviceToken,
                 NotificationResult = notificationResponse.NotificationResult,
                 Payload = JsonConvert.SerializeObject(notificationResponse.Payload)
+            };
+        }
+        public static Models.UserSession MapUserSessionModelObject(DAL.DataContracts.UserSession userSession)
+        {
+            return new Models.UserSession()
+            {
+                AppKey = userSession.AppKey,
+                ApplicationId = userSession.ApplicationId,
+                ChargeParams = userSession.ChargeParams,
+                ChargeRentalRevnue = userSession.ChargeRentalRevnue,
+                ChargeStation = MapChargeStationResponseObject(userSession.ChargeStation),
+                ChargeStationId = userSession.ChargeStationId,
+                CreatedDate = userSession.CreatedDate,
+                DeviceId = userSession.DeviceId,
+                Email = userSession.Email,
+                Id = userSession.Id,
+                InvoiceNo = userSession.InvoiceNo,
+                Mobile = userSession.Mobile,
+                ModifiedDate = userSession.ModifiedDate,
+                SessionEndTime = userSession.SessionEndTime,
+                SessionStartTime = userSession.SessionStartTime,
+                SessionStatus = userSession.SessionStatusNavigation.Status,
+                SessionType = userSession.SessionTypeNavigation.Type,
+                TransactionId = userSession.TransactionId,
+                UserAccountId = userSession.UserAccountId,
+                MerchantName = userSession.ChargeStation.Branch.Merchant.BusinessName
             };
         }
     }

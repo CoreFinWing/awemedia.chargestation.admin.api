@@ -34,16 +34,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             Expression<Func<DAL.DataContracts.Branch, bool>> exp = null;
             totalRecords = 0;
-            IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll().AsQueryable();
+            IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").AsQueryable();
             totalRecords = branches.Count();
             if (branchSearchFilter != null)
             {
-                if (!string.IsNullOrEmpty(branchSearchFilter.MerchantId))
-                {
-                    int merchantId = Convert.ToInt32(branchSearchFilter.MerchantId);
-                    branches = _baseService.Where(m => m.MerchantId.Equals(merchantId)).AsQueryable();
-                    totalRecords = branches.Count();
-                }
                 if (!string.IsNullOrEmpty(branchSearchFilter.Search))
                 {
                     branchSearchFilter.Search = branchSearchFilter.Search.ToLower();

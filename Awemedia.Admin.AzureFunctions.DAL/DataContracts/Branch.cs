@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 {
     public partial class Branch
     {
+        public Branch()
+        {
+            ChargeStation = new HashSet<ChargeStation>();
+        }
+
         public int Id { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
@@ -17,6 +21,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public int MerchantId { get; set; }
         public string Geolocation { get; set; }
         public bool IsActive { get; set; }
+
         public Merchant Merchant { get; set; }
+        public ICollection<ChargeStation> ChargeStation { get; set; }
     }
 }

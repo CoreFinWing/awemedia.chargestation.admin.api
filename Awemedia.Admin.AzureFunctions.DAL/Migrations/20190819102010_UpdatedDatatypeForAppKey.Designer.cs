@@ -4,14 +4,16 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    partial class AwemediaContextModelSnapshot : ModelSnapshot
+    [Migration("20190819102010_UpdatedDatatypeForAppKey")]
+    partial class UpdatedDatatypeForAppKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,8 +108,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                 {
                     b.Property<Guid>("Id");
 
-                    b.Property<int?>("BranchId");
-
                     b.Property<string>("ChargeControllerId")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -127,6 +127,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.Property<string>("Geolocation")
                         .IsUnicode(false);
 
+                    b.Property<string>("MerchantId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
+
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("datetime");
 
@@ -136,8 +141,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.ToTable("ChargeStation");
                 });
@@ -381,8 +384,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.Property<decimal?>("ChargeRentalRevnue")
                         .HasColumnType("money");
 
-                    b.Property<Guid?>("ChargeStationId");
-
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
 
@@ -395,10 +396,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .IsUnicode(false);
 
                     b.Property<string>("InvoiceNo")
-                        .HasMaxLength(50)
-                        .IsUnicode(false);
-
-                    b.Property<string>("Mobile")
                         .HasMaxLength(50)
                         .IsUnicode(false);
 
@@ -425,11 +422,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChargeStationId");
+                    b.HasIndex("SessionStatus")
+                        .HasName("fkIdx_SessionStatus");
 
-                    b.HasIndex("SessionStatus");
-
-                    b.HasIndex("SessionType");
+                    b.HasIndex("SessionType")
+                        .HasName("fkIdx_SessionType");
 
                     b.ToTable("UserSession");
                 });
@@ -440,14 +437,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .WithMany("Branch")
                         .HasForeignKey("MerchantId")
                         .HasConstraintName("FK_Branch_Merchant");
-                });
-
-            modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.ChargeStation", b =>
-                {
-                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Branch", "Branch")
-                        .WithMany("ChargeStation")
-                        .HasForeignKey("BranchId")
-                        .HasConstraintName("FK_ChargeStation_Branch");
                 });
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Events", b =>
@@ -468,11 +457,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.UserSession", b =>
                 {
-                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.ChargeStation", "ChargeStation")
-                        .WithMany("UserSession")
-                        .HasForeignKey("ChargeStationId")
-                        .HasConstraintName("FK_UserSession_ChargeStation");
-
                     b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.SessionStatus", "SessionStatusNavigation")
                         .WithMany("UserSession")
                         .HasForeignKey("SessionStatus")

@@ -15,7 +15,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         
         public int MerchantId { get; set; }
         public string Geolocation { get; set; }
-
+        public string MerchantName { get; set; }
         public Merchant Merchant { get; set; }
     }
 }

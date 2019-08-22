@@ -117,16 +117,16 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
                 entity.Property(e => e.Geolocation).IsUnicode(false);
 
-                entity.Property(e => e.MerchantId)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Uid)
                     .HasColumnName("UID")
                     .ValueGeneratedOnAdd();
+
+                entity.HasOne(d => d.Branch)
+                    .WithMany(p => p.ChargeStation)
+                    .HasForeignKey(d => d.BranchId)
+                    .HasConstraintName("FK_ChargeStation_Branch");
             });
 
             modelBuilder.Entity<Events>(entity =>
@@ -275,21 +275,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<UserSession>(entity =>
             {
-                entity.HasIndex(e => e.SessionStatus)
-                    .HasName("fkIdx_SessionStatus");
-
-                entity.HasIndex(e => e.SessionType)
-                    .HasName("fkIdx_SessionType");
-
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.AppKey)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.AppKey).IsUnicode(false);
 
-                entity.Property(e => e.ApplicationId)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.ApplicationId).IsUnicode(false);
 
                 entity.Property(e => e.ChargeParams)
                     .HasMaxLength(50)
@@ -311,6 +301,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
+                entity.Property(e => e.Mobile)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.SessionEndTime).HasColumnType("datetime");
@@ -324,6 +318,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 entity.Property(e => e.UserAccountId)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.HasOne(d => d.ChargeStation)
+                    .WithMany(p => p.UserSession)
+                    .HasForeignKey(d => d.ChargeStationId)
+                    .HasConstraintName("FK_UserSession_ChargeStation");
 
                 entity.HasOne(d => d.SessionStatusNavigation)
                     .WithMany(p => p.UserSession)
