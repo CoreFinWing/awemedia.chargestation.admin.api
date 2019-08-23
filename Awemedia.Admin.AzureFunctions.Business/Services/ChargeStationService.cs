@@ -25,13 +25,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             Expression<Func<ChargeStation, bool>> exp = null;
             totalRecords = 0;
-            IQueryable<ChargeStationModel> chargeStations = _baseService.GetAll().Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
             totalRecords = chargeStations.Count();
-            if (!string.IsNullOrEmpty(chargeStationSearchFilter.MerchantId))
-            {
-                chargeStations = chargeStations.Where(m => m.MerchantId.Equals(chargeStationSearchFilter.MerchantId.ToString())).AsQueryable();
-                totalRecords = chargeStations.Count();
-            }
+           
             if (chargeStationSearchFilter != null)
 
             {
@@ -39,17 +35,17 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 {
                     chargeStationSearchFilter.Search = chargeStationSearchFilter.Search.ToLower();
                     exp = GetFilteredBySearch(chargeStationSearchFilter);
-                    chargeStations = _baseService.Where(exp).Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+                    chargeStations = chargeStations.Where(exp).AsQueryable();
                 }
                 chargeStations = chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
                 chargeStations = chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
             }
-            return chargeStations.ToList();
+            return chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).ToList();
         }
 
         private static Expression<Func<ChargeStation, bool>> GetFilteredBySearch(BaseSearchFilter chargeStationSearchFilter)
         {
-            return e => e.ChargeControllerId.ToLower().Contains(chargeStationSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search) || e.Geolocation.ToLower().Contains(chargeStationSearchFilter.Search) || e.Id.ToString().ToLower().Contains(chargeStationSearchFilter.Search) || e.MerchantId.ToLower().Contains(chargeStationSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search);
+            return e => e.ChargeControllerId.ToLower().Contains(chargeStationSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search) || e.Geolocation.ToLower().Contains(chargeStationSearchFilter.Search) || e.Id.ToString().ToLower().Contains(chargeStationSearchFilter.Search) ||  e.ModifiedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search)||e.Branch.Merchant.BusinessName.Contains(chargeStationSearchFilter.Search);
         }
 
         public Guid AddChargeStation(ChargeStationModel chargeStation, Guid guid = default(Guid))
@@ -80,7 +76,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             var chargeStation = _baseService.GetById(guid);
             if (chargeStation != null)
             {
-                chargeStation.MerchantId = chargeStationModel.MerchantId;
+                chargeStation.BranchId = chargeStationModel.BranchId;
                 chargeStation.ModifiedDate = DateTime.Now;
             }
             ChargeStation model = _baseService.AddOrUpdate(chargeStation, guid, excludedProps);

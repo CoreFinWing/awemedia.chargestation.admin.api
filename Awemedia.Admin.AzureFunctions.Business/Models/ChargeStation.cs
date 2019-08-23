@@ -13,12 +13,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         [Required]
         public string Geolocation { get; set; }
         [Required]
-        public string MerchantId { get; set; }
+        public int BranchId { get; set; }
         [Required]
         public string ChargeControllerId { get; set; }
         [Required]
         public string DeviceId { get; set; }
         public string DeviceToken { get; set; }
         public int Uid { get; set; }
+        public Branch Branch { get; set; }
+        public string MerchantName { get; set; }
     }
 }

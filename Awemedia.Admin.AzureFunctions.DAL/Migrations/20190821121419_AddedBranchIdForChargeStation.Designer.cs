@@ -4,14 +4,16 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    partial class AwemediaContextModelSnapshot : ModelSnapshot
+    [Migration("20190821121419_AddedBranchIdForChargeStation")]
+    partial class AddedBranchIdForChargeStation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,6 +129,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.Property<string>("Geolocation")
                         .IsUnicode(false);
 
+                    b.Property<int?>("MerchantId");
+
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("datetime");
 
@@ -138,6 +142,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BranchId");
+
+                    b.HasIndex("MerchantId");
 
                     b.ToTable("ChargeStation");
                 });
@@ -448,6 +454,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .WithMany("ChargeStation")
                         .HasForeignKey("BranchId")
                         .HasConstraintName("FK_ChargeStation_Branch");
+
+                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Merchant")
+                        .WithMany("ChargeStation")
+                        .HasForeignKey("MerchantId");
                 });
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Events", b =>

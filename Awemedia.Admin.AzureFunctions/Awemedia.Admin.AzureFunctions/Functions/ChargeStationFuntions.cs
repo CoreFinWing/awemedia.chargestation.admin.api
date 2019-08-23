@@ -54,22 +54,22 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
         [FunctionName("UpdateChargeStation")]
         public HttpResponseMessage Put(
-           [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-stations/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, string chargeStationId)
+           [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-stations/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, int chargeStationId)
         {
-            var merchantId = JObject.Parse(httpRequestMessage.Content.ReadAsStringAsync().Result);
+            var branchId = JObject.Parse(httpRequestMessage.Content.ReadAsStringAsync().Result);
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            if (string.IsNullOrEmpty(merchantId["MerchantId"].ToString()))
+            if (string.IsNullOrEmpty(branchId["BranchId"].ToString()))
                 httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
-            Guid guid = Guid.Parse(chargeStationId);
+            var _chargeStation = _chargeStationService.GetById(Convert.ToInt32(chargeStationId));
             ChargeStation chargeStation = new ChargeStation
             {
-                MerchantId = merchantId["MerchantId"].ToString()
+                BranchId = (int)branchId["BranchId"]
             };
-            object device = _chargeStationService.IsChargeStationExists(guid);
+            object device = _chargeStationService.IsChargeStationExists(_chargeStation.Id);
             if (device == DBNull.Value)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DeviceNotRegistered));
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, guid));
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, _chargeStation.Id));
         }
 
         [FunctionName("start-charge")]
