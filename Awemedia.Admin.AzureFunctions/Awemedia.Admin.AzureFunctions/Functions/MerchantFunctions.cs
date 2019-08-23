@@ -97,5 +97,24 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             _merchantService.UpdateMerchant(merchant, id);
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }
+        [FunctionName("AutoCompleteSearchMerchant")]
+        public HttpResponseMessage Search(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auto-complete-search-merchant")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
+            if (queryDictionary.Count() > 0)
+            {
+                string keyword = queryDictionary["keyword"].ToString();
+                if (!string.IsNullOrEmpty(keyword))
+                {
+                    return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _merchantService.Search(keyword));
+                }
+            }
+            return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+        }
     }
 }
