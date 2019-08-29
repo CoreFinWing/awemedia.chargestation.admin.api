@@ -4,8 +4,8 @@ using Awemedia.Admin.AzureFunctions.Business.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
@@ -13,7 +13,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     {
         private readonly IBaseService<DAL.DataContracts.Branch> _baseService;
         private readonly IMerchantService _merchantService;
-
+        readonly string[] includedProperties = new string[] { "ChargeStation" };
         public BranchService(IBaseService<DAL.DataContracts.Branch> baseService, IMerchantService merchantService)
         {
             _baseService = baseService;
@@ -53,7 +53,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return e => e.Address.ToLower().Contains(branchSearchFilter.Search) || e.ContactName.ToString().ToLower().Contains(branchSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(branchSearchFilter.Search) || e.Email.ToString().ToLower().Contains(branchSearchFilter.Search) || e.Geolocation.ToString().ToLower().Contains(branchSearchFilter.Search) || e.Id.ToString().ToLower().Contains(branchSearchFilter.Search) || e.MerchantId.ToString().ToLower().Contains(branchSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(branchSearchFilter.Search) || e.Name.ToString().ToLower().Contains(branchSearchFilter.Search) || e.Name.ToString().ToLower().Contains(branchSearchFilter.Search) || e.PhoneNum.ToString().ToLower().Contains(branchSearchFilter.Search);
         }
-
         public void UpdateBranch(Branch branchModel, int id)
         {
             string[] excludedProps = { "Id", "MerchantId" };
@@ -77,11 +76,19 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     {
                         int branchId = Convert.ToInt32(item.GetType().GetProperty("Id").GetValue(item, null));
                         bool IsActive = Convert.ToBoolean(item.GetType().GetProperty("IsActive").GetValue(item, null));
-                        var branch = _baseService.GetById(branchId);
+                        var branch = _baseService.GetById(branchId, includedProperties);
                         if (branch != null)
                         {
                             branch.IsActive = IsActive;
                             branch.ModifiedDate = DateTime.Now;
+                            if (branch.ChargeStation.Count > 0)
+                            {
+                                foreach (var chargeStation in branch.ChargeStation)
+                                {
+                                    chargeStation.IsActive = IsActive;
+                                    chargeStation.ModifiedDate = DateTime.Now;
+                                }
+                            }
                             _baseService.AddOrUpdate(branch, branchId);
                             Expression<Func<DAL.DataContracts.Branch, bool>> exp = e => e.MerchantId == branch.MerchantId && e.IsActive;
                             int activeLocationCount = _baseService.Where(exp).Count();
@@ -91,7 +98,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 }
             }
         }
-
         public Branch GetById(int id)
         {
             var branch = _baseService.GetById(id);

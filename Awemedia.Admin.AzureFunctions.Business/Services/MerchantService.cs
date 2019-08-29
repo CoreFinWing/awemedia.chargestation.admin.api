@@ -26,10 +26,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             Expression<Func<Merchant, bool>> exp = null;
             totalRecords = 0;
-            IQueryable<MerchantModel> merchants = _baseService.GetAll("Branch", "IndustryType").Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
+            IQueryable<MerchantModel> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
             totalRecords = merchants.Count();
             if (merchantSearchFilter != null)
-
             {
                 if (!string.IsNullOrEmpty(merchantSearchFilter.Search))
                 {
@@ -83,10 +82,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 {
                     foreach (var item in merchantsToSetActiveInActive)
                     {
-
                         int merchantId = Convert.ToInt32(item.GetType().GetProperty("Id").GetValue(item, null));
                         bool IsActive = Convert.ToBoolean(item.GetType().GetProperty("IsActive").GetValue(item, null));
-                        var merchant = _baseService.GetById(merchantId, navigationalProperties, includedProperties);
+                        var merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation");
+                        var merchant = merchants.Where(m => m.Id == merchantId).FirstOrDefault();
                         if (merchant != null)
                         {
                             merchant.IsActive = IsActive;
@@ -101,6 +100,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                                 {
                                     branch.IsActive = IsActive;
                                     branch.ModifiedDate = DateTime.Now;
+                                    if (branch.ChargeStation.Count > 0)
+                                    {
+                                        foreach (var chargeStation in branch.ChargeStation)
+                                        {
+                                            chargeStation.IsActive = IsActive;
+                                            chargeStation.ModifiedDate = DateTime.Now;
+                                        }
+                                    }
                                 }
                             }
                             _baseService.AddOrUpdate(merchant, merchantId);
