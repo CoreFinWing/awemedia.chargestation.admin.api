@@ -17,6 +17,7 @@ using System.Net;
 using AzureFunctions.Autofac;
 using Awemedia.Admin.AzureFunctions.Resolver;
 using Awemedia.Admin.AzureFunctions.Extensions;
+using Awemedia.Chargestation.AzureFunctions.Extensions;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
@@ -36,6 +37,19 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 _chargeSessionSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
             }
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _chargeSessionService.Get(_chargeSessionSearchFilter, out int totalRecords), total = totalRecords });
+        }
+
+        [FunctionName("charge-session")]
+        public HttpResponseMessage GetById(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-sessions/{Id}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeSessionService _chargeSessionService, [Inject]IErrorHandler _errorHandler, string Id)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            if (!string.IsNullOrEmpty(Id))
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeSessionService.GetById(Guid.Parse(Id)));
+            }
+            return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
         }
     }
 }
