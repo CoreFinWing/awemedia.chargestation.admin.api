@@ -255,6 +255,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 entity.Property(e => e.Payload)
                     .IsRequired()
                     .IsUnicode(false);
+                entity.HasOne(d => d.UserSession)
+                     .WithMany(p => p.Notifications)
+                     .HasForeignKey(d => d.UserSessionId)
+                     .HasConstraintName("FK_UserSession_Notifications");
             });
 
             modelBuilder.Entity<SessionStatus>(entity =>
@@ -333,6 +337,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .WithMany(p => p.UserSession)
                     .HasForeignKey(d => d.SessionType)
                     .HasConstraintName("FK_SessionType_UserSession");
+
+
             });
         }
     }

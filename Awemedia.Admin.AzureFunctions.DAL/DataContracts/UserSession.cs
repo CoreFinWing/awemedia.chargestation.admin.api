@@ -5,6 +5,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 {
     public partial class UserSession
     {
+        public UserSession()
+        {
+            Notifications = new HashSet<Notification>();
+        }
+
         public Guid Id { get; set; }
         public decimal? ChargeRentalRevnue { get; set; }
         public string InvoiceNo { get; set; }
@@ -27,5 +32,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public ChargeStation ChargeStation { get; set; }
         public SessionStatus SessionStatusNavigation { get; set; }
         public SessionType SessionTypeNavigation { get; set; }
+
+        public ICollection<Notification> Notifications { get; set; }
     }
 }

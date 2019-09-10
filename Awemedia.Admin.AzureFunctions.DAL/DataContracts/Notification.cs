@@ -12,7 +12,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public string DeviceId { get; set; }
         public string NotificationResult { get; set; }
         public string Status { get; set; }
-        public bool IsConsumed { get; set; }
-        public DateTime ConsumedDateTime { get; set; }
+        public Guid? UserSessionId { get; set; }
+
+        public UserSession UserSession{ get; set; }
     }
 }
