@@ -337,8 +337,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .WithMany(p => p.UserSession)
                     .HasForeignKey(d => d.SessionType)
                     .HasConstraintName("FK_SessionType_UserSession");
-
-
             });
         }
     }
