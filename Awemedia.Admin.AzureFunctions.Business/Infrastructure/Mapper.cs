@@ -39,6 +39,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 IsActive = chargeOptions.IsActive,
                 ModifiedDate = chargeOptions.ModifiedDate,
                 Price = chargeOptions.Price,
+                DisplayField= chargeOptions.ChargeDuration+" Mins"
             };
         }
         public static DAL.DataContracts.ChargeOptions MapChargeOptionsObjects(Models.ChargeOption chargeOptionsResponse)

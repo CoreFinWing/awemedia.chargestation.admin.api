@@ -38,11 +38,17 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             totalRecords = branches.Count();
             if (branchSearchFilter != null)
             {
+                if (Convert.ToInt32(branchSearchFilter.MerchantId) > 0)
+                {
+                    branches = branches.Where(m => m.MerchantId == Convert.ToInt32(branchSearchFilter.MerchantId)).AsQueryable();
+                    totalRecords = branches.Count();
+                }
                 if (!string.IsNullOrEmpty(branchSearchFilter.Search))
                 {
                     branchSearchFilter.Search = branchSearchFilter.Search.ToLower();
                     exp = GetFilteredBySearch(branchSearchFilter);
                     branches = branches.Where(exp).AsQueryable();
+                    totalRecords = branches.Count();
                 }
                 branches = branches.OrderBy(branchSearchFilter.Order + (Convert.ToBoolean(branchSearchFilter.Dir) ? " descending" : ""));
                 branches = branches.Skip((Convert.ToInt32(branchSearchFilter.Start) - 1) * Convert.ToInt32(branchSearchFilter.Size)).Take(Convert.ToInt32(branchSearchFilter.Size));

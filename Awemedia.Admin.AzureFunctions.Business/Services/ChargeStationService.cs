@@ -30,11 +30,17 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
             if (chargeStationSearchFilter != null)
             {
+                if(Convert.ToInt32(chargeStationSearchFilter.MerchantId)>0)
+                {
+                    chargeStations = chargeStations.Where(a => a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
+                    totalRecords = chargeStations.Count();
+                }
                 if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search))
                 {
                     chargeStationSearchFilter.Search = chargeStationSearchFilter.Search.ToLower();
                     exp = GetFilteredBySearch(chargeStationSearchFilter);
                     chargeStations = chargeStations.Where(exp).AsQueryable();
+                    totalRecords = chargeStations.Count();
                 }
                 chargeStations = chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
                 chargeStations = chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));

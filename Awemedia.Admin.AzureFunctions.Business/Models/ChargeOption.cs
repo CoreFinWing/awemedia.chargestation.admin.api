@@ -15,5 +15,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         [Required]
         public string Currency { get; set; }
         public bool IsActive { get; set; }
+        public string DisplayField { get; set; }
     }
 }
