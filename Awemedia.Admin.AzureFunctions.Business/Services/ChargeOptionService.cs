@@ -83,7 +83,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         private static Expression<Func<DAL.DataContracts.ChargeOptions, bool>> GetFilteredBySearch(BaseSearchFilter chargeOptionsSearchFilter)
         {
-            return e => e.ChargeDuration.ToLower().Contains(chargeOptionsSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Currency.ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Id.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Price.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search);
+            return e => e.ChargeDuration.ToString().Contains(chargeOptionsSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Currency.ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Id.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Price.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search);
         }
     }
 }
