@@ -27,9 +27,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             totalRecords = 0;
             IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
             totalRecords = chargeStations.Count();
-           
-            if (chargeStationSearchFilter != null)
 
+            if (chargeStationSearchFilter != null)
             {
                 if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search))
                 {
@@ -45,7 +44,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         private static Expression<Func<ChargeStation, bool>> GetFilteredBySearch(BaseSearchFilter chargeStationSearchFilter)
         {
-            return e => e.ChargeControllerId.ToLower().Contains(chargeStationSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search) || e.Geolocation.ToLower().Contains(chargeStationSearchFilter.Search) || e.Id.ToString().ToLower().Contains(chargeStationSearchFilter.Search) ||  e.ModifiedDate.ToString().ToLower().Contains(chargeStationSearchFilter.Search)||e.Branch.Merchant.BusinessName.Contains(chargeStationSearchFilter.Search);
+            return e => Convert.ToString(e.ChargeControllerId).ToLower().Contains(chargeStationSearchFilter.Search) || Convert.ToString(e.CreatedDate).ToLower().Contains(chargeStationSearchFilter.Search) || Convert.ToString(e.Geolocation).ToLower().Contains(chargeStationSearchFilter.Search) || Convert.ToString(e.Id).ToLower().Contains(chargeStationSearchFilter.Search) || Convert.ToString(e.ModifiedDate).ToLower().Contains(chargeStationSearchFilter.Search) || Convert.ToString(e.Branch.Merchant.BusinessName).Contains(chargeStationSearchFilter.Search);
         }
 
         public Guid AddChargeStation(ChargeStationModel chargeStation, Guid guid = default(Guid))
