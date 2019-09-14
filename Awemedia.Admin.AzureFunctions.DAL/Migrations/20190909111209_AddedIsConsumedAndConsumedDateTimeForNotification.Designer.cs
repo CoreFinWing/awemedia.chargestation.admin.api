@@ -4,14 +4,16 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    partial class AwemediaContextModelSnapshot : ModelSnapshot
+    [Migration("20190909111209_AddedIsConsumedAndConsumedDateTimeForNotification")]
+    partial class AddedIsConsumedAndConsumedDateTimeForNotification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,8 +78,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ChargeDuration")
-                        .HasColumnType("int");
+                    b.Property<string>("ChargeDuration")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
@@ -302,6 +306,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<DateTime>("ConsumedDateTime");
+
                     b.Property<string>("DeviceId")
                         .IsRequired()
                         .IsUnicode(false);
@@ -309,6 +315,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.Property<string>("DeviceToken")
                         .IsRequired()
                         .IsUnicode(false);
+
+                    b.Property<bool>("IsConsumed");
 
                     b.Property<DateTime>("LoggedDateTime")
                         .HasColumnType("datetime");
@@ -323,11 +331,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
                     b.Property<string>("Status");
 
-                    b.Property<Guid?>("UserSessionId");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserSessionId");
 
                     b.ToTable("Notification");
                 });
@@ -468,14 +472,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .WithMany("Merchant")
                         .HasForeignKey("IndustryTypeId")
                         .HasConstraintName("FK_Merchant_IndustryType");
-                });
-
-            modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Notification", b =>
-                {
-                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.UserSession", "UserSession")
-                        .WithMany("Notifications")
-                        .HasForeignKey("UserSessionId")
-                        .HasConstraintName("FK_UserSession_Notifications");
                 });
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.UserSession", b =>

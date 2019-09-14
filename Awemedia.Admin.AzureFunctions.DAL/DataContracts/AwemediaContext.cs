@@ -80,10 +80,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<ChargeOptions>(entity =>
             {
-                entity.Property(e => e.ChargeDuration)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.ChargeDuration).HasColumnType("int");
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
@@ -255,6 +252,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 entity.Property(e => e.Payload)
                     .IsRequired()
                     .IsUnicode(false);
+                entity.HasOne(d => d.UserSession)
+                     .WithMany(p => p.Notifications)
+                     .HasForeignKey(d => d.UserSessionId)
+                     .HasConstraintName("FK_UserSession_Notifications");
             });
 
             modelBuilder.Entity<SessionStatus>(entity =>
