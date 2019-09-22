@@ -14,6 +14,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public string Status { get; set; }
         public Guid? UserSessionId { get; set; }
 
-        public UserSession UserSession{ get; set; }
+        public UserSession UserSession { get; set; }
     }
 }

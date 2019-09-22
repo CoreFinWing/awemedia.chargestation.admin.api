@@ -7,7 +7,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
     {
         public UserSession()
         {
-            Notifications = new HashSet<Notification>();
+            Notification = new HashSet<Notification>();
         }
 
         public Guid Id { get; set; }
@@ -26,13 +26,12 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public int? SessionType { get; set; }
         public int? SessionStatus { get; set; }
         public string ChargeParams { get; set; }
-        public string Mobile { get; set; }
         public Guid? ChargeStationId { get; set; }
+        public string Mobile { get; set; }
 
         public ChargeStation ChargeStation { get; set; }
         public SessionStatus SessionStatusNavigation { get; set; }
         public SessionType SessionTypeNavigation { get; set; }
-
-        public ICollection<Notification> Notifications { get; set; }
+        public ICollection<Notification> Notification { get; set; }
     }
 }

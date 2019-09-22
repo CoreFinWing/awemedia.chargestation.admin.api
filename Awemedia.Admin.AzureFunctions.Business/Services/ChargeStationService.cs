@@ -25,12 +25,19 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             Expression<Func<ChargeStation, bool>> exp = null;
             totalRecords = 0;
-            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
+            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").Where(c => c.IsActive).AsQueryable();
             totalRecords = chargeStations.Count();
-
+            if (!string.IsNullOrEmpty(chargeStationSearchFilter.IsOnline))
+            {
+                if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
+                {
+                    chargeStations = chargeStations.Where(item => item.IsOnline.Equals(Convert.ToBoolean(chargeStationSearchFilter.IsOnline))).AsQueryable();
+                    totalRecords = chargeStations.Count();
+                }
+            }
             if (chargeStationSearchFilter != null)
             {
-                if(Convert.ToInt32(chargeStationSearchFilter.MerchantId)>0)
+                if (Convert.ToInt32(chargeStationSearchFilter.MerchantId) > 0)
                 {
                     chargeStations = chargeStations.Where(a => a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
                     totalRecords = chargeStations.Count();
