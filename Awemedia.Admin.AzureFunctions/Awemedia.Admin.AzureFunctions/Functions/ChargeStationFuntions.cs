@@ -101,7 +101,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
         [FunctionName("charge-station-detail")]
         public HttpResponseMessage GetById(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-station-detail/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationService, [Inject]IErrorHandler errorHandler, string chargeStationId)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-stations/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationService, [Inject]IErrorHandler errorHandler, string chargeStationId)
         {
             if (!httpRequestMessage.IsAuthorized())
             {
