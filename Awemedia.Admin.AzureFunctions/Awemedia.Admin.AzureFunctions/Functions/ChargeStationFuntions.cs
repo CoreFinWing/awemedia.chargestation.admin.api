@@ -99,5 +99,19 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             }
             return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, "Validation Failed.");
         }
+        [FunctionName("charge-station-detail")]
+        public HttpResponseMessage GetById(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-stations/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationService, [Inject]IErrorHandler errorHandler, string chargeStationId)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            if (!string.IsNullOrEmpty(chargeStationId))
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.GetById(Guid.Parse(chargeStationId)));
+            }
+            return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+        }
     }
 }

@@ -94,9 +94,18 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             ChargeStation model = _baseService.AddOrUpdate(chargeStation, guid, excludedProps);
             return model.Id;
         }
-        public DAL.DataContracts.ChargeStation GetById(Guid guid)
+        public ChargeStationModel GetById(Guid guid)
         {
-            return _baseService.GetById(guid);
+            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
+            var chargeStation = chargeStations.Where(u => u.Id == guid).FirstOrDefault();
+            if (chargeStation != null)
+            {
+                return MappingProfile.MapChargeStationResponseObject(chargeStation);
+            }
+            else
+            {
+                return null;
+            }
         }
         public DAL.DataContracts.ChargeStation GetById(int id)
         {
