@@ -106,7 +106,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public Branch GetById(int id)
         {
-            var branch = _baseService.GetById(id);
+            IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").AsQueryable();
+            var branch = branches.Where(b => b.Id == id).FirstOrDefault();
+            if (branch == null)
+            {
+                return null;
+            }
             return MappingProfile.MapBranchModelObject(branch);
         }
     }
