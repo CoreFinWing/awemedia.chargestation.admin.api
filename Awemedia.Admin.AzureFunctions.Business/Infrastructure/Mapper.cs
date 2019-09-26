@@ -222,7 +222,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 SessionType = userSession.SessionTypeNavigation.Type,
                 TransactionId = userSession.TransactionId,
                 UserAccountId = userSession.UserAccountId,
-                MerchantName = userSession.ChargeStation.Branch.Merchant.BusinessName
+                MerchantName = userSession.ChargeStation.Branch == null ? null : userSession.ChargeStation.Branch.Merchant.BusinessName
             };
         }
     }
