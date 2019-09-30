@@ -10,5 +10,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
         IEnumerable<ChargeOption> Get(BaseSearchFilter chargeOptionSearchFilter, out int totalRecords, bool isActive = true);
         bool Add(ChargeOption chargeOption, out bool isDuplicateRecord, int id = 0);
         void MarkActiveInActive(dynamic optionsSetToActiveInActive);
+        ChargeOption GetById(int chargeOptionId);
     }
 }

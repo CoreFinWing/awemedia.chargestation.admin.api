@@ -1,6 +1,8 @@
 ﻿using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Business.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +14,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     public class ChargeSessionService : IChargeSessionService
     {
         private readonly IBaseService<DAL.DataContracts.UserSession> _baseService;
+        private readonly IChargeOptionService _chargeOptionService;
         readonly string[] navigationalProperties = new string[] { "SessionStatusNavigation", "SessionTypeNavigation", };
         readonly string[] includedProperties = new string[] { "ChargeStation", "ChargeStation.Branch.Merchant" };
-        public ChargeSessionService(IBaseService<DAL.DataContracts.UserSession> baseService)
+        public ChargeSessionService(IBaseService<DAL.DataContracts.UserSession> baseService, IChargeOptionService chargeOptionService)
         {
             _baseService = baseService;
+            _chargeOptionService = chargeOptionService;
         }
         public IEnumerable<UserSession> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords)
         {
@@ -26,6 +30,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             totalRecords = userSessions.Count();
             if (userSessionSearchFilter != null)
             {
+                if (Convert.ToInt32(userSessionSearchFilter.MerchantId) > 0)
+                {
+                    userSessions = userSessions.Where(a => a.ChargeStation.Branch.MerchantId == Convert.ToInt32(userSessionSearchFilter.MerchantId)).AsQueryable();
+                    totalRecords = userSessions.Count();
+                }
                 if (!string.IsNullOrEmpty(userSessionSearchFilter.Search))
                 {
                     userSessionSearchFilter.Search = userSessionSearchFilter.Search.ToLower();
@@ -49,6 +58,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             IQueryable<DAL.DataContracts.UserSession> userSessions = _baseService.GetAll("SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant").AsQueryable();
             var userSession = MappingProfile.MapUserSessionModelObject(userSessions.Where(u => u.Id == Id).FirstOrDefault());
+            JObject jObject = JObject.Parse(userSession.ChargeParams);
+            string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
+            userSession.ChargePorts=(int)jObject.SelectToken("ChargeOptionId");
+            userSession.ChargeOption = _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
             return userSession;
         }
     }

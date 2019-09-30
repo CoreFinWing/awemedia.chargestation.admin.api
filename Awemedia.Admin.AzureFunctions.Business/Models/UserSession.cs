@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
-    public class UserSession
+    public class UserSession:BaseModel
     {
         public Guid Id { get; set; }
         public decimal? ChargeRentalRevnue { get; set; }
@@ -13,8 +13,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string TransactionId { get; set; }
         public DateTime? SessionStartTime { get; set; }
         public DateTime? SessionEndTime { get; set; }
-        public DateTime? CreatedDate { get; set; }
-        public DateTime? ModifiedDate { get; set; }
         public string ApplicationId { get; set; }
         public string AppKey { get; set; }
         public string UserAccountId { get; set; }
@@ -25,6 +23,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string Mobile { get; set; }
         public Guid? ChargeStationId { get; set; }
         public string MerchantName { get; set; }
+        public int ChargePorts { get; set; }
+        public ChargeOption ChargeOption { get; set; }
 
         public ChargeStation ChargeStation { get; set; }
         public SessionStatus SessionStatusNavigation { get; set; }
