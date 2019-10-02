@@ -58,10 +58,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             IQueryable<DAL.DataContracts.UserSession> userSessions = _baseService.GetAll("SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant").AsQueryable();
             var userSession = MappingProfile.MapUserSessionModelObject(userSessions.Where(u => u.Id == Id).FirstOrDefault());
-            JObject jObject = JObject.Parse(userSession.ChargeParams);
-            string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
-            userSession.ChargePorts=(int)jObject.SelectToken("ChargeOptionId");
-            userSession.ChargeOption = _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
+            if(userSession.ChargeParams!=null)
+            {
+                JObject jObject = JObject.Parse(userSession.ChargeParams);
+                string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
+                userSession.ChargePorts = (int)jObject.SelectToken("ChargeOptionId");
+                userSession.ChargeOption = _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
+            }
             return userSession;
         }
     }
