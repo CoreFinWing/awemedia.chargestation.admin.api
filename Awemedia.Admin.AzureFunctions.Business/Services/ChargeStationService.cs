@@ -31,7 +31,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
                 {
-                    chargeStations = chargeStations.Where(item => item.IsOnline.Equals(Convert.ToBoolean(chargeStationSearchFilter.IsOnline))).AsQueryable();
+                    chargeStations = chargeStations.Where(c => c.ModifiedDate >= DateTime.Now.AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval")))).AsQueryable();
                     totalRecords = chargeStations.Count();
                 }
             }
