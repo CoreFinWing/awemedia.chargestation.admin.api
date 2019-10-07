@@ -9,9 +9,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
     {
         IEnumerable<ChargeStation> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords);
         Guid AddChargeStation(ChargeStation chargeStation, Guid guid = new Guid());
-        Guid UpdateChargeStation(ChargeStation chargeStation,Guid guid);
+        Guid UpdateChargeStation(ChargeStation chargeStation, Guid guid);
         object IsChargeStationExists(Guid guid);
         ChargeStation GetById(Guid guid);
         AzureFunctions.DAL.DataContracts.ChargeStation GetById(int id);
+        void MarkActiveInActive(dynamic chargeStationsToSetActiveInActive);
     }
 }

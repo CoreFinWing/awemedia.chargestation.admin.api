@@ -96,7 +96,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public ChargeStationModel GetById(Guid guid)
         {
-            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant","Branch.Merchant.Branch").AsQueryable();
+            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant", "Branch.Merchant.Branch").AsQueryable();
             var chargeStation = chargeStations.Where(u => u.Id == guid).FirstOrDefault();
             if (chargeStation != null)
             {
@@ -110,6 +110,30 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public DAL.DataContracts.ChargeStation GetById(int id)
         {
             return _baseService.Where(c => c.Uid.Equals(id)).FirstOrDefault();
+        }
+
+        public void MarkActiveInActive(dynamic chargeStationsToSetActiveInActive)
+        {
+            string[] excludedProps = { "Uid" };
+            if (chargeStationsToSetActiveInActive != null)
+            {
+                if (chargeStationsToSetActiveInActive.Length > 0)
+                {
+                    foreach (var item in chargeStationsToSetActiveInActive)
+                    {
+                        var chargestationId = Guid.Parse(item.GetType().GetProperty("Id").GetValue(item, null));
+                        bool IsActive = Convert.ToBoolean(item.GetType().GetProperty("IsActive").GetValue(item, null));
+                        var chargeStations = _baseService.GetAll();
+                        var chargeStation = chargeStations.Where(c => c.Id == chargestationId).FirstOrDefault();
+                        if (chargeStation != null)
+                        {
+                            chargeStation.IsActive = IsActive;
+                            chargeStation.ModifiedDate = DateTime.Now;
+                            _baseService.AddOrUpdate(chargeStation, chargestationId, excludedProps);
+                        }
+                    }
+                }
+            }
         }
     }
 }
