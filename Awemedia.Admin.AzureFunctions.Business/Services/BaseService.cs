@@ -28,9 +28,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return _repository.GetById(id);
         }
-        public T GetById(int id,string[] navigationalProperties, string[] include)
+        public T GetById(int id, string[] navigationalProperties, string[] include)
         {
-            return _repository.GetById(id, navigationalProperties,include);
+            return _repository.GetById(id, navigationalProperties, include);
         }
 
         public IEnumerable<T> Where(Expression<Func<T, bool>> exp)
@@ -58,7 +58,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
             if (exists)
             {
-                _repository.Update(entry,excludedProps);
+                _repository.Update(entry, excludedProps);
                 return entry;
             }
             _repository.Insert(entry);
@@ -92,6 +92,5 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return _repository.GetById(guid);
         }
-
     }
 }

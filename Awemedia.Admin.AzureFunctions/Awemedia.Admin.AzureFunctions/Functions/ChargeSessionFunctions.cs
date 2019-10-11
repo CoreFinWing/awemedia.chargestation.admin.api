@@ -28,8 +28,8 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-sessions")] HttpRequestMessage httpRequestMessage, [Inject]IChargeSessionService _chargeSessionService, [Inject]IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
-                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            //if (!httpRequestMessage.IsAuthorized())
+            //    return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             BaseSearchFilter _chargeSessionSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count > 0)

@@ -1,4 +1,5 @@
-﻿using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
+﻿using Awemedia.Admin.AzureFunctions.Business.Helpers;
+using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Business.Models;
 using System;
@@ -32,32 +33,29 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<Branch> Get(BaseSearchFilter branchSearchFilter, out int totalRecords)
         {
-            Expression<Func<DAL.DataContracts.Branch, bool>> exp = null;
+            Expression<Func<Branch, bool>> exp = null;
             totalRecords = 0;
             IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").AsQueryable();
-            totalRecords = branches.Count();
+            var _branches = branches.Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
+            totalRecords = _branches.Count();
             if (branchSearchFilter != null)
             {
                 if (Convert.ToInt32(branchSearchFilter.MerchantId) > 0)
                 {
-                    branches = branches.Where(m => m.MerchantId == Convert.ToInt32(branchSearchFilter.MerchantId)).AsQueryable();
-                    totalRecords = branches.Count();
+                    _branches = branches.Where(m => m.MerchantId == Convert.ToInt32(branchSearchFilter.MerchantId)).Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
+                    totalRecords = _branches.Count();
                 }
                 if (!string.IsNullOrEmpty(branchSearchFilter.Search))
                 {
                     branchSearchFilter.Search = branchSearchFilter.Search.ToLower();
-                    exp = GetFilteredBySearch(branchSearchFilter);
-                    branches = branches.Where(exp).AsQueryable();
-                    totalRecords = branches.Count();
+                    exp = PredicateHelper<Branch>.CreateSearchPredicate(branchSearchFilter.Type, branchSearchFilter.Search);
+                    _branches = _branches.Where(exp).AsQueryable();
+                    totalRecords = _branches.Count();
                 }
-                branches = branches.OrderBy(branchSearchFilter.Order + (Convert.ToBoolean(branchSearchFilter.Dir) ? " descending" : ""));
-                branches = branches.Skip((Convert.ToInt32(branchSearchFilter.Start) - 1) * Convert.ToInt32(branchSearchFilter.Size)).Take(Convert.ToInt32(branchSearchFilter.Size));
+                _branches = _branches.OrderBy(branchSearchFilter.Order + (Convert.ToBoolean(branchSearchFilter.Dir) ? " descending" : ""));
+                _branches = _branches.Skip((Convert.ToInt32(branchSearchFilter.Start) - 1) * Convert.ToInt32(branchSearchFilter.Size)).Take(Convert.ToInt32(branchSearchFilter.Size));
             }
-            return branches.Select(t => MappingProfile.MapBranchModelObject(t)).ToList();
-        }
-        private static Expression<Func<DAL.DataContracts.Branch, bool>> GetFilteredBySearch(BaseSearchFilter branchSearchFilter)
-        {
-            return e => Convert.ToString(e.Address).ToLower().Contains(branchSearchFilter.Search) || Convert.ToString(e.ContactName).ToLower().Contains(branchSearchFilter.Search) || Convert.ToString(e.CreatedDate).ToLower().Contains(branchSearchFilter.Search) || Convert.ToString(e.Email).ToLower().Contains(branchSearchFilter.Search) || Convert.ToString(e.Geolocation).ToLower().Contains(branchSearchFilter.Search) || Convert.ToString(e.Id).ToLower().Contains(branchSearchFilter.Search) || Convert.ToString(e.MerchantId).ToLower().Contains(branchSearchFilter.Search) || Convert.ToString(e.ModifiedDate).ToLower().Contains(branchSearchFilter.Search) || Convert.ToString(e.Name).ToLower().Contains(branchSearchFilter.Search) || Convert.ToString(e.PhoneNum).ToLower().Contains(branchSearchFilter.Search);
+            return _branches.ToList();
         }
         public void UpdateBranch(Branch branchModel, int id)
         {

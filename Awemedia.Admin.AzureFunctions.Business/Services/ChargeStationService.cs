@@ -26,7 +26,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             Expression<Func<ChargeStation, bool>> exp = null;
             totalRecords = 0;
             IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").Where(c => c.IsActive).AsQueryable();
-            totalRecords = chargeStations.Count();
+            var _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+            totalRecords = _chargeStations.Count();
             if (!string.IsNullOrEmpty(chargeStationSearchFilter.IsOnline))
             {
                 if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
