@@ -17,5 +17,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string Geolocation { get; set; }
         public string MerchantName { get; set; }
         public Merchant Merchant { get; set; }
+        public bool IsActive { get; set; }
     }
 }
