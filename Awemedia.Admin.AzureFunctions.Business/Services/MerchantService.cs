@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Linq.Dynamic.Core;
 using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
+using Awemedia.Admin.AzureFunctions.Business.Helpers;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
@@ -22,28 +23,34 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             _baseService = baseService;
         }
-        public IEnumerable<MerchantModel> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords)
+        public IEnumerable<MerchantModel> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, bool isActive = true)
         {
-            Expression<Func<Merchant, bool>> exp = null;
+            Expression<Func<MerchantModel, bool>> exp = null;
             totalRecords = 0;
-            IQueryable<MerchantModel> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
-            totalRecords = merchants.Count();
+            IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").AsQueryable();
+            var _merchants = merchants.Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
+            totalRecords = _merchants.Count();
+            if (isActive)
+            {
+                _merchants = _merchants.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                totalRecords = _merchants.Count();
+            }
             if (merchantSearchFilter != null)
             {
-                if (!string.IsNullOrEmpty(merchantSearchFilter.Search))
+                if (!string.IsNullOrEmpty(merchantSearchFilter.Search) && !string.IsNullOrEmpty(merchantSearchFilter.Type))
                 {
                     merchantSearchFilter.Search = merchantSearchFilter.Search.ToLower();
-                    exp = GetFilteredBySearch(merchantSearchFilter);
-                    merchants = _baseService.Where(exp).Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
+                    exp = PredicateHelper<MerchantModel>.CreateSearchPredicate(merchantSearchFilter.Type, merchantSearchFilter.Search);
+                    _merchants = _merchants.Where(exp).AsQueryable();
                 }
-                merchants = merchants.OrderBy(merchantSearchFilter.Order + (Convert.ToBoolean(merchantSearchFilter.Dir) ? " descending" : ""));
-                merchants = merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));
+                _merchants = _merchants.OrderBy(merchantSearchFilter.Order + (Convert.ToBoolean(merchantSearchFilter.Dir) ? " descending" : ""));
+                _merchants = _merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));
             }
-            return merchants.ToList();
+            return _merchants.ToList();
         }
         private static Expression<Func<Merchant, bool>> GetFilteredBySearch(BaseSearchFilter merchantSearchFilter)
         {
-            return e => Convert.ToString(e.BusinessName).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.ChargeStationsOrdered).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.Dba).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.Id).Contains(merchantSearchFilter.Search) || Convert.ToString(e.DepositMoneyPaid).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.Email).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.LicenseNum).ToLower().Contains(merchantSearchFilter.Search)  || Convert.ToString(e.PhoneNum).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.ProfitSharePercentage).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.SecondaryContact).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.SecondaryPhone).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.IndustryType.Name).ToLower().Contains(merchantSearchFilter.Search);
+            return e => Convert.ToString(e.BusinessName).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.ChargeStationsOrdered).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.Dba).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.Id).Contains(merchantSearchFilter.Search) || Convert.ToString(e.DepositMoneyPaid).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.Email).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.LicenseNum).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.PhoneNum).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.ProfitSharePercentage).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.SecondaryContact).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.SecondaryPhone).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.IndustryType.Name).ToLower().Contains(merchantSearchFilter.Search);
         }
 
 

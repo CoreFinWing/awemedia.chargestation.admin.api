@@ -29,7 +29,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 BatteryLevel = chargeStation.BatteryLevel,
                 IsOnline = chargeStation.IsOnline,
                 LastPingTimeStamp = chargeStation.LastPingTimeStamp,
-                BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? chargeStation.BatteryLevel + " as of " + chargeStation.LastPingTimeStamp : ""
+                BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? chargeStation.BatteryLevel + " as of " + chargeStation.LastPingTimeStamp : "",
+                IsActive=chargeStation.IsActive
             };
         }
         public static Models.ChargeOption MapChargeOptionsResponseObjects(DAL.DataContracts.ChargeOptions chargeOptions)
@@ -68,7 +69,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 Id = StringToGuid(chargeStationResponse.DeviceId),
                 BranchId = chargeStationResponse.BranchId,
                 ModifiedDate = DateTime.Now,
-                DeviceId = chargeStationResponse.DeviceId
+                DeviceId = chargeStationResponse.DeviceId,
+                IsActive=true
             };
         }
         public static Models.Merchant MapMerchantModelObject(DAL.DataContracts.Merchant merchant)
@@ -179,7 +181,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 Name = branch.Name,
                 PhoneNum = branch.PhoneNum,
                 Merchant = MapMerchantModelObject(branch.Merchant),
-                MerchantName = branch.Merchant.BusinessName
+                MerchantName = branch.Merchant.BusinessName,
+                IsActive=branch.IsActive
             };
         }
         public static Guid StringToGuid(string value)

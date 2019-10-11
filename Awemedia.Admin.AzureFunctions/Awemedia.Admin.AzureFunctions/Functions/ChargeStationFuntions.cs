@@ -35,7 +35,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _chargeStationSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _chargeStationService.Get(_chargeStationSearchFilter, out int totalRecords), total = totalRecords });
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _chargeStationService.Get(_chargeStationSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_chargeStationSearchFilter.IsActive) == true ? "false" : _chargeStationSearchFilter.IsActive)), total = totalRecords });
         }
         [FunctionName("AddChargeStation")]
         public HttpResponseMessage Post(

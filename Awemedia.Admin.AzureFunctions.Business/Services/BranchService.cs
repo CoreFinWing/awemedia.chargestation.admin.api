@@ -31,21 +31,26 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 _merchantService.UpdateLocationCount(activeLocationCount, merchantId);
             }
         }
-        public IEnumerable<Branch> Get(BaseSearchFilter branchSearchFilter, out int totalRecords)
+        public IEnumerable<Branch> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, bool isActive = true)
         {
             Expression<Func<Branch, bool>> exp = null;
             totalRecords = 0;
             IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").AsQueryable();
             var _branches = branches.Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
             totalRecords = _branches.Count();
+            if (isActive)
+            {
+                _branches = _branches.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                totalRecords = _branches.Count();
+            }
             if (branchSearchFilter != null)
             {
                 if (Convert.ToInt32(branchSearchFilter.MerchantId) > 0)
                 {
-                    _branches = branches.Where(m => m.MerchantId == Convert.ToInt32(branchSearchFilter.MerchantId)).Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
+                    _branches = _branches.Where(m => m.MerchantId == Convert.ToInt32(branchSearchFilter.MerchantId)).AsQueryable();
                     totalRecords = _branches.Count();
                 }
-                if (!string.IsNullOrEmpty(branchSearchFilter.Search))
+                if (!string.IsNullOrEmpty(branchSearchFilter.Search)&& !string.IsNullOrEmpty(branchSearchFilter.Type))
                 {
                     branchSearchFilter.Search = branchSearchFilter.Search.ToLower();
                     exp = PredicateHelper<Branch>.CreateSearchPredicate(branchSearchFilter.Type, branchSearchFilter.Search);

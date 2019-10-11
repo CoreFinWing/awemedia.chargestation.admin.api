@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Linq.Dynamic.Core;
 using ChargeStation = Awemedia.Admin.AzureFunctions.DAL.DataContracts.ChargeStation;
 using ChargeStationModel = Awemedia.Admin.AzureFunctions.Business.Models.ChargeStation;
+using Awemedia.Admin.AzureFunctions.Business.Helpers;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
@@ -21,44 +22,44 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _baseService = baseService;
         }
 
-        public IEnumerable<ChargeStationModel> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords)
+        public IEnumerable<ChargeStationModel> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, bool isActive = true)
         {
-            Expression<Func<ChargeStation, bool>> exp = null;
+            Expression<Func<ChargeStationModel, bool>> exp = null;
             totalRecords = 0;
-            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").Where(c => c.IsActive).AsQueryable();
+            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
             var _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
             totalRecords = _chargeStations.Count();
+            if(isActive)
+            {
+                _chargeStations = _chargeStations.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                totalRecords = _chargeStations.Count();
+            }
             if (!string.IsNullOrEmpty(chargeStationSearchFilter.IsOnline))
             {
                 if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
                 {
-                    chargeStations = chargeStations.Where(c => c.ModifiedDate >= DateTime.Now.AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval")))).AsQueryable();
-                    totalRecords = chargeStations.Count();
+                    _chargeStations = _chargeStations.Where(c => c.ModifiedDate >= DateTime.Now.AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval")))).AsQueryable();
+                    totalRecords = _chargeStations.Count();
                 }
             }
             if (chargeStationSearchFilter != null)
             {
                 if (Convert.ToInt32(chargeStationSearchFilter.MerchantId) > 0)
                 {
-                    chargeStations = chargeStations.Where(a => a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
-                    totalRecords = chargeStations.Count();
+                    _chargeStations = _chargeStations.Where(a => a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
+                    totalRecords = _chargeStations.Count();
                 }
-                if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search))
+                if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
                 {
                     chargeStationSearchFilter.Search = chargeStationSearchFilter.Search.ToLower();
-                    exp = GetFilteredBySearch(chargeStationSearchFilter);
-                    chargeStations = chargeStations.Where(exp).AsQueryable();
-                    totalRecords = chargeStations.Count();
+                    exp = PredicateHelper<ChargeStationModel>.CreateSearchPredicate(chargeStationSearchFilter.Type, chargeStationSearchFilter.Search);
+                    _chargeStations = _chargeStations.Where(exp).AsQueryable();
+                    totalRecords = _chargeStations.Count();
                 }
-                chargeStations = chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
-                chargeStations = chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
+                _chargeStations = _chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
+                _chargeStations = _chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
             }
-            return chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).ToList();
-        }
-
-        private static Expression<Func<ChargeStation, bool>> GetFilteredBySearch(BaseSearchFilter chargeStationSearchFilter)
-        {
-            return e => Convert.ToString(e.ChargeControllerId).ToLower().Contains(chargeStationSearchFilter.Search) || Convert.ToString(e.CreatedDate).ToLower().Contains(chargeStationSearchFilter.Search) || Convert.ToString(e.Geolocation).ToLower().Contains(chargeStationSearchFilter.Search) || Convert.ToString(e.Id).ToLower().Contains(chargeStationSearchFilter.Search) || Convert.ToString(e.ModifiedDate).ToLower().Contains(chargeStationSearchFilter.Search) || Convert.ToString(e.Branch.Merchant.BusinessName).Contains(chargeStationSearchFilter.Search);
+            return _chargeStations.ToList();
         }
 
         public Guid AddChargeStation(ChargeStationModel chargeStation, Guid guid = default(Guid))

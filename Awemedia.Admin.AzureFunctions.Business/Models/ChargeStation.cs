@@ -26,6 +26,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public DateTime? LastPingTimeStamp { get; set; }
         public bool? IsOnline { get; set; }
         public string BatteryInfoDisplayField { get; set; }
+        public bool IsActive { get; set; }
 
     }
 }
