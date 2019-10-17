@@ -35,7 +35,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 if (Convert.ToInt32(userSessionSearchFilter.MerchantId) > 0)
                 {
                     _userSessions = _userSessions.Where(a => a.ChargeStation.Branch.MerchantId == Convert.ToInt32(userSessionSearchFilter.MerchantId)).AsQueryable();
-                    totalRecords = userSessions.Count();
+                    totalRecords = _userSessions.Count();
                 }
                 if (!string.IsNullOrEmpty(userSessionSearchFilter.Search) && !string.IsNullOrEmpty(userSessionSearchFilter.Type))
                 {
