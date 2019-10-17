@@ -30,7 +30,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 IsOnline = chargeStation.IsOnline,
                 LastPingTimeStamp = chargeStation.LastPingTimeStamp,
                 BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? chargeStation.BatteryLevel + " as of " + chargeStation.LastPingTimeStamp : "",
-                IsActive=chargeStation.IsActive
+                IsActive = chargeStation.IsActive
             };
         }
         public static Models.ChargeOption MapChargeOptionsResponseObjects(DAL.DataContracts.ChargeOptions chargeOptions)
@@ -70,7 +70,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 BranchId = chargeStationResponse.BranchId,
                 ModifiedDate = DateTime.Now,
                 DeviceId = chargeStationResponse.DeviceId,
-                IsActive=true
+                IsActive = true
             };
         }
         public static Models.Merchant MapMerchantModelObject(DAL.DataContracts.Merchant merchant)
@@ -182,7 +182,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 PhoneNum = branch.PhoneNum,
                 Merchant = MapMerchantModelObject(branch.Merchant),
                 MerchantName = branch.Merchant.BusinessName,
-                IsActive=branch.IsActive
+                IsActive = branch.IsActive
             };
         }
         public static Guid StringToGuid(string value)
@@ -222,7 +222,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 SessionEndTime = userSession.SessionEndTime,
                 SessionStartTime = userSession.SessionStartTime,
                 SessionStatus = userSession.SessionStatusNavigation.Status,
-                SessionType = userSession.SessionTypeNavigation.Type,
+                SessionType = userSession.SessionTypeNavigation == null ? null : userSession.SessionTypeNavigation.Type,
                 TransactionId = userSession.TransactionId,
                 UserAccountId = userSession.UserAccountId,
                 MerchantName = userSession.ChargeStation.Branch == null ? null : userSession.ChargeStation.Branch.Merchant.BusinessName
