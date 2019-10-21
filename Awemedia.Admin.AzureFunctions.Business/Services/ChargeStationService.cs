@@ -98,7 +98,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public ChargeStationModel GetById(Guid guid)
         {
-            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant", "Branch.Merchant.Branch").AsQueryable();
+            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant", "Branch.Merchant.Branch", "UserSession", "UserSession.SessionStatusNavigation", "UserSession.SessionTypeNavigation").AsQueryable();
             var chargeStation = chargeStations.Where(u => u.Id == guid).FirstOrDefault();
             if (chargeStation != null)
             {
