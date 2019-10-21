@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using UserSession = Awemedia.Admin.AzureFunctions.DAL.DataContracts.UserSession;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
 {
@@ -30,7 +31,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 IsOnline = chargeStation.IsOnline,
                 LastPingTimeStamp = chargeStation.LastPingTimeStamp,
                 BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? chargeStation.BatteryLevel + " as of " + chargeStation.LastPingTimeStamp : "",
-                IsActive = chargeStation.IsActive
+                IsActive = chargeStation.IsActive,
+                userSessions = MapSessionList(chargeStation.UserSession)
             };
         }
         public static Models.ChargeOption MapChargeOptionsResponseObjects(DAL.DataContracts.ChargeOptions chargeOptions)
@@ -227,6 +229,42 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 UserAccountId = userSession.UserAccountId,
                 MerchantName = userSession.ChargeStation.Branch == null ? null : userSession.ChargeStation.Branch.Merchant.BusinessName
             };
+        }
+        public static ICollection<Business.Models.UserSession> MapSessionList(ICollection<DAL.DataContracts.UserSession> userSessions)
+        {
+            Models.UserSession _userSession = null;
+            List<Models.UserSession> _userSessions = new List<Models.UserSession>();
+            if (userSessions != null)
+            {
+                if (userSessions.Count > 0)
+                {
+                    foreach (var userSession in userSessions)
+                    {
+                        _userSession = new Models.UserSession
+                        {
+                            AppKey = userSession.AppKey,
+                            ApplicationId = userSession.ApplicationId,
+                            ChargeParams = userSession.ChargeParams,
+                            ChargeRentalRevnue = userSession.ChargeRentalRevnue,
+                            ChargeStationId = userSession.ChargeStationId,
+                            CreatedDate = userSession.CreatedDate.GetValueOrDefault(),
+                            DeviceId = userSession.DeviceId,
+                            Email = userSession.Email,
+                            InvoiceNo = userSession.InvoiceNo,
+                            Id = userSession.Id,
+                            Mobile = userSession.Mobile,
+                            SessionEndTime = userSession.SessionEndTime,
+                            SessionStartTime = userSession.SessionStartTime,
+                            SessionStatus = userSession.SessionStatusNavigation.Status,
+                            SessionType = userSession.SessionTypeNavigation == null ? null : userSession.SessionTypeNavigation.Type,
+                            TransactionId = userSession.TransactionId,
+                            UserAccountId = userSession.UserAccountId
+                        };
+                        _userSessions.Add(_userSession);
+                    }
+                }
+            }
+            return _userSessions;
         }
     }
 }
