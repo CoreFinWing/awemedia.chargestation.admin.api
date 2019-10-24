@@ -60,17 +60,20 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var branchId = JObject.Parse(httpRequestMessage.Content.ReadAsStringAsync().Result);
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            ChargeStation chargeStation = new ChargeStation();
             if (string.IsNullOrEmpty(branchId["BranchId"].ToString()))
-                httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
-            var _chargeStation = _chargeStationService.GetById(Guid.Parse(chargeStationId));
-            ChargeStation chargeStation = new ChargeStation
             {
-                BranchId = (int)branchId["BranchId"]
-            };
+                chargeStation.BranchId = null;
+            }
+            else
+            {
+                chargeStation.BranchId = (int)branchId["BranchId"];
+                var branch = _branchService.GetById(chargeStation.BranchId.GetValueOrDefault());
+                if (branch == null)
+                    return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, "Branch doesn't exist.");
+            }
+            var _chargeStation = _chargeStationService.GetById(Guid.Parse(chargeStationId));
             object device = _chargeStationService.IsChargeStationExists(Guid.Parse(_chargeStation.Id));
-            var branch = _branchService.GetById(chargeStation.BranchId);
-            if (branch == null)
-                return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, "Branch doesn't exist.");
             if (device == DBNull.Value)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DeviceNotRegistered));
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, Guid.Parse(_chargeStation.Id)));
@@ -120,7 +123,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         [FunctionName("Active_InActive_ChargeStation")]
         public HttpResponseMessage Patch(
             [HttpTrigger(AuthorizationLevel.Anonymous, "Patch", Route = "charge-stations")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler)
-         {
+        {
             var jsonContent = httpRequestMessage.Content.ReadAsStringAsync().Result;
             var definition = new[] { new { Id = "", IsActive = "" } };
             var chargeStationsToSetActiveInActive = JsonConvert.DeserializeAnonymousType(jsonContent, definition);

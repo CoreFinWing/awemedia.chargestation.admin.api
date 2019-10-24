@@ -29,7 +29,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
             var _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
             totalRecords = _chargeStations.Count();
-            if(isActive)
+            if (isActive)
             {
                 _chargeStations = _chargeStations.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
                 totalRecords = _chargeStations.Count();
@@ -46,13 +46,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 if (Convert.ToInt32(chargeStationSearchFilter.MerchantId) > 0)
                 {
-                    _chargeStations = _chargeStations.Where(a => a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
+                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? true : a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
                     totalRecords = _chargeStations.Count();
                 }
                 if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
                 {
                     chargeStationSearchFilter.Search = chargeStationSearchFilter.Search.ToLower();
                     exp = PredicateHelper<ChargeStationModel>.CreateSearchPredicate(chargeStationSearchFilter.Type, chargeStationSearchFilter.Search);
+                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : true).AsQueryable();
                     _chargeStations = _chargeStations.Where(exp).AsQueryable();
                     totalRecords = _chargeStations.Count();
                 }
