@@ -34,13 +34,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 if (Convert.ToInt32(userSessionSearchFilter.MerchantId) > 0)
                 {
-                    _userSessions = _userSessions.Where(a => a.ChargeStation.Branch.MerchantId == Convert.ToInt32(userSessionSearchFilter.MerchantId)).AsQueryable();
+                    _userSessions = _userSessions.Where(a => a.ChargeStation.Branch == null ? true : a.ChargeStation.Branch.MerchantId == Convert.ToInt32(userSessionSearchFilter.MerchantId)).AsQueryable();
                     totalRecords = _userSessions.Count();
                 }
                 if (!string.IsNullOrEmpty(userSessionSearchFilter.Search) && !string.IsNullOrEmpty(userSessionSearchFilter.Type))
                 {
                     userSessionSearchFilter.Search = userSessionSearchFilter.Search.ToLower();
                     exp = PredicateHelper<UserSession>.CreateSearchPredicate(userSessionSearchFilter.Type, userSessionSearchFilter.Search);
+                    _userSessions = _userSessions.Where(u => u.ChargeStation.Branch == null ? false : true);
                     _userSessions = _userSessions.Where(exp).AsQueryable();
                     totalRecords = _userSessions.Count();
                 }
@@ -57,7 +58,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (userSession.ChargeParams != null)
             {
                 JObject jObject = JObject.Parse(userSession.ChargeParams);
-                string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
+                    string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
                 userSession.ChargePorts = (int)jObject.SelectToken("ChargeOptionId");
                 userSession.ChargeOption = _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
             }
