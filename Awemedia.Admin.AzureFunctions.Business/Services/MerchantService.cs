@@ -143,7 +143,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             bool isDuplicateMerchantFound = false;
             if (merchantModel != null)
             {
-                var merchant = _baseService.Where(a => a.BusinessName.Equals(merchantModel.RegisteredBusinessName) && a.PhoneNum.Equals(merchantModel.PhoneNumber) && a.Email.Equals(merchantModel.Email)).FirstOrDefault();
+                var merchant = _baseService.Where(a => a.LicenseNum.Equals(merchantModel.LicenseNumber)).FirstOrDefault();
                 if (merchant != null)
                 {
                     isDuplicateMerchantFound = true;
