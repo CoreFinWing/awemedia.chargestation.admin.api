@@ -1,16 +1,14 @@
-﻿using Awemedia.Admin.AzureFunctions.Business.Interfaces;
-using MerchantModel = Awemedia.Admin.AzureFunctions.Business.Models.Merchant;
+﻿using Awemedia.Admin.AzureFunctions.Business.Helpers;
+using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
+using Awemedia.Admin.AzureFunctions.Business.Interfaces;
+using Awemedia.Admin.AzureFunctions.Business.Models;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
-using Awemedia.Admin.AzureFunctions.Business.Models;
-using Merchant = Awemedia.Admin.AzureFunctions.DAL.DataContracts.Merchant;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Linq.Dynamic.Core;
-using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
-using Awemedia.Admin.AzureFunctions.Business.Helpers;
+using System.Linq.Expressions;
+using Merchant = Awemedia.Admin.AzureFunctions.DAL.DataContracts.Merchant;
+using MerchantModel = Awemedia.Admin.AzureFunctions.Business.Models.Merchant;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
@@ -48,21 +46,17 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             }
             return _merchants.ToList();
         }
-        private static Expression<Func<Merchant, bool>> GetFilteredBySearch(BaseSearchFilter merchantSearchFilter)
-        {
-            return e => Convert.ToString(e.BusinessName).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.ChargeStationsOrdered).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.Dba).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.Id).Contains(merchantSearchFilter.Search) || Convert.ToString(e.DepositMoneyPaid).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.Email).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.LicenseNum).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.PhoneNum).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.ProfitSharePercentage).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.SecondaryContact).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.SecondaryPhone).ToLower().Contains(merchantSearchFilter.Search) || Convert.ToString(e.IndustryType.Name).ToLower().Contains(merchantSearchFilter.Search);
-        }
 
 
         public int AddMerchant(MerchantModel merchantModel, int id = 0)
         {
-            if (merchantModel == null)
+            if (!IsMerchantDuplicate(merchantModel))
             {
-                return 0;
+                var merchant = _baseService.AddOrUpdate(MappingProfile.MapMerchantObject(merchantModel, new DAL.DataContracts.Merchant()), 0);
+                merchantModel.Id = merchant.Id;
+                return merchant.Id;
             }
-            var merchant = _baseService.AddOrUpdate(MappingProfile.MapMerchantObject(merchantModel, new DAL.DataContracts.Merchant()), 0);
-            merchantModel.Id = merchant.Id;
-            return merchant.Id;
+            return 0;
         }
 
         public void UpdateMerchant(MerchantModel merchantModel, int id)
@@ -142,6 +136,20 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public List<object> Search(string keyword)
         {
             return _baseService.Where(m => m.BusinessName.ToLower().Contains(keyword)).Select(s => new { s.Id, s.BusinessName }).ToList<object>();
+        }
+
+        private bool IsMerchantDuplicate(MerchantModel merchantModel)
+        {
+            bool isDuplicateMerchantFound = false;
+            if (merchantModel != null)
+            {
+                var merchant = _baseService.Where(a => a.LicenseNum.Equals(merchantModel.LicenseNumber)).FirstOrDefault();
+                if (merchant != null)
+                {
+                    isDuplicateMerchantFound = true;
+                }
+            }
+            return isDuplicateMerchantFound;
         }
     }
 }
