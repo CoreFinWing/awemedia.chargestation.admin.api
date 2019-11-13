@@ -23,7 +23,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<MerchantModel> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, bool isActive = true)
         {
-            Expression<Func<MerchantModel, bool>> exp = null;
             totalRecords = 0;
             IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").AsQueryable();
             var _merchants = merchants.Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
@@ -38,8 +37,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 if (!string.IsNullOrEmpty(merchantSearchFilter.Search) && !string.IsNullOrEmpty(merchantSearchFilter.Type))
                 {
                     merchantSearchFilter.Search = merchantSearchFilter.Search.ToLower();
-                    exp = PredicateHelper<MerchantModel>.CreateSearchPredicate(merchantSearchFilter.Type, merchantSearchFilter.Search);
-                    _merchants = _merchants.Where(exp).AsQueryable();
+                    _merchants = _merchants.Search(merchantSearchFilter.Type, merchantSearchFilter.Search);
                 }
                 _merchants = _merchants.OrderBy(merchantSearchFilter.Order + (Convert.ToBoolean(merchantSearchFilter.Dir) ? " descending" : ""));
                 _merchants = _merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));

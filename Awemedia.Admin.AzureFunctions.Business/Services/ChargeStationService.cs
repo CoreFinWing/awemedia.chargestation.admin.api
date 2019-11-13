@@ -24,7 +24,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         public IEnumerable<ChargeStationModel> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, bool isActive = true)
         {
-            Expression<Func<ChargeStationModel, bool>> exp = null;
             totalRecords = 0;
             IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
             var _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
@@ -52,9 +51,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
                 {
                     chargeStationSearchFilter.Search = chargeStationSearchFilter.Search.ToLower();
-                    exp = PredicateHelper<ChargeStationModel>.CreateSearchPredicate(chargeStationSearchFilter.Type, chargeStationSearchFilter.Search);
                     _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : true).AsQueryable();
-                    _chargeStations = _chargeStations.Where(exp).AsQueryable();
+                    _chargeStations = _chargeStations.Search(chargeStationSearchFilter.Type, chargeStationSearchFilter.Search);
                     totalRecords = _chargeStations.Count();
                 }
                 _chargeStations = _chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));

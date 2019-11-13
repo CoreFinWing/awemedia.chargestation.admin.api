@@ -25,7 +25,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<UserSession> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords)
         {
-            Expression<Func<UserSession, bool>> exp = null;
             totalRecords = 0;
             IQueryable<DAL.DataContracts.UserSession> userSessions = _baseService.GetAll("SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant").AsQueryable();
             var _userSessions = userSessions.Select(t => MappingProfile.MapUserSessionModelObject(t)).AsQueryable();
@@ -40,9 +39,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 if (!string.IsNullOrEmpty(userSessionSearchFilter.Search) && !string.IsNullOrEmpty(userSessionSearchFilter.Type))
                 {
                     userSessionSearchFilter.Search = userSessionSearchFilter.Search.ToLower();
-                    exp = PredicateHelper<UserSession>.CreateSearchPredicate(userSessionSearchFilter.Type, userSessionSearchFilter.Search);
                     _userSessions = _userSessions.Where(u => u.ChargeStation.Branch == null ? false : true);
-                    _userSessions = _userSessions.Where(exp).AsQueryable();
+                    _userSessions = _userSessions.Search(userSessionSearchFilter.Type, userSessionSearchFilter.Search);
                     totalRecords = _userSessions.Count();
                 }
                 _userSessions = _userSessions.OrderBy(userSessionSearchFilter.Order + (Convert.ToBoolean(userSessionSearchFilter.Dir) ? " descending" : ""));
@@ -58,7 +56,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (userSession.ChargeParams != null)
             {
                 JObject jObject = JObject.Parse(userSession.ChargeParams);
-                    string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
+                string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
                 userSession.ChargePorts = (int)jObject.SelectToken("ChargeOptionId");
                 userSession.ChargeOption = _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
             }
