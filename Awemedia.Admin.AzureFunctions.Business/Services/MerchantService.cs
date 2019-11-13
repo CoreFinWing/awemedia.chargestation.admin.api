@@ -36,7 +36,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 if (!string.IsNullOrEmpty(merchantSearchFilter.Search) && !string.IsNullOrEmpty(merchantSearchFilter.Type))
                 {
-                    merchantSearchFilter.Search = merchantSearchFilter.Search.ToLower();
                     _merchants = _merchants.Search(merchantSearchFilter.Type, merchantSearchFilter.Search);
                 }
                 _merchants = _merchants.OrderBy(merchantSearchFilter.Order + (Convert.ToBoolean(merchantSearchFilter.Dir) ? " descending" : ""));

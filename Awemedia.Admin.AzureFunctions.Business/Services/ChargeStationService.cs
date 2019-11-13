@@ -50,7 +50,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 }
                 if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
                 {
-                    chargeStationSearchFilter.Search = chargeStationSearchFilter.Search.ToLower();
                     _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : true).AsQueryable();
                     _chargeStations = _chargeStations.Search(chargeStationSearchFilter.Type, chargeStationSearchFilter.Search);
                     totalRecords = _chargeStations.Count();
