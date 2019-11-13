@@ -16,8 +16,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
             if (property == null)
                 throw new ArgumentException($"'{typeof(T).Name}' does not implement a public get property named '{key}'.");
 
-            data = data.Where(d => ((string)property.GetValue(d)) != null).AsQueryable();
-            return data.Where(d => ((string)property.GetValue(d)).Contains(searchString)).AsQueryable();
+            data = data.Where(d => property.GetValue(d) != null).AsQueryable();
+            return data.Where(d => Convert.ToString(property.GetValue(d)).Contains(searchString)).AsQueryable();
         }
     }
 }
