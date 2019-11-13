@@ -33,7 +33,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<Branch> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, bool isActive = true)
         {
-            Expression<Func<Branch, bool>> exp = null;
             totalRecords = 0;
             IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").AsQueryable();
             var _branches = branches.Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
@@ -50,11 +49,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     _branches = _branches.Where(m => m.MerchantId == Convert.ToInt32(branchSearchFilter.MerchantId)).AsQueryable();
                     totalRecords = _branches.Count();
                 }
-                if (!string.IsNullOrEmpty(branchSearchFilter.Search)&& !string.IsNullOrEmpty(branchSearchFilter.Type))
+                if (!string.IsNullOrEmpty(branchSearchFilter.Search) && !string.IsNullOrEmpty(branchSearchFilter.Type))
                 {
                     branchSearchFilter.Search = branchSearchFilter.Search.ToLower();
-                    exp = PredicateHelper<Branch>.CreateSearchPredicate(branchSearchFilter.Type, branchSearchFilter.Search);
-                    _branches = _branches.Where(exp).AsQueryable();
+                    _branches = _branches.Search(branchSearchFilter.Type, branchSearchFilter.Search);
                     totalRecords = _branches.Count();
                 }
                 _branches = _branches.OrderBy(branchSearchFilter.Order + (Convert.ToBoolean(branchSearchFilter.Dir) ? " descending" : ""));

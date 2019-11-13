@@ -7,17 +7,17 @@ using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Helpers
 {
-    public class PredicateHelper<T> where T : class
+    public static class PredicateHelper
     {
-        public static Expression<Func<T, bool>> CreateSearchPredicate(string columnName, object searchValue)
+        public static IQueryable<T> Search<T>(this IQueryable<T> data, string key, string searchString)
         {
-            var parameterExp = Expression.Parameter(typeof(T), "type");
-            var propertyExp = Expression.Property(parameterExp, columnName);
-            MethodInfo method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-            var someValue = Expression.Constant(searchValue, typeof(string));
-            var containsMethodExp = Expression.Call(propertyExp, method, someValue);
+            var property = typeof(T).GetProperty(key, BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance);
 
-            return Expression.Lambda<Func<T, bool>>(containsMethodExp, parameterExp);
+            if (property == null)
+                throw new ArgumentException($"'{typeof(T).Name}' does not implement a public get property named '{key}'.");
+
+            data = data.Where(d => ((string)property.GetValue(d)) != null).AsQueryable();
+            return data.Where(d => ((string)property.GetValue(d)).Contains(searchString)).AsQueryable();
         }
     }
 }
