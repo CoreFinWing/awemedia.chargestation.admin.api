@@ -51,7 +51,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 }
                 if (!string.IsNullOrEmpty(branchSearchFilter.Search) && !string.IsNullOrEmpty(branchSearchFilter.Type))
                 {
-                    branchSearchFilter.Search = branchSearchFilter.Search.ToLower();
                     _branches = _branches.Search(branchSearchFilter.Type, branchSearchFilter.Search);
                     totalRecords = _branches.Count();
                 }

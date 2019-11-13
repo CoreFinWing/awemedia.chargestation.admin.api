@@ -73,7 +73,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 if (!string.IsNullOrEmpty(chargeOptionSearchFilter.Search) && !string.IsNullOrEmpty(chargeOptionSearchFilter.Type))
                 {
-                    chargeOptionSearchFilter.Search = chargeOptionSearchFilter.Search.ToLower();
                     _chargeOptions = _chargeOptions.Search(chargeOptionSearchFilter.Type, chargeOptionSearchFilter.Search);
                     totalRecords = _chargeOptions.Count();
                 }

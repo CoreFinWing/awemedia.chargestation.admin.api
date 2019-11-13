@@ -38,7 +38,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 }
                 if (!string.IsNullOrEmpty(userSessionSearchFilter.Search) && !string.IsNullOrEmpty(userSessionSearchFilter.Type))
                 {
-                    userSessionSearchFilter.Search = userSessionSearchFilter.Search.ToLower();
                     _userSessions = _userSessions.Where(u => u.ChargeStation.Branch == null ? false : true);
                     _userSessions = _userSessions.Search(userSessionSearchFilter.Type, userSessionSearchFilter.Search);
                     totalRecords = _userSessions.Count();
