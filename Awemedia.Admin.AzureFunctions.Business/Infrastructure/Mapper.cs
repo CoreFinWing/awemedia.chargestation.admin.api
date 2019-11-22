@@ -141,7 +141,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                             MerchantId = item.MerchantId,
                             ModifiedDate = item.ModifiedDate.GetValueOrDefault(),
                             Name = item.Name,
-                            PhoneNum = item.PhoneNum
+                            PhoneNum = item.PhoneNum,
+                            ChargeStation = MapChargeStationsModelsObject(item.ChargeStation)
                         };
                         branches.Add(_branch);
                     }
@@ -149,6 +150,40 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             }
             return branches;
 
+        }
+
+        public static ICollection<Models.ChargeStation> MapChargeStationsModelsObject(ICollection<DAL.DataContracts.ChargeStation> chargeStation)
+        {
+            Models.ChargeStation _chargeStation = null;
+            List<Models.ChargeStation> chargeStations = new List<Models.ChargeStation>();
+            if (chargeStation != null)
+            {
+                foreach (var item in chargeStation)
+                {
+                    if (chargeStation.Any())
+                    {
+                        _chargeStation = new Models.ChargeStation
+                        {
+                            ChargeControllerId = item.ChargeControllerId,
+                            CreatedDate = item.CreatedDate,
+                            Geolocation = item.Geolocation,
+                            Id = item.Id.ToString(),
+                            BranchId = item.BranchId ?? 0,
+                            ModifiedDate = item.ModifiedDate,
+                            DeviceId = item.DeviceId,
+                            Uid = item.Uid,
+                            MerchantName = item.Branch?.Merchant.BusinessName,
+                            BatteryLevel = item.BatteryLevel,
+                            IsOnline = item.IsOnline,
+                            LastPingTimeStamp = item.LastPingTimeStamp,
+                            BatteryInfoDisplayField = !string.IsNullOrEmpty(item.BatteryLevel) ? item.BatteryLevel + " as of " + item.LastPingTimeStamp : "",
+                            IsActive = item.IsActive
+                        };
+                        chargeStations.Add(_chargeStation);
+                    }
+                }
+            }
+            return chargeStations;
         }
 
         public static DAL.DataContracts.Branch MapBranchObject(Models.Branch branch, DAL.DataContracts.Branch _branch)

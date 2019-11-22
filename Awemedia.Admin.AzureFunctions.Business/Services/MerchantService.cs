@@ -128,7 +128,16 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         public MerchantModel GetById(int id)
         {
-            return MappingProfile.MapMerchantModelObject(_baseService.GetById(id, navigationalProperties, includedProperties));
+            IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").AsQueryable();
+            var merchant = merchants.Where(u => u.Id == id).FirstOrDefault();
+            if (merchant != null)
+            {
+                return MappingProfile.MapMerchantModelObject(merchant);
+            }
+            else
+            {
+                return null;
+            }
         }
         public List<object> Search(string keyword)
         {
