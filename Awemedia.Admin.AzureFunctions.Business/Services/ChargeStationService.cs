@@ -37,7 +37,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
                 {
-                    _chargeStations = _chargeStations.Where(c => c.ModifiedDate >= DateTime.Now.AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval")))).AsQueryable();
+                    _chargeStations = _chargeStations.Where(c => c.ModifiedDate >= DateTime.Now.AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) && c.IsActive).AsQueryable();
                     totalRecords = _chargeStations.Count();
                 }
             }
@@ -45,7 +45,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 if (Convert.ToInt32(chargeStationSearchFilter.MerchantId) > 0)
                 {
-                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? true : a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
+                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
                     totalRecords = _chargeStations.Count();
                 }
                 if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
