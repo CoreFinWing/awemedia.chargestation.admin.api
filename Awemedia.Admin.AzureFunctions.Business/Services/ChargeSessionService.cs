@@ -37,6 +37,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     _userSessions = _userSessions.Where(a => a.ChargeStation.Branch.MerchantId == Convert.ToInt32(userSessionSearchFilter.MerchantId)).AsQueryable();
                     totalRecords = _userSessions.Count();
                 }
+                if (!string.IsNullOrEmpty(userSessionSearchFilter.StationId))
+                {
+                    _userSessions = _userSessions.Where(a => a.ChargeStationId == Guid.Parse(userSessionSearchFilter.StationId)).AsQueryable();
+                    totalRecords = _userSessions.Count();
+                }
                 if (!string.IsNullOrEmpty(userSessionSearchFilter.Search) && !string.IsNullOrEmpty(userSessionSearchFilter.Type))
                 {
                     userSessionSearchFilter.Search = userSessionSearchFilter.Search.ToLower();
@@ -46,7 +51,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 }
                 _userSessions = _userSessions.OrderBy(userSessionSearchFilter.Order + (Convert.ToBoolean(userSessionSearchFilter.Dir) ? " descending" : ""));
                 _userSessions = _userSessions.Skip((Convert.ToInt32(userSessionSearchFilter.Start) - 1) * Convert.ToInt32(userSessionSearchFilter.Size)).Take(Convert.ToInt32(userSessionSearchFilter.Size));
-
             }
             return _userSessions.ToList();
         }
