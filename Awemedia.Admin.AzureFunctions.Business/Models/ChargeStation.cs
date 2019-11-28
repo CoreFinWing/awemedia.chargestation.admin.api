@@ -22,6 +22,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public int Uid { get; set; }
         public Branch Branch { get; set; }
         public string MerchantName { get; set; }
+        public string BranchName { get; set; }
         public string BatteryLevel { get; set; }
         public DateTime? LastPingTimeStamp { get; set; }
         public bool? IsOnline { get; set; }
