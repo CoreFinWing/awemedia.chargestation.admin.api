@@ -25,6 +25,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ModifiedDate = chargeStation.ModifiedDate,
                 DeviceId = chargeStation.DeviceId,
                 Uid = chargeStation.Uid,
+                BranchName= chargeStation.Branch == null ? null : chargeStation.Branch.Name,
                 MerchantName = chargeStation.Branch == null ? null : chargeStation.Branch.Merchant.BusinessName,
                 Branch = chargeStation.Branch == null ? null : MapBranchModelObject(chargeStation.Branch),
                 BatteryLevel = chargeStation.BatteryLevel,
