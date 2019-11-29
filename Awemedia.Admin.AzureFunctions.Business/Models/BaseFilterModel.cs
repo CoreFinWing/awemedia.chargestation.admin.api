@@ -15,5 +15,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string MerchantId { get; set; }
         public string IsOnline { get; set; }
         public string Type { get; set; }
+        public string StationId { get; set; }
     }
 }
