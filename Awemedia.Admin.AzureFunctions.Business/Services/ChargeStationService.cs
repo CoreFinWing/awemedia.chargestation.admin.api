@@ -48,6 +48,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
                     totalRecords = _chargeStations.Count();
                 }
+                if (Convert.ToInt32(chargeStationSearchFilter.BranchId) > 0)
+                {
+                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.BranchId == Convert.ToInt32(chargeStationSearchFilter.BranchId)).AsQueryable();
+                    totalRecords = _chargeStations.Count();
+                }
                 if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
                 {
                     _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : true).AsQueryable();
