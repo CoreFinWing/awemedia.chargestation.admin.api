@@ -23,8 +23,19 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<MerchantModel> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, bool isActive = true)
         {
+            DateTime fromDate = DateTime.Now;
+            DateTime toDate = DateTime.Now;
+            if (!string.IsNullOrEmpty(merchantSearchFilter.FromDate) && !string.IsNullOrEmpty(merchantSearchFilter.ToDate))
+            {
+                fromDate = DateTime.Parse(merchantSearchFilter.FromDate);
+                toDate = DateTime.Parse(merchantSearchFilter.ToDate);
+            }
+            else
+            {
+                fromDate = toDate.AddDays(-30);
+            }
             totalRecords = 0;
-            IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").AsQueryable();
+            IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
             var _merchants = merchants.Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
             totalRecords = _merchants.Count();
             if (isActive)
@@ -39,7 +50,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     _merchants = _merchants.Search(merchantSearchFilter.Type, merchantSearchFilter.Search);
                 }
                 _merchants = _merchants.OrderBy(merchantSearchFilter.Order + (Convert.ToBoolean(merchantSearchFilter.Dir) ? " descending" : ""));
-                _merchants = _merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));
+                if (!Convert.ToBoolean(merchantSearchFilter.Export))
+                {
+                    _merchants = _merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));
+                }
             }
             return _merchants.ToList();
         }

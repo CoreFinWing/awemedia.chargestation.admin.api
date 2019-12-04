@@ -24,8 +24,19 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         public IEnumerable<ChargeStationModel> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, bool isActive = true)
         {
+            DateTime fromDate = DateTime.Now;
+            DateTime toDate = DateTime.Now;
+            if (!string.IsNullOrEmpty(chargeStationSearchFilter.FromDate) && !string.IsNullOrEmpty(chargeStationSearchFilter.ToDate))
+            {
+                fromDate = DateTime.Parse(chargeStationSearchFilter.FromDate);
+                toDate = DateTime.Parse(chargeStationSearchFilter.ToDate);
+            }
+            else
+            {
+                fromDate = toDate.AddDays(-30);
+            }
             totalRecords = 0;
-            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
+            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
             var _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
             totalRecords = _chargeStations.Count();
             if (isActive)
@@ -59,8 +70,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     _chargeStations = _chargeStations.Search(chargeStationSearchFilter.Type, chargeStationSearchFilter.Search);
                     totalRecords = _chargeStations.Count();
                 }
+
                 _chargeStations = _chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
-                _chargeStations = _chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
+                if (!Convert.ToBoolean(chargeStationSearchFilter.Export))
+                {
+                    _chargeStations = _chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
+                }
+
             }
             return _chargeStations.ToList();
         }

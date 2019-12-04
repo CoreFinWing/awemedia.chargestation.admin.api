@@ -33,8 +33,19 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<Branch> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, bool isActive = true)
         {
+            DateTime fromDate = DateTime.Now;
+            DateTime toDate = DateTime.Now;
+            if (!string.IsNullOrEmpty(branchSearchFilter.FromDate) && !string.IsNullOrEmpty(branchSearchFilter.ToDate))
+            {
+                fromDate = DateTime.Parse(branchSearchFilter.FromDate);
+                toDate = DateTime.Parse(branchSearchFilter.ToDate);
+            }
+            else
+            {
+                fromDate = toDate.AddDays(-30);
+            }
             totalRecords = 0;
-            IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").AsQueryable();
+            IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
             var _branches = branches.Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
             totalRecords = _branches.Count();
             if (isActive)
@@ -55,7 +66,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     totalRecords = _branches.Count();
                 }
                 _branches = _branches.OrderBy(branchSearchFilter.Order + (Convert.ToBoolean(branchSearchFilter.Dir) ? " descending" : ""));
-                _branches = _branches.Skip((Convert.ToInt32(branchSearchFilter.Start) - 1) * Convert.ToInt32(branchSearchFilter.Size)).Take(Convert.ToInt32(branchSearchFilter.Size));
+                if (!Convert.ToBoolean(branchSearchFilter.Export))
+                {
+                    _branches = _branches.Skip((Convert.ToInt32(branchSearchFilter.Start) - 1) * Convert.ToInt32(branchSearchFilter.Size)).Take(Convert.ToInt32(branchSearchFilter.Size));
+                }
             }
             return _branches.ToList();
         }
