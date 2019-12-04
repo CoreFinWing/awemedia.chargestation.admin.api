@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Awemedia.Admin.AzureFunctions.Business.Helpers;
 using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Newtonsoft.Json;
@@ -18,15 +19,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             return new Models.ChargeStation()
             {
                 ChargeControllerId = chargeStation.ChargeControllerId,
-                CreatedDate = chargeStation.CreatedDate,
+                CreatedDate = Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.CreatedDate, Environment.GetEnvironmentVariable("MalaysiaTimeZone")),
                 Geolocation = chargeStation.Geolocation,
                 Id = chargeStation.Id.ToString(),
                 BranchId = chargeStation.BranchId ?? 0,
-                ModifiedDate = chargeStation.ModifiedDate,
+                ModifiedDate = Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.ModifiedDate, Environment.GetEnvironmentVariable("MalaysiaTimeZone")),
                 DeviceId = chargeStation.DeviceId,
                 Uid = chargeStation.Uid,
-                BranchName= chargeStation.Branch == null ? null : chargeStation.Branch.Name,
-                MerchantName = chargeStation.Branch == null ? null : chargeStation.Branch.Merchant.BusinessName,
+                BranchName = chargeStation.Branch?.Name,
+                MerchantName = chargeStation.Branch?.Merchant.BusinessName,
                 Branch = chargeStation.Branch == null ? null : MapBranchModelObject(chargeStation.Branch),
                 BatteryLevel = chargeStation.BatteryLevel,
                 IsOnline = chargeStation.IsOnline,
@@ -41,11 +42,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             return new Models.ChargeOption()
             {
                 ChargeDuration = chargeOptions.ChargeDuration,
-                CreatedDate = chargeOptions.CreatedDate,
+                CreatedDate = Utility.ConvertUtcToSpecifiedTimeZone(chargeOptions.CreatedDate, Environment.GetEnvironmentVariable("MalaysiaTimeZone")),
                 Currency = chargeOptions.Currency,
                 Id = chargeOptions.Id,
                 IsActive = chargeOptions.IsActive,
-                ModifiedDate = chargeOptions.ModifiedDate,
+                ModifiedDate = Utility.ConvertUtcToSpecifiedTimeZone(chargeOptions.ModifiedDate, Environment.GetEnvironmentVariable("MalaysiaTimeZone")),
                 Price = chargeOptions.Price,
             };
         }
@@ -54,11 +55,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             return new DAL.DataContracts.ChargeOptions()
             {
                 ChargeDuration = chargeOptionsResponse.ChargeDuration,
-                CreatedDate = DateTime.Now,
+                CreatedDate = DateTime.Now.ToUniversalTime(),
                 Currency = chargeOptionsResponse.Currency,
                 Id = chargeOptionsResponse.Id,
                 IsActive = true,
-                ModifiedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now.ToUniversalTime(),
                 Price = chargeOptionsResponse.Price,
             };
         }
@@ -67,11 +68,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             return new DAL.DataContracts.ChargeStation()
             {
                 ChargeControllerId = chargeStationResponse.ChargeControllerId,
-                CreatedDate = DateTime.Now,
+                CreatedDate = DateTime.Now.ToUniversalTime(),
                 Geolocation = chargeStationResponse.Geolocation,
                 Id = StringToGuid(chargeStationResponse.DeviceId),
                 BranchId = chargeStationResponse.BranchId,
-                ModifiedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now.ToUniversalTime(),
                 DeviceId = chargeStationResponse.DeviceId,
                 IsActive = true
             };
@@ -86,7 +87,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 DepositMoneyPaid = merchant.DepositMoneyPaid,
                 Email = merchant.Email,
                 Id = merchant.Id,
-                IndustryName = merchant.IndustryType == null ? null : merchant.IndustryType.Name,
+                IndustryName = merchant.IndustryType?.Name,
                 IndustryTypeId = merchant.IndustryTypeId,
                 LicenseNumber = merchant.LicenseNum,
                 ContactName = merchant.ContactName,
@@ -94,8 +95,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ProfitSharePercentage = merchant.ProfitSharePercentage,
                 SecondaryContact = merchant.SecondaryContact,
                 SecondaryPhone = merchant.SecondaryPhone,
-                CreatedDate = merchant.CreatedDate.GetValueOrDefault(),
-                ModifiedDate = merchant.ModifiedDate.GetValueOrDefault(),
+                CreatedDate = Utility.ConvertUtcToSpecifiedTimeZone(merchant.CreatedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone")),
+                ModifiedDate = Utility.ConvertUtcToSpecifiedTimeZone(merchant.ModifiedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone")),
                 Branch = MapBranchModelsObject(merchant.Branch.ToList()),
                 IsActive = merchant.IsActive,
                 NumOfActiveLocations = merchant.NumOfActiveLocations
@@ -116,8 +117,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _merchant.ProfitSharePercentage = merchant.ProfitSharePercentage;
             _merchant.SecondaryContact = merchant.SecondaryContact;
             _merchant.SecondaryPhone = merchant.SecondaryPhone;
-            _merchant.CreatedDate = merchant.Id == 0 ? DateTime.Now : merchant.CreatedDate;
-            _merchant.ModifiedDate = DateTime.Now;
+            _merchant.CreatedDate = merchant.Id == 0 ? DateTime.Now.ToUniversalTime() : merchant.CreatedDate;
+            _merchant.ModifiedDate = DateTime.Now.ToUniversalTime();
             _merchant.IsActive = true;
             return _merchant;
         }
@@ -192,11 +193,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
 
             _branch.Address = branch.Address;
             _branch.ContactName = branch.ContactName;
-            _branch.CreatedDate = DateTime.Now;
+            _branch.CreatedDate = DateTime.Now.ToUniversalTime();
             _branch.Email = branch.Email;
             _branch.Geolocation = branch.Geolocation;
             _branch.MerchantId = branch.MerchantId;
-            _branch.ModifiedDate = DateTime.Now;
+            _branch.ModifiedDate = DateTime.Now.ToUniversalTime();
             _branch.Name = branch.Name;
             _branch.PhoneNum = branch.PhoneNum;
             _branch.Id = branch.Id;
@@ -210,12 +211,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             {
                 Address = branch.Address,
                 ContactName = branch.ContactName,
-                CreatedDate = branch.CreatedDate.GetValueOrDefault(),
+                CreatedDate = Utility.ConvertUtcToSpecifiedTimeZone(branch.CreatedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone")),
                 Email = branch.Email,
                 Geolocation = branch.Geolocation,
                 Id = branch.Id,
                 MerchantId = branch.MerchantId,
-                ModifiedDate = branch.ModifiedDate.GetValueOrDefault(),
+                ModifiedDate = Utility.ConvertUtcToSpecifiedTimeZone(branch.ModifiedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone")),
                 Name = branch.Name,
                 PhoneNum = branch.PhoneNum,
                 Merchant = MapMerchantModelObject(branch.Merchant),
@@ -250,20 +251,20 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ChargeRentalRevnue = userSession.ChargeRentalRevnue,
                 ChargeStation = MapChargeStationResponseObject(userSession.ChargeStation),
                 ChargeStationId = userSession.ChargeStationId,
-                CreatedDate = userSession.CreatedDate.Value,
+                CreatedDate = Utility.ConvertUtcToSpecifiedTimeZone(userSession.CreatedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone")),
                 DeviceId = userSession.DeviceId,
                 Email = userSession.Email,
                 Id = userSession.Id,
                 InvoiceNo = userSession.InvoiceNo,
                 Mobile = userSession.Mobile,
-                ModifiedDate = userSession.ModifiedDate.Value,
+                ModifiedDate = Utility.ConvertUtcToSpecifiedTimeZone(userSession.ModifiedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone")),
                 SessionEndTime = userSession.SessionEndTime,
                 SessionStartTime = userSession.SessionStartTime,
                 SessionStatus = userSession.SessionStatusNavigation.Status,
-                SessionType = userSession.SessionTypeNavigation == null ? null : userSession.SessionTypeNavigation.Type,
+                SessionType = userSession.SessionTypeNavigation?.Type,
                 TransactionId = userSession.TransactionId,
                 UserAccountId = userSession.UserAccountId,
-                MerchantName = userSession.ChargeStation.Branch == null ? null : userSession.ChargeStation.Branch.Merchant.BusinessName
+                MerchantName = userSession.ChargeStation.Branch?.Merchant.BusinessName
             };
         }
         public static ICollection<Business.Models.UserSession> MapSessionList(ICollection<DAL.DataContracts.UserSession> userSessions)
@@ -292,7 +293,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                             SessionEndTime = userSession.SessionEndTime,
                             SessionStartTime = userSession.SessionStartTime,
                             SessionStatus = userSession.SessionStatusNavigation.Status,
-                            SessionType = userSession.SessionTypeNavigation == null ? null : userSession.SessionTypeNavigation.Type,
+                            SessionType = userSession.SessionTypeNavigation?.Type,
                             TransactionId = userSession.TransactionId,
                             UserAccountId = userSession.UserAccountId
                         };
