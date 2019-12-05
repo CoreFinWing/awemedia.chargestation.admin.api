@@ -50,7 +50,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                         if (chargeOption != null)
                         {
                             chargeOption.IsActive = IsActive;
-                            chargeOption.ModifiedDate = DateTime.Now;
+                            chargeOption.ModifiedDate = DateTime.Now.ToUniversalTime();
                             _baseService.AddOrUpdate(chargeOption, chargeOptionId);
                         }
                     }

@@ -37,7 +37,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
                 {
-                    _chargeStations = _chargeStations.Where(c => c.ModifiedDate >= DateTime.Now.AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) && c.IsActive).AsQueryable();
+                    _chargeStations = _chargeStations.Where(c => c.ModifiedDate >= Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), Environment.GetEnvironmentVariable("MalaysiaTimeZone")).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) && c.IsActive).AsQueryable();
                     totalRecords = _chargeStations.Count();
                 }
             }
@@ -89,7 +89,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (chargeStation != null)
             {
                 chargeStation.BranchId = chargeStationModel.BranchId;
-                chargeStation.ModifiedDate = DateTime.Now;
+                chargeStation.ModifiedDate = DateTime.Now.ToUniversalTime();
             }
             ChargeStation model = _baseService.AddOrUpdate(chargeStation, guid, excludedProps);
             return model.Id;
@@ -128,7 +128,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                         if (chargeStation != null)
                         {
                             chargeStation.IsActive = IsActive;
-                            chargeStation.ModifiedDate = DateTime.Now;
+                            chargeStation.ModifiedDate = DateTime.Now.ToUniversalTime();
                             _baseService.AddOrUpdate(chargeStation, chargestationId, excludedProps);
                         }
                     }

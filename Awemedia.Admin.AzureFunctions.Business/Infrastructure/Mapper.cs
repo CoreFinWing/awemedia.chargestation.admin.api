@@ -117,7 +117,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _merchant.ProfitSharePercentage = merchant.ProfitSharePercentage;
             _merchant.SecondaryContact = merchant.SecondaryContact;
             _merchant.SecondaryPhone = merchant.SecondaryPhone;
-            _merchant.CreatedDate = merchant.Id == 0 ? DateTime.Now.ToUniversalTime() : merchant.CreatedDate;
+            _merchant.CreatedDate = merchant.Id == 0 ? DateTime.Now.ToUniversalTime() : merchant.CreatedDate.ToUniversalTime();
             _merchant.ModifiedDate = DateTime.Now.ToUniversalTime();
             _merchant.IsActive = true;
             return _merchant;
@@ -235,7 +235,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             return new DAL.DataContracts.Notification()
             {
                 DeviceId = notificationResponse.DeviceId,
-                LoggedDateTime = DateTime.Now,
+                LoggedDateTime = DateTime.Now.ToUniversalTime(),
                 DeviceToken = notificationResponse.DeviceToken,
                 NotificationResult = notificationResponse.NotificationResult,
                 Payload = JsonConvert.SerializeObject(notificationResponse.Payload)
