@@ -26,47 +26,47 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<UserSession> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords)
         {
+            IQueryable<UserSession> _userSessions = new List<UserSession>().AsQueryable();
             DateTime fromDate = DateTime.Now;
             DateTime toDate = DateTime.Now;
-            if (!string.IsNullOrEmpty(userSessionSearchFilter.FromDate) && !string.IsNullOrEmpty(userSessionSearchFilter.ToDate))
-            {
-                fromDate = DateTime.Parse(userSessionSearchFilter.FromDate);
-                toDate = DateTime.Parse(userSessionSearchFilter.ToDate);
-            }
-            else
-            {
-                fromDate = toDate.AddDays(-30);
-            }
+            fromDate = Utility.ParseStartAndEndDates(userSessionSearchFilter, ref toDate);
             totalRecords = 0;
-            IQueryable<DAL.DataContracts.UserSession> userSessions = _baseService.GetAll("SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
-            var _userSessions = userSessions.Select(t => MappingProfile.MapUserSessionModelObject(t)).AsQueryable();
-            totalRecords = _userSessions.Count();
-            if (userSessionSearchFilter != null)
+            int days = (toDate - fromDate).Days;
+            if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("DateRangeDays")))
             {
-                if (Convert.ToInt32(userSessionSearchFilter.MerchantId) > 0)
+                IQueryable<DAL.DataContracts.UserSession> userSessions = _baseService.GetAll("SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
+                _userSessions = userSessions.Select(t => MappingProfile.MapUserSessionModelObject(t)).AsQueryable();
+                totalRecords = _userSessions.Count();
+                if (userSessionSearchFilter != null)
                 {
-                    _userSessions = _userSessions.Where(a => a.ChargeStation.Branch == null ? true : a.ChargeStation.Branch.MerchantId == Convert.ToInt32(userSessionSearchFilter.MerchantId)).AsQueryable();
-                    totalRecords = _userSessions.Count();
-                }
-                if (!string.IsNullOrEmpty(userSessionSearchFilter.StationId))
-                {
-                    _userSessions = _userSessions.Where(a => a.ChargeStationId == Guid.Parse(userSessionSearchFilter.StationId)).AsQueryable();
-                    totalRecords = _userSessions.Count();
-                }
-                if (!string.IsNullOrEmpty(userSessionSearchFilter.Search) && !string.IsNullOrEmpty(userSessionSearchFilter.Type))
-                {
-                    _userSessions = _userSessions.Where(u => u.ChargeStation.Branch == null ? false : true);
-                    _userSessions = _userSessions.Search(userSessionSearchFilter.Type, userSessionSearchFilter.Search);
-                    totalRecords = _userSessions.Count();
-                }
-                _userSessions = _userSessions.OrderBy(userSessionSearchFilter.Order + (Convert.ToBoolean(userSessionSearchFilter.Dir) ? " descending" : ""));
-                if (!Convert.ToBoolean(userSessionSearchFilter.Export))
-                {
-                    _userSessions = _userSessions.Skip((Convert.ToInt32(userSessionSearchFilter.Start) - 1) * Convert.ToInt32(userSessionSearchFilter.Size)).Take(Convert.ToInt32(userSessionSearchFilter.Size));
+                    if (Convert.ToInt32(userSessionSearchFilter.MerchantId) > 0)
+                    {
+                        _userSessions = _userSessions.Where(a => a.ChargeStation.Branch == null ? true : a.ChargeStation.Branch.MerchantId == Convert.ToInt32(userSessionSearchFilter.MerchantId)).AsQueryable();
+                        totalRecords = _userSessions.Count();
+                    }
+                    if (!string.IsNullOrEmpty(userSessionSearchFilter.StationId))
+                    {
+                        _userSessions = _userSessions.Where(a => a.ChargeStationId == Guid.Parse(userSessionSearchFilter.StationId)).AsQueryable();
+                        totalRecords = _userSessions.Count();
+                    }
+                    if (!string.IsNullOrEmpty(userSessionSearchFilter.Search) && !string.IsNullOrEmpty(userSessionSearchFilter.Type))
+                    {
+                        _userSessions = _userSessions.Where(u => u.ChargeStation.Branch == null ? false : true);
+                        _userSessions = _userSessions.Search(userSessionSearchFilter.Type, userSessionSearchFilter.Search);
+                        totalRecords = _userSessions.Count();
+                    }
+                    _userSessions = _userSessions.OrderBy(userSessionSearchFilter.Order + (Convert.ToBoolean(userSessionSearchFilter.Dir) ? " descending" : ""));
+                    if (!Convert.ToBoolean(userSessionSearchFilter.Export))
+                    {
+                        _userSessions = _userSessions.Skip((Convert.ToInt32(userSessionSearchFilter.Start) - 1) * Convert.ToInt32(userSessionSearchFilter.Size)).Take(Convert.ToInt32(userSessionSearchFilter.Size));
+                    }
                 }
             }
             return _userSessions.ToList();
         }
+
+
+
         public UserSession GetById(Guid Id)
         {
             IQueryable<DAL.DataContracts.UserSession> userSessions = _baseService.GetAll("SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant").AsQueryable();
