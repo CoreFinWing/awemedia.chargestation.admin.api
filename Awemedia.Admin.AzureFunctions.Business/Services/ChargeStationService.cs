@@ -24,38 +24,56 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         public IEnumerable<ChargeStationModel> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, bool isActive = true)
         {
+            IQueryable<ChargeStationModel> _chargeStations = new List<ChargeStationModel>().AsQueryable();
+            DateTime fromDate = DateTime.Now;
+            DateTime toDate = DateTime.Now;
+            fromDate = Utility.ParseStartAndEndDates(chargeStationSearchFilter, ref toDate);
             totalRecords = 0;
-            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
-            var _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
-            totalRecords = _chargeStations.Count();
-            if (isActive)
+            int days = (toDate - fromDate).Days;
+            if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("DateRangeDays")))
             {
-                _chargeStations = _chargeStations.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
+                _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
                 totalRecords = _chargeStations.Count();
-            }
-            if (!string.IsNullOrEmpty(chargeStationSearchFilter.IsOnline))
-            {
-                if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
+                if (isActive)
                 {
-                    _chargeStations = _chargeStations.Where(c => c.ModifiedDate >= Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), Environment.GetEnvironmentVariable("MalaysiaTimeZone")).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) && c.IsActive).AsQueryable();
+                    _chargeStations = _chargeStations.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
                     totalRecords = _chargeStations.Count();
                 }
-            }
-            if (chargeStationSearchFilter != null)
-            {
-                if (Convert.ToInt32(chargeStationSearchFilter.MerchantId) > 0)
+                if (!string.IsNullOrEmpty(chargeStationSearchFilter.IsOnline))
                 {
-                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
-                    totalRecords = _chargeStations.Count();
+                    if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
+                    {
+                        _chargeStations = _chargeStations.Where(c => c.ModifiedDate >= DateTime.Now.AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) && c.IsActive).AsQueryable();
+                        totalRecords = _chargeStations.Count();
+                    }
                 }
-                if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
+                if (chargeStationSearchFilter != null)
                 {
-                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : true).AsQueryable();
-                    _chargeStations = _chargeStations.Search(chargeStationSearchFilter.Type, chargeStationSearchFilter.Search);
-                    totalRecords = _chargeStations.Count();
+                    if (Convert.ToInt32(chargeStationSearchFilter.MerchantId) > 0)
+                    {
+                        _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
+                        totalRecords = _chargeStations.Count();
+                    }
+                    if (Convert.ToInt32(chargeStationSearchFilter.BranchId) > 0)
+                    {
+                        _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.BranchId == Convert.ToInt32(chargeStationSearchFilter.BranchId)).AsQueryable();
+                        totalRecords = _chargeStations.Count();
+                    }
+                    if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
+                    {
+                        _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : true).AsQueryable();
+                        _chargeStations = _chargeStations.Search(chargeStationSearchFilter.Type, chargeStationSearchFilter.Search);
+                        totalRecords = _chargeStations.Count();
+                    }
+
+                    _chargeStations = _chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
+                    if (!Convert.ToBoolean(chargeStationSearchFilter.Export))
+                    {
+                        _chargeStations = _chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
+                    }
+
                 }
-                _chargeStations = _chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
-                _chargeStations = _chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
             }
             return _chargeStations.ToList();
         }

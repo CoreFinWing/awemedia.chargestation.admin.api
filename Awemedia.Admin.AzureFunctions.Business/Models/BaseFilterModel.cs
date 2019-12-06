@@ -13,8 +13,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string Search { get; set; }
         public string IsActive { get; set; }
         public string MerchantId { get; set; }
+        public string BranchId { get; set; }
         public string IsOnline { get; set; }
         public string Type { get; set; }
         public string StationId { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string Export { get; set; }
     }
 }
