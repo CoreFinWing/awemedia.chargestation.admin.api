@@ -98,13 +98,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                         if (branch != null)
                         {
                             branch.IsActive = IsActive;
-                            branch.ModifiedDate = DateTime.Now;
+                            branch.ModifiedDate = DateTime.Now.ToUniversalTime();
                             if (branch.ChargeStation.Count > 0)
                             {
                                 foreach (var chargeStation in branch.ChargeStation)
                                 {
                                     chargeStation.IsActive = IsActive;
-                                    chargeStation.ModifiedDate = DateTime.Now;
+                                    chargeStation.ModifiedDate = DateTime.Now.ToUniversalTime();
                                 }
                             }
                             _baseService.AddOrUpdate(branch, branchId);

@@ -100,7 +100,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                         if (merchant != null)
                         {
                             merchant.IsActive = IsActive;
-                            merchant.ModifiedDate = DateTime.Now;
+                            merchant.ModifiedDate = DateTime.Now.ToUniversalTime();
                             if (IsActive)
                                 merchant.NumOfActiveLocations = merchant.Branch.Count;
                             else
@@ -110,13 +110,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                                 foreach (var branch in merchant.Branch)
                                 {
                                     branch.IsActive = IsActive;
-                                    branch.ModifiedDate = DateTime.Now;
+                                    branch.ModifiedDate = DateTime.Now.ToUniversalTime();
                                     if (branch.ChargeStation.Count > 0)
                                     {
                                         foreach (var chargeStation in branch.ChargeStation)
                                         {
                                             chargeStation.IsActive = IsActive;
-                                            chargeStation.ModifiedDate = DateTime.Now;
+                                            chargeStation.ModifiedDate = DateTime.Now.ToUniversalTime();
                                         }
                                     }
                                 }

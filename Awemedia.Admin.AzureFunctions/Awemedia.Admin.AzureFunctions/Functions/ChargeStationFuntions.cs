@@ -97,7 +97,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 Notification paymentNotification = new Notification
                 {
                     DeviceId = chargeStation.DeviceId,
-                    LoggedDateTime = DateTime.Now,
+                    LoggedDateTime = DateTime.Now.ToUniversalTime(),
                     Payload = notificationPayload,
                     NotificationTitle = "Payment status notification."
                 };
