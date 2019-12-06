@@ -23,23 +23,34 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<MerchantModel> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, bool isActive = true)
         {
+            IQueryable<MerchantModel> _merchants = new List<MerchantModel>().AsQueryable();
+            DateTime fromDate = DateTime.Now;
+            DateTime toDate = DateTime.Now;
+            fromDate = Utility.ParseStartAndEndDates(merchantSearchFilter, ref toDate);
             totalRecords = 0;
-            IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").AsQueryable();
-            var _merchants = merchants.Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
-            totalRecords = _merchants.Count();
-            if (isActive)
+            int days = (toDate - fromDate).Days;
+            if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("DateRangeDays")))
             {
-                _merchants = _merchants.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
+                _merchants = merchants.Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
                 totalRecords = _merchants.Count();
-            }
-            if (merchantSearchFilter != null)
-            {
-                if (!string.IsNullOrEmpty(merchantSearchFilter.Search) && !string.IsNullOrEmpty(merchantSearchFilter.Type))
+                if (isActive)
                 {
-                    _merchants = _merchants.Search(merchantSearchFilter.Type, merchantSearchFilter.Search);
+                    _merchants = _merchants.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                    totalRecords = _merchants.Count();
                 }
-                _merchants = _merchants.OrderBy(merchantSearchFilter.Order + (Convert.ToBoolean(merchantSearchFilter.Dir) ? " descending" : ""));
-                _merchants = _merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));
+                if (merchantSearchFilter != null)
+                {
+                    if (!string.IsNullOrEmpty(merchantSearchFilter.Search) && !string.IsNullOrEmpty(merchantSearchFilter.Type))
+                    {
+                        _merchants = _merchants.Search(merchantSearchFilter.Type, merchantSearchFilter.Search);
+                    }
+                    _merchants = _merchants.OrderBy(merchantSearchFilter.Order + (Convert.ToBoolean(merchantSearchFilter.Dir) ? " descending" : ""));
+                    if (!Convert.ToBoolean(merchantSearchFilter.Export))
+                    {
+                        _merchants = _merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));
+                    }
+                }
             }
             return _merchants.ToList();
         }

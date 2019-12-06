@@ -17,5 +17,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string IsOnline { get; set; }
         public string Type { get; set; }
         public string StationId { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string Export { get; set; }
     }
 }
