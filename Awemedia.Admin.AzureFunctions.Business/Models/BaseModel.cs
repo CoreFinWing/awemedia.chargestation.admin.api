@@ -11,9 +11,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
 {
     public class BaseModel
     {
-        [JsonConverter(typeof(DateFormatConverter), "yyyy-MM-dd hh:mm:ss")]
+        [JsonConverter(typeof(DateFormatConverter), "yyyy-MM-dd hh:mm:ss tt")]
         public DateTime CreatedDate { get; set; }
-        [JsonConverter(typeof(DateFormatConverter), "yyyy-MM-dd hh:mm:ss")]
+        [JsonConverter(typeof(DateFormatConverter), "yyyy-MM-dd hh:mm:ss tt")]
         public DateTime ModifiedDate { get; set; }
     }
 }
