@@ -14,23 +14,24 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
 {
     public class MappingProfile
     {
+        private static string malaysiaTimeZone = Environment.GetEnvironmentVariable("MalaysiaTimeZone");
         public static Models.ChargeStation MapChargeStationResponseObject(DAL.DataContracts.ChargeStation chargeStation)
         {
             return new Models.ChargeStation()
             {
                 ChargeControllerId = chargeStation.ChargeControllerId,
-                CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.CreatedDate, Environment.GetEnvironmentVariable("MalaysiaTimeZone"))),
+                CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.CreatedDate, malaysiaTimeZone)),
                 Geolocation = chargeStation.Geolocation,
                 Id = chargeStation.Id.ToString(),
                 BranchId = chargeStation.BranchId ?? 0,
-                ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.ModifiedDate, Environment.GetEnvironmentVariable("MalaysiaTimeZone"))),
+                ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.ModifiedDate, malaysiaTimeZone)),
                 DeviceId = chargeStation.DeviceId,
                 Uid = chargeStation.Uid,
                 BranchName = chargeStation.Branch?.Name,
                 MerchantName = chargeStation.Branch?.Merchant.BusinessName,
                 Branch = chargeStation.Branch == null ? null : MapBranchModelObject(chargeStation.Branch),
                 BatteryLevel = chargeStation.BatteryLevel,
-                IsOnline = chargeStation.ModifiedDate >= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), Environment.GetEnvironmentVariable("MalaysiaTimeZone"))).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) ? true : false,
+                IsOnline = chargeStation.ModifiedDate >= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), malaysiaTimeZone)).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) ? true : false,
                 LastPingTimeStamp = chargeStation.LastPingTimeStamp,
                 BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? chargeStation.BatteryLevel + " as of " + chargeStation.LastPingTimeStamp : "",
                 IsActive = chargeStation.IsActive,
@@ -42,11 +43,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             return new Models.ChargeOption()
             {
                 ChargeDuration = chargeOptions.ChargeDuration,
-                CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeOptions.CreatedDate, Environment.GetEnvironmentVariable("MalaysiaTimeZone"))),
+                CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeOptions.CreatedDate, malaysiaTimeZone)),
                 Currency = chargeOptions.Currency,
                 Id = chargeOptions.Id,
                 IsActive = chargeOptions.IsActive,
-                ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeOptions.ModifiedDate, Environment.GetEnvironmentVariable("MalaysiaTimeZone"))),
+                ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeOptions.ModifiedDate, malaysiaTimeZone)),
                 Price = chargeOptions.Price,
             };
         }
@@ -95,8 +96,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ProfitSharePercentage = merchant.ProfitSharePercentage,
                 SecondaryContact = merchant.SecondaryContact,
                 SecondaryPhone = merchant.SecondaryPhone,
-                CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(merchant.CreatedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone"))),
-                ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(merchant.ModifiedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone"))),
+                CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(merchant.CreatedDate.GetValueOrDefault(),malaysiaTimeZone)),
+                ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(merchant.ModifiedDate.GetValueOrDefault(), malaysiaTimeZone)),
                 Branch = MapBranchModelsObject(merchant.Branch.ToList()),
                 IsActive = merchant.IsActive,
                 NumOfActiveLocations = merchant.NumOfActiveLocations
@@ -211,12 +212,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             {
                 Address = branch.Address,
                 ContactName = branch.ContactName,
-                CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(branch.CreatedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone"))),
+                CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(branch.CreatedDate.GetValueOrDefault(), malaysiaTimeZone)),
                 Email = branch.Email,
                 Geolocation = branch.Geolocation,
                 Id = branch.Id,
                 MerchantId = branch.MerchantId,
-                ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(branch.ModifiedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone"))),
+                ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(branch.ModifiedDate.GetValueOrDefault(), malaysiaTimeZone)),
                 Name = branch.Name,
                 PhoneNum = branch.PhoneNum,
                 Merchant = MapMerchantModelObject(branch.Merchant),
@@ -251,13 +252,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ChargeRentalRevnue = userSession.ChargeRentalRevnue,
                 ChargeStation = MapChargeStationResponseObject(userSession.ChargeStation),
                 ChargeStationId = userSession.ChargeStationId,
-                CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(userSession.CreatedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone"))),
+                CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(userSession.CreatedDate.GetValueOrDefault(), malaysiaTimeZone)),
                 DeviceId = userSession.DeviceId,
                 Email = userSession.Email,
                 Id = userSession.Id,
                 InvoiceNo = userSession.InvoiceNo,
                 Mobile = userSession.Mobile,
-                ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(userSession.ModifiedDate.GetValueOrDefault(), Environment.GetEnvironmentVariable("MalaysiaTimeZone"))),
+                ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(userSession.ModifiedDate.GetValueOrDefault(), malaysiaTimeZone)),
                 SessionEndTime = userSession.SessionEndTime,
                 SessionStartTime = userSession.SessionStartTime,
                 SessionStatus = userSession.SessionStatusNavigation.Status,
