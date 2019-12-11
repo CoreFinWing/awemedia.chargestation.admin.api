@@ -1,4 +1,5 @@
-﻿using Awemedia.Admin.AzureFunctions.Business.Helpers;
+﻿using Awemedia.Admin.AzureFunctions.Business.Common;
+using Awemedia.Admin.AzureFunctions.Business.Helpers;
 using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Business.Models;
@@ -54,6 +55,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                         _userSessions = _userSessions.Where(u => u.ChargeStation.Branch == null ? false : true);
                         _userSessions = _userSessions.Search(userSessionSearchFilter.Type, userSessionSearchFilter.Search);
                         totalRecords = _userSessions.Count();
+                    }
+                    if (!string.IsNullOrEmpty(userSessionSearchFilter.IsStausPaymentCompletedOrAbove))
+                    {
+                        if (Convert.ToBoolean(userSessionSearchFilter.IsStausPaymentCompletedOrAbove))
+                        {
+                            _userSessions = _userSessions.Where(u => u.SessionStatus == Convert.ToString(Enums.SessionStatus.Charging) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.ChargingCompleted) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.PaymentCompleted) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.PaymentRequestReceived));
+                        }
                     }
                     _userSessions = _userSessions.OrderBy(userSessionSearchFilter.Order + (Convert.ToBoolean(userSessionSearchFilter.Dir) ? " descending" : ""));
                     if (!Convert.ToBoolean(userSessionSearchFilter.Export))
