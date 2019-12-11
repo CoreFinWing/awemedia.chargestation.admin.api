@@ -30,7 +30,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         {
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            BaseSearchFilter _chargeSessionSearchFilter = null;
+            BaseSearchFilter _chargeSessionSearchFilter = null;     
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count > 0)
             {

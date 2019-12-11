@@ -105,7 +105,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .IsUnicode(false);
 
                 entity.Property(e => e.ChargeControllerId)
-                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
 

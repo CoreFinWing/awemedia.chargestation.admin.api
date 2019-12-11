@@ -20,5 +20,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string FromDate { get; set; }
         public string ToDate { get; set; }
         public string Export { get; set; }
+        public string IsStausPaymentCompletedOrAbove { get; set; }
     }
 }
