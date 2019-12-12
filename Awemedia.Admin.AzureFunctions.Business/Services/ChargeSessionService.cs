@@ -25,7 +25,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _baseService = baseService;
             _chargeOptionService = chargeOptionService;
         }
-        public IEnumerable<UserSession> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords)
+        public IEnumerable<object> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords)
         {
             IQueryable<UserSession> _userSessions = new List<UserSession>().AsQueryable();
             DateTime fromDate = DateTime.Now;
@@ -68,6 +68,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     {
                         _userSessions = _userSessions.Skip((Convert.ToInt32(userSessionSearchFilter.Start) - 1) * Convert.ToInt32(userSessionSearchFilter.Size)).Take(Convert.ToInt32(userSessionSearchFilter.Size));
                     }
+                    else
+                    {
+                        var dataToExport = _userSessions.Select(u => new { u.Id, u.ChargeRentalRevnue, Currency = u.ChargeParams != null ? GetChargeOption(u.ChargeParams).Currency : null, u.ChargeStationId, CreatedDate = u.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), u.DeviceId, u.InvoiceNo, u.MerchantName, u.Mobile, SessionStartTime = u.SessionStartTime != null ? u.SessionStartTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, SessionEndTime = u.SessionEndTime != null ? u.SessionEndTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, u.SessionStatus, u.SessionType, u.TransactionId, u.UserAccountId }).AsQueryable();
+                        return dataToExport.ToList();
+                    }
                 }
             }
             return _userSessions.ToList();
@@ -87,6 +92,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 userSession.ChargeOption = _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
             }
             return userSession;
+        }
+        private ChargeOption GetChargeOption(string chargeParams)
+        {
+            JObject jObject = JObject.Parse(chargeParams);
+            string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
+            return _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
         }
     }
 }

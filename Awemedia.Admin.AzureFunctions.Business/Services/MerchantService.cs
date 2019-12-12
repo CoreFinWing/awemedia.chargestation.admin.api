@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
 using Merchant = Awemedia.Admin.AzureFunctions.DAL.DataContracts.Merchant;
 using MerchantModel = Awemedia.Admin.AzureFunctions.Business.Models.Merchant;
 
@@ -21,7 +20,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             _baseService = baseService;
         }
-        public IEnumerable<MerchantModel> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, bool isActive = true)
+        public IEnumerable<object> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, bool isActive = true)
         {
             IQueryable<MerchantModel> _merchants = new List<MerchantModel>().AsQueryable();
             DateTime fromDate = DateTime.Now;
@@ -49,6 +48,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     if (!Convert.ToBoolean(merchantSearchFilter.Export))
                     {
                         _merchants = _merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));
+                    }
+                    else
+                    {
+                        var dataToExport = _merchants.Select(m => new { m.Id, m.IndustryName, m.LicenseNumber, m.IsActive, m.NumOfActiveLocations, m.PhoneNumber, m.ProfitSharePercentage, m.RegisteredBusinessName, m.SecondaryContact, m.SecondaryPhone, m.ContactName, m.ChargeStationsOrdered, m.Dba, m.DepositMoneyPaid, m.Email }).AsQueryable();
+                        return dataToExport.ToList();
                     }
                 }
             }
