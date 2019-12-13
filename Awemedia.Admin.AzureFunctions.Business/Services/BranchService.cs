@@ -31,7 +31,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 _merchantService.UpdateLocationCount(activeLocationCount, merchantId);
             }
         }
-        public IEnumerable<Branch> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, bool isActive = true)
+        public IEnumerable<object> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, bool isActive = true)
         {
             IQueryable<Branch> _branches = new List<Branch>().AsQueryable();
             DateTime fromDate = DateTime.Now;
@@ -66,6 +66,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     if (!Convert.ToBoolean(branchSearchFilter.Export))
                     {
                         _branches = _branches.Skip((Convert.ToInt32(branchSearchFilter.Start) - 1) * Convert.ToInt32(branchSearchFilter.Size)).Take(Convert.ToInt32(branchSearchFilter.Size));
+                    }
+                    else
+                    {
+                        var dataToExport = _branches.Select(b => new { b.Id, b.Address, b.ContactName, CreatedDate = b.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), b.Email, b.Geolocation, b.IsActive, b.MerchantName, b.Name, b.PhoneNum }).AsQueryable();
+                        return dataToExport.ToList();
                     }
                 }
             }

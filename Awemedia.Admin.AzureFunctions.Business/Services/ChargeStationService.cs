@@ -22,7 +22,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _baseService = baseService;
         }
 
-        public IEnumerable<ChargeStationModel> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, bool isActive = true)
+        public IEnumerable<object> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, bool isActive = true)
         {
             IQueryable<ChargeStationModel> _chargeStations = new List<ChargeStationModel>().AsQueryable();
             DateTime fromDate = DateTime.Now;
@@ -71,6 +71,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     if (!Convert.ToBoolean(chargeStationSearchFilter.Export))
                     {
                         _chargeStations = _chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
+                    }
+                    else
+                    {
+                        var dataToExport = _chargeStations.Select(c => new { c.Id, c.BatteryInfoDisplayField, c.BranchName, c.ChargeControllerId, CreatedDate = c.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), ModifiedDate = c.ModifiedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), c.DeviceId, c.Geolocation, c.IsActive, c.IsOnline, c.LastPingTimeStamp, c.MerchantName }).AsQueryable();
+                        return dataToExport.ToList();
                     }
 
                 }

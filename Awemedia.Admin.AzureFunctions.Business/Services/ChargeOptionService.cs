@@ -59,25 +59,35 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<ChargeOption> Get(BaseSearchFilter chargeOptionSearchFilter, out int totalRecords, bool isActive = true)
         {
-            Expression<Func<DAL.DataContracts.ChargeOptions, bool>> exp = null;
+            IQueryable<ChargeOption> _chargeOptions = new List<ChargeOption>().AsQueryable();
+            DateTime fromDate = DateTime.Now;
+            DateTime toDate = DateTime.Now;
+            fromDate = Utility.ParseStartAndEndDates(chargeOptionSearchFilter, ref toDate);
             totalRecords = 0;
-            IQueryable<DAL.DataContracts.ChargeOptions> chargeOptions = _baseService.GetAll().AsQueryable();
-            var _chargeOptions = chargeOptions.Select(t => MappingProfile.MapChargeOptionsResponseObjects(t)).AsQueryable();
-            totalRecords = _chargeOptions.Count();
-            if (isActive)
+            int days = (toDate - fromDate).Days;
+            if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("DateRangeDays")))
             {
-                _chargeOptions = _chargeOptions.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                IQueryable<DAL.DataContracts.ChargeOptions> chargeOptions = _baseService.GetAll().AsQueryable();
+                _chargeOptions = chargeOptions.Select(t => MappingProfile.MapChargeOptionsResponseObjects(t)).AsQueryable();
                 totalRecords = _chargeOptions.Count();
-            }
-            if (chargeOptionSearchFilter != null)
-            {
-                if (!string.IsNullOrEmpty(chargeOptionSearchFilter.Search) && !string.IsNullOrEmpty(chargeOptionSearchFilter.Type))
+                if (isActive)
                 {
-                    _chargeOptions = _chargeOptions.Search(chargeOptionSearchFilter.Type, chargeOptionSearchFilter.Search);
+                    _chargeOptions = _chargeOptions.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
                     totalRecords = _chargeOptions.Count();
                 }
-                _chargeOptions = _chargeOptions.OrderBy(chargeOptionSearchFilter.Order + (Convert.ToBoolean(chargeOptionSearchFilter.Dir) ? " descending" : ""));
-                _chargeOptions = _chargeOptions.Skip((Convert.ToInt32(chargeOptionSearchFilter.Start) - 1) * Convert.ToInt32(chargeOptionSearchFilter.Size)).Take(Convert.ToInt32(chargeOptionSearchFilter.Size));
+                if (chargeOptionSearchFilter != null)
+                {
+                    if (!string.IsNullOrEmpty(chargeOptionSearchFilter.Search) && !string.IsNullOrEmpty(chargeOptionSearchFilter.Type))
+                    {
+                        _chargeOptions = _chargeOptions.Search(chargeOptionSearchFilter.Type, chargeOptionSearchFilter.Search);
+                        totalRecords = _chargeOptions.Count();
+                    }
+                    _chargeOptions = _chargeOptions.OrderBy(chargeOptionSearchFilter.Order + (Convert.ToBoolean(chargeOptionSearchFilter.Dir) ? " descending" : ""));
+                    if (!Convert.ToBoolean(chargeOptionSearchFilter.Export))
+                    {
+                        _chargeOptions = _chargeOptions.Skip((Convert.ToInt32(chargeOptionSearchFilter.Start) - 1) * Convert.ToInt32(chargeOptionSearchFilter.Size)).Take(Convert.ToInt32(chargeOptionSearchFilter.Size));
+                    }
+                }
             }
 
             return _chargeOptions.ToList();
