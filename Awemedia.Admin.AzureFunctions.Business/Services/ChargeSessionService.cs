@@ -60,7 +60,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     {
                         if (Convert.ToBoolean(userSessionSearchFilter.IsStausPaymentCompletedOrAbove))
                         {
-                            _userSessions = _userSessions.Where(u => u.SessionStatus == Convert.ToString(Enums.SessionStatus.Charging) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.ChargingCompleted) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.PaymentCompleted) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.PaymentRequestReceived));
+                            _userSessions = _userSessions.Where(u => u.SessionStatus == Convert.ToString(Enums.SessionStatus.Charging) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.ChargingCompleted) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.PaymentCompleted));
                         }
                     }
                     _userSessions = _userSessions.OrderBy(userSessionSearchFilter.Order + (Convert.ToBoolean(userSessionSearchFilter.Dir) ? " descending" : ""));

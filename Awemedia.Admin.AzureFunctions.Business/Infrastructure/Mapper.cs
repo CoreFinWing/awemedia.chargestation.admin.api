@@ -265,7 +265,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 SessionType = userSession.SessionTypeNavigation?.Type,
                 TransactionId = userSession.TransactionId,
                 UserAccountId = userSession.UserAccountId,
-                MerchantName = userSession.ChargeStation.Branch?.Merchant.BusinessName
+                MerchantName = userSession.ChargeStation.Branch?.Merchant.BusinessName,
+                BranchName = userSession.ChargeStation.Branch?.Name
             };
         }
         public static ICollection<Business.Models.UserSession> MapSessionList(ICollection<DAL.DataContracts.UserSession> userSessions)
