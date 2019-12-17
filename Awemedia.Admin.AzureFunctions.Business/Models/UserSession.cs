@@ -27,8 +27,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string Mobile { get; set; }
         public Guid? ChargeStationId { get; set; }
         public string MerchantName { get; set; }
-        public int ChargePorts { get; set; }
+        public int PortNumber { get; set; }
         public string Currency { get; set; }
+        public string BranchName { get; set; }
         public ChargeOption ChargeOption { get; set; }
 
         public ChargeStation ChargeStation { get; set; }

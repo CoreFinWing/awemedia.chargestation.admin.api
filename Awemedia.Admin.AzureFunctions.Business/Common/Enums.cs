@@ -9,15 +9,17 @@ namespace Awemedia.Admin.AzureFunctions.Business.Common
         public enum SessionStatus
         {
             New = 1,
-            PaymentCompleted = 2,
-            Charging = 3,
-            ChargeFailed = 4,
-            ChargingCompleted = 5,
-            UserCancelled = 6,
-            Promoted = 7,
-            PaymentFailed = 8,
-            PaymentRequestReceived = 9,
-            SessionTimedOut = 10
+            AuthorizationSuccessful = 2,
+            AuthorizationFailure = 3,
+            PaymentRequestSent = 4,
+            PaymentCompleted = 5,
+            PaymentFailure = 6,
+            PaymentTimeout = 7,
+            PaymentCanceledByUser = 8,
+            Charging = 9,
+            ChargingCompleted = 10,
+            ChargeFailed = 11,
+            SessionTimedOut = 12
         }
     }
 }
