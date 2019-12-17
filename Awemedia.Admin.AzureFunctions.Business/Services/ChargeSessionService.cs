@@ -61,6 +61,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                         if (Convert.ToBoolean(userSessionSearchFilter.IsStausPaymentCompletedOrAbove))
                         {
                             _userSessions = _userSessions.Where(u => u.SessionStatus == Convert.ToString(Enums.SessionStatus.Charging) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.ChargingCompleted) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.PaymentCompleted));
+                            totalRecords = _userSessions.Count();
                         }
                     }
                     _userSessions = _userSessions.OrderBy(userSessionSearchFilter.Order + (Convert.ToBoolean(userSessionSearchFilter.Dir) ? " descending" : ""));
@@ -88,8 +89,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 JObject jObject = JObject.Parse(userSession.ChargeParams);
                 string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
-                userSession.ChargePorts = (int)jObject.SelectToken("ChargeOptionId");
+                userSession.PortNumber = (int)jObject.SelectToken("PortNumber");
                 userSession.ChargeOption = _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
+                userSession.Currency = userSession.ChargeOption?.Currency;
             }
             return userSession;
         }
