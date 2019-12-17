@@ -56,9 +56,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                         _userSessions = _userSessions.Search(userSessionSearchFilter.Type, userSessionSearchFilter.Search);
                         totalRecords = _userSessions.Count();
                     }
-                    if (!string.IsNullOrEmpty(userSessionSearchFilter.IsStausPaymentCompletedOrAbove))
+                    if (!string.IsNullOrEmpty(userSessionSearchFilter.IsStatusPaymentCompletedOrAbove))
                     {
-                        if (Convert.ToBoolean(userSessionSearchFilter.IsStausPaymentCompletedOrAbove))
+                        if (Convert.ToBoolean(userSessionSearchFilter.IsStatusPaymentCompletedOrAbove))
                         {
                             _userSessions = _userSessions.Where(u => u.SessionStatus == Convert.ToString(Enums.SessionStatus.Charging) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.ChargingCompleted) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.PaymentCompleted));
                             totalRecords = _userSessions.Count();
