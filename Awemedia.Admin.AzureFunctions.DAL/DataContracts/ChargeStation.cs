@@ -23,7 +23,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public string BatteryLevel { get; set; }
         public DateTime? LastPingTimeStamp { get; set; }
         public bool? IsOnline { get; set; }
-
+        public string AppVersion { get; set; }
         public Branch Branch { get; set; }
         public ICollection<UserSession> UserSession { get; set; }
     }

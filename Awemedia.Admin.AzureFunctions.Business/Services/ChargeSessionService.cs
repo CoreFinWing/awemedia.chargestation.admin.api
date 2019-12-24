@@ -90,7 +90,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 JObject jObject = JObject.Parse(userSession.ChargeParams);
                 string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
                 userSession.PortNumber = (int)jObject.SelectToken("PortNumber");
-                userSession.ChargeOption = _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
+                if (Convert.ToInt32(chargeOptionId) != 0)
+                    userSession.ChargeOption = _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
                 userSession.Currency = userSession.ChargeOption?.Currency;
             }
             return userSession;
