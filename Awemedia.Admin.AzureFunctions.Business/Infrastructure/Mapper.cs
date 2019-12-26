@@ -35,7 +35,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 LastPingTimeStamp = chargeStation.LastPingTimeStamp,
                 BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? chargeStation.BatteryLevel + " as of " + chargeStation.LastPingTimeStamp : "",
                 IsActive = chargeStation.IsActive,
-                userSessions = MapSessionList(chargeStation.UserSession)
+                userSessions = MapSessionList(chargeStation.UserSession),
+                AppVersion = chargeStation.AppVersion
             };
         }
         public static Models.ChargeOption MapChargeOptionsResponseObjects(DAL.DataContracts.ChargeOptions chargeOptions)
