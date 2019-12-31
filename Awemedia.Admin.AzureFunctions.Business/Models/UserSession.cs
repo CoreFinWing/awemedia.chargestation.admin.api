@@ -10,9 +10,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
     {
         public Guid Id { get; set; }
         public decimal? ChargeRentalRevnue { get; set; }
-        public string InvoiceNo { get; set; }
-        public string DeviceId { get; set; }
         public string TransactionId { get; set; }
+        public string DeviceId { get; set; }
+        public string TransactionTypeId { get; set; }
         [JsonConverter(typeof(DateFormatConverter), "yyyy-MM-dd hh:mm:ss tt")]
         public DateTime? SessionStartTime { get; set; }
         [JsonConverter(typeof(DateFormatConverter), "yyyy-MM-dd hh:mm:ss tt")]
