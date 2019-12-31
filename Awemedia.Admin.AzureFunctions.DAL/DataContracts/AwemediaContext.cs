@@ -318,7 +318,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.InvoiceNo)
+                entity.Property(e => e.TransactionId)
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
@@ -332,7 +332,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
                 entity.Property(e => e.SessionStartTime).HasColumnType("datetime");
 
-                entity.Property(e => e.TransactionId)
+                entity.Property(e => e.TransactionTypeId)
                     .HasMaxLength(50)
                     .IsUnicode(false);
 

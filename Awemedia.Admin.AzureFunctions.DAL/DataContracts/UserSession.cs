@@ -12,9 +12,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
         public Guid Id { get; set; }
         public decimal? ChargeRentalRevnue { get; set; }
-        public string InvoiceNo { get; set; }
-        public string DeviceId { get; set; }
         public string TransactionId { get; set; }
+        public string DeviceId { get; set; }
+        public string TransactionTypeId { get; set; }
         public DateTime? SessionStartTime { get; set; }
         public DateTime? SessionEndTime { get; set; }
         public DateTime? CreatedDate { get; set; }
