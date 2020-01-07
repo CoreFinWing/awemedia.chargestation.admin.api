@@ -60,8 +60,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public IEnumerable<ChargeOption> Get(BaseSearchFilter chargeOptionSearchFilter, out int totalRecords, bool isActive = true)
         {
             IQueryable<ChargeOption> _chargeOptions = new List<ChargeOption>().AsQueryable();
-            DateTime fromDate = DateTime.Now;
-            DateTime toDate = DateTime.Now;
+            DateTime fromDate = DateTime.Now.ToUniversalTime();
+            DateTime toDate = DateTime.Now.ToUniversalTime();
             fromDate = Utility.ParseStartAndEndDates(chargeOptionSearchFilter, ref toDate);
             totalRecords = 0;
             int days = (toDate - fromDate).Days;

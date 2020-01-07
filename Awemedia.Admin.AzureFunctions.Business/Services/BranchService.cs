@@ -34,8 +34,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public IEnumerable<object> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, bool isActive = true)
         {
             IQueryable<Branch> _branches = new List<Branch>().AsQueryable();
-            DateTime fromDate = DateTime.Now;
-            DateTime toDate = DateTime.Now;
+            DateTime fromDate = DateTime.Now.ToUniversalTime();
+            DateTime toDate = DateTime.Now.ToUniversalTime();
             fromDate = Utility.ParseStartAndEndDates(branchSearchFilter, ref toDate);
             totalRecords = 0;
             int days = (toDate - fromDate).Days;
@@ -78,7 +78,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public void UpdateBranch(Branch branchModel, int id)
         {
-            string[] excludedProps = { "Id", "MerchantId" };
+            string[] excludedProps = { "Id", "MerchantId", "CreatedDate" };
             if (branchModel != null)
             {
                 branchModel.Id = id;

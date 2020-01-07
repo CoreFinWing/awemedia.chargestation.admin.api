@@ -23,8 +23,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public IEnumerable<object> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, bool isActive = true)
         {
             IQueryable<MerchantModel> _merchants = new List<MerchantModel>().AsQueryable();
-            DateTime fromDate = DateTime.Now;
-            DateTime toDate = DateTime.Now;
+            DateTime fromDate = DateTime.Now.ToUniversalTime();
+            DateTime toDate = DateTime.Now.ToUniversalTime();
             fromDate = Utility.ParseStartAndEndDates(merchantSearchFilter, ref toDate);
             totalRecords = 0;
             int days = (toDate - fromDate).Days;
@@ -74,7 +74,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public void UpdateMerchant(MerchantModel merchantModel, int id)
         {
             var merchant = _baseService.GetById(id);
-            string[] excludedProps = { "Id" };
+            string[] excludedProps = { "Id","CreatedDate" };
             if (merchant != null)
             {
                 merchantModel.Id = id;

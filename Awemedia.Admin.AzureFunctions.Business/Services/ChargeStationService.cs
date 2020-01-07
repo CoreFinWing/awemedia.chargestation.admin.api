@@ -25,8 +25,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public IEnumerable<object> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, bool isActive = true)
         {
             IQueryable<ChargeStationModel> _chargeStations = new List<ChargeStationModel>().AsQueryable();
-            DateTime fromDate = DateTime.Now;
-            DateTime toDate = DateTime.Now;
+            DateTime fromDate = DateTime.Now.ToUniversalTime();
+            DateTime toDate = DateTime.Now.ToUniversalTime();
             fromDate = Utility.ParseStartAndEndDates(chargeStationSearchFilter, ref toDate);
             totalRecords = 0;
             int days = (toDate - fromDate).Days;
