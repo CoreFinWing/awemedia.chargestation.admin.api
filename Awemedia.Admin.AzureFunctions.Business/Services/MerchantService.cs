@@ -23,39 +23,44 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public IEnumerable<object> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, bool isActive = true)
         {
             IQueryable<MerchantModel> _merchants = new List<MerchantModel>().AsQueryable();
-            DateTime fromDate = DateTime.Now;
-            DateTime toDate = DateTime.Now;
-            fromDate = Utility.ParseStartAndEndDates(merchantSearchFilter, ref toDate);
+            DateTime fromDate = DateTime.Now.ToUniversalTime();
+            DateTime toDate = DateTime.Now.ToUniversalTime();
             totalRecords = 0;
-            int days = (toDate - fromDate).Days;
-            if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("DateRangeDays")))
+            if (!string.IsNullOrEmpty(merchantSearchFilter.FromDate) && !string.IsNullOrEmpty(merchantSearchFilter.ToDate))
             {
-                IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
+                fromDate = Utility.ParseStartAndEndDates(merchantSearchFilter, ref toDate);
+                IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").Where(a => a.CreatedDate.Value.Date >= fromDate && a.CreatedDate.Value.Date <= toDate).AsQueryable();
                 _merchants = merchants.Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
+            }
+            else
+            {
+                IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").AsQueryable();
+                _merchants = merchants.Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
+            }
+            totalRecords = _merchants.Count();
+            if (isActive)
+            {
+                _merchants = _merchants.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
                 totalRecords = _merchants.Count();
-                if (isActive)
+            }
+            if (merchantSearchFilter != null)
+            {
+                if (!string.IsNullOrEmpty(merchantSearchFilter.Search) && !string.IsNullOrEmpty(merchantSearchFilter.Type))
                 {
-                    _merchants = _merchants.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
-                    totalRecords = _merchants.Count();
+                    _merchants = _merchants.Search(merchantSearchFilter.Type, merchantSearchFilter.Search);
                 }
-                if (merchantSearchFilter != null)
+                _merchants = _merchants.OrderBy(merchantSearchFilter.Order + (Convert.ToBoolean(merchantSearchFilter.Dir) ? " descending" : ""));
+                if (!Convert.ToBoolean(merchantSearchFilter.Export))
                 {
-                    if (!string.IsNullOrEmpty(merchantSearchFilter.Search) && !string.IsNullOrEmpty(merchantSearchFilter.Type))
-                    {
-                        _merchants = _merchants.Search(merchantSearchFilter.Type, merchantSearchFilter.Search);
-                    }
-                    _merchants = _merchants.OrderBy(merchantSearchFilter.Order + (Convert.ToBoolean(merchantSearchFilter.Dir) ? " descending" : ""));
-                    if (!Convert.ToBoolean(merchantSearchFilter.Export))
-                    {
-                        _merchants = _merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));
-                    }
-                    else
-                    {
-                        var dataToExport = _merchants.Select(m => new { m.Id, m.IndustryName, m.LicenseNumber, m.IsActive, m.NumOfActiveLocations, m.PhoneNumber, m.ProfitSharePercentage, m.RegisteredBusinessName, m.SecondaryContact, m.SecondaryPhone, m.ContactName, m.ChargeStationsOrdered, m.Dba, m.DepositMoneyPaid, m.Email }).AsQueryable();
-                        return dataToExport.ToList();
-                    }
+                    _merchants = _merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));
+                }
+                else
+                {
+                    var dataToExport = _merchants.Select(m => new { m.Id, m.IndustryName, m.LicenseNumber, m.IsActive, m.NumOfActiveLocations, m.PhoneNumber, m.ProfitSharePercentage, m.RegisteredBusinessName, m.SecondaryContact, m.SecondaryPhone, m.ContactName, m.ChargeStationsOrdered, m.Dba, m.DepositMoneyPaid, m.Email }).AsQueryable();
+                    return dataToExport.ToList();
                 }
             }
+
             return _merchants.ToList();
         }
 
@@ -74,7 +79,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public void UpdateMerchant(MerchantModel merchantModel, int id)
         {
             var merchant = _baseService.GetById(id);
-            string[] excludedProps = { "Id" };
+            string[] excludedProps = { "Id", "CreatedDate" };
             if (merchant != null)
             {
                 merchantModel.Id = id;

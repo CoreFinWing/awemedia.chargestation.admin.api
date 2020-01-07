@@ -25,61 +25,66 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public IEnumerable<object> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, bool isActive = true)
         {
             IQueryable<ChargeStationModel> _chargeStations = new List<ChargeStationModel>().AsQueryable();
-            DateTime fromDate = DateTime.Now;
-            DateTime toDate = DateTime.Now;
-            fromDate = Utility.ParseStartAndEndDates(chargeStationSearchFilter, ref toDate);
+            DateTime fromDate = DateTime.Now.ToUniversalTime();
+            DateTime toDate = DateTime.Now.ToUniversalTime();
             totalRecords = 0;
-            int days = (toDate - fromDate).Days;
-            if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("DateRangeDays")))
+            if (!string.IsNullOrEmpty(chargeStationSearchFilter.FromDate) && !string.IsNullOrEmpty(chargeStationSearchFilter.ToDate))
             {
-                IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
+                fromDate = Utility.ParseStartAndEndDates(chargeStationSearchFilter, ref toDate);
+                IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").Where(a => a.CreatedDate.Date >= fromDate && a.CreatedDate.Date <= toDate).AsQueryable();
                 _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+            }
+            else
+            {
+                IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
+                _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+            }
+            totalRecords = _chargeStations.Count();
+            if (isActive)
+            {
+                _chargeStations = _chargeStations.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
                 totalRecords = _chargeStations.Count();
-                if (isActive)
+            }
+            if (!string.IsNullOrEmpty(chargeStationSearchFilter.IsOnline))
+            {
+                if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
                 {
-                    _chargeStations = _chargeStations.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                    _chargeStations = _chargeStations.Where(c => c.ModifiedDate >= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), Environment.GetEnvironmentVariable("MalaysiaTimeZone"))).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) && c.IsActive).AsQueryable();
                     totalRecords = _chargeStations.Count();
                 }
-                if (!string.IsNullOrEmpty(chargeStationSearchFilter.IsOnline))
-                {
-                    if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
-                    {
-                        _chargeStations = _chargeStations.Where(c => c.ModifiedDate >= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), Environment.GetEnvironmentVariable("MalaysiaTimeZone"))).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) && c.IsActive).AsQueryable();
-                        totalRecords = _chargeStations.Count();
-                    }
-                }
-                if (chargeStationSearchFilter != null)
-                {
-                    if (Convert.ToInt32(chargeStationSearchFilter.MerchantId) > 0)
-                    {
-                        _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
-                        totalRecords = _chargeStations.Count();
-                    }
-                    if (Convert.ToInt32(chargeStationSearchFilter.BranchId) > 0)
-                    {
-                        _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.BranchId == Convert.ToInt32(chargeStationSearchFilter.BranchId)).AsQueryable();
-                        totalRecords = _chargeStations.Count();
-                    }
-                    if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
-                    {
-                        _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : true).AsQueryable();
-                        _chargeStations = _chargeStations.Search(chargeStationSearchFilter.Type, chargeStationSearchFilter.Search);
-                        totalRecords = _chargeStations.Count();
-                    }
-
-                    _chargeStations = _chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
-                    if (!Convert.ToBoolean(chargeStationSearchFilter.Export))
-                    {
-                        _chargeStations = _chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
-                    }
-                    else
-                    {
-                        var dataToExport = _chargeStations.Select(c => new { c.Id, c.BatteryInfoDisplayField, c.BranchName, c.ChargeControllerId, CreatedDate = c.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), ModifiedDate = c.ModifiedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), c.DeviceId, c.Geolocation, c.IsActive, c.IsOnline, c.LastPingTimeStamp, c.MerchantName }).AsQueryable();
-                        return dataToExport.ToList();
-                    }
-
-                }
             }
+            if (chargeStationSearchFilter != null)
+            {
+                if (Convert.ToInt32(chargeStationSearchFilter.MerchantId) > 0)
+                {
+                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
+                    totalRecords = _chargeStations.Count();
+                }
+                if (Convert.ToInt32(chargeStationSearchFilter.BranchId) > 0)
+                {
+                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.BranchId == Convert.ToInt32(chargeStationSearchFilter.BranchId)).AsQueryable();
+                    totalRecords = _chargeStations.Count();
+                }
+                if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
+                {
+                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : true).AsQueryable();
+                    _chargeStations = _chargeStations.Search(chargeStationSearchFilter.Type, chargeStationSearchFilter.Search);
+                    totalRecords = _chargeStations.Count();
+                }
+
+                _chargeStations = _chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
+                if (!Convert.ToBoolean(chargeStationSearchFilter.Export))
+                {
+                    _chargeStations = _chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));
+                }
+                else
+                {
+                    var dataToExport = _chargeStations.Select(c => new { c.Id, c.BatteryInfoDisplayField, c.BranchName, c.ChargeControllerId, CreatedDate = c.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), ModifiedDate = c.ModifiedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), c.DeviceId, c.Geolocation, c.IsActive, c.IsOnline, c.LastPingTimeStamp, c.MerchantName }).AsQueryable();
+                    return dataToExport.ToList();
+                }
+
+            }
+
             return _chargeStations.ToList();
         }
 
