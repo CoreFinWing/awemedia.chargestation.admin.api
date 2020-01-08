@@ -1,9 +1,12 @@
 ﻿using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
@@ -30,7 +33,11 @@ namespace Awemedia.Chargestation.AzureFunctions.Helpers
                         ValidIssuer = Environment.GetEnvironmentVariable("ValidIssuer"),
                         IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
                         {
-                            var json = new WebClient().DownloadString(parameters.ValidIssuer + "/.well-known/jwks.json");
+                            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("BlobStorageConnectionString"));
+                            CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
+                            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("BlobStorageContainer"));
+                            CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("AWSCognitoFileName"));
+                            var json = blob.DownloadTextAsync().Result;
                             var keys = JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
                             return (IEnumerable<SecurityKey>)keys;
                         }
@@ -40,7 +47,7 @@ namespace Awemedia.Chargestation.AzureFunctions.Helpers
                 }
                 return isAuthorized;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return false;
             }
