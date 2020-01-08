@@ -161,7 +161,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public List<object> Search(string keyword)
         {
-            return _baseService.Where(m => m.BusinessName.ToLower().Contains(keyword)).Select(s => new { s.Id, s.BusinessName }).ToList<object>();
+            return _baseService.Where(m => m.BusinessName.ToLower().Contains(keyword)).Select(s => new { s.Id, s.BusinessName, s.LicenseNum, MerchantWithLicenseNumber = s.BusinessName + "-" + s.LicenseNum }).ToList<object>();
         }
 
         private bool IsMerchantDuplicate(MerchantModel merchantModel)
