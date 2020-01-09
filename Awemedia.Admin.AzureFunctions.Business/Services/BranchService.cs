@@ -34,51 +34,55 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public IEnumerable<object> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, bool isActive = true)
         {
             IQueryable<Branch> _branches = new List<Branch>().AsQueryable();
-            DateTime fromDate = DateTime.Now;
-            DateTime toDate = DateTime.Now;
-            fromDate = Utility.ParseStartAndEndDates(branchSearchFilter, ref toDate);
+            DateTime fromDate = DateTime.Now.ToUniversalTime();
+            DateTime toDate = DateTime.Now.ToUniversalTime();
             totalRecords = 0;
-            int days = (toDate - fromDate).Days;
-            totalRecords = 0;
-            if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("DateRangeDays")))
+            if (!string.IsNullOrEmpty(branchSearchFilter.FromDate) && !string.IsNullOrEmpty(branchSearchFilter.ToDate))
             {
-                IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
+                fromDate = Utility.ParseStartAndEndDates(branchSearchFilter, ref toDate);
+                IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").Where(a => a.CreatedDate.Value.Date >= fromDate && a.CreatedDate.Value.Date <= toDate).AsQueryable();
                 _branches = branches.Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
+            }
+            else
+            {
+                IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").AsQueryable();
+                _branches = branches.Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
+            }
+            totalRecords = _branches.Count();
+            if (isActive)
+            {
+                _branches = _branches.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
                 totalRecords = _branches.Count();
-                if (isActive)
+            }
+            if (branchSearchFilter != null)
+            {
+                if (Convert.ToInt32(branchSearchFilter.MerchantId) > 0)
                 {
-                    _branches = _branches.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                    _branches = _branches.Where(m => m.MerchantId == Convert.ToInt32(branchSearchFilter.MerchantId)).AsQueryable();
                     totalRecords = _branches.Count();
                 }
-                if (branchSearchFilter != null)
+                if (!string.IsNullOrEmpty(branchSearchFilter.Search) && !string.IsNullOrEmpty(branchSearchFilter.Type))
                 {
-                    if (Convert.ToInt32(branchSearchFilter.MerchantId) > 0)
-                    {
-                        _branches = _branches.Where(m => m.MerchantId == Convert.ToInt32(branchSearchFilter.MerchantId)).AsQueryable();
-                        totalRecords = _branches.Count();
-                    }
-                    if (!string.IsNullOrEmpty(branchSearchFilter.Search) && !string.IsNullOrEmpty(branchSearchFilter.Type))
-                    {
-                        _branches = _branches.Search(branchSearchFilter.Type, branchSearchFilter.Search);
-                        totalRecords = _branches.Count();
-                    }
-                    _branches = _branches.OrderBy(branchSearchFilter.Order + (Convert.ToBoolean(branchSearchFilter.Dir) ? " descending" : ""));
-                    if (!Convert.ToBoolean(branchSearchFilter.Export))
-                    {
-                        _branches = _branches.Skip((Convert.ToInt32(branchSearchFilter.Start) - 1) * Convert.ToInt32(branchSearchFilter.Size)).Take(Convert.ToInt32(branchSearchFilter.Size));
-                    }
-                    else
-                    {
-                        var dataToExport = _branches.Select(b => new { b.Id, b.Address, b.ContactName, CreatedDate = b.CreatedDate.ToString("MM/dd/yyyy hh:mm:ss tt"), b.Email, b.Geolocation, b.IsActive, b.MerchantName, b.Name, b.PhoneNum }).AsQueryable();
-                        return dataToExport.ToList();
-                    }
+                    _branches = _branches.Search(branchSearchFilter.Type, branchSearchFilter.Search);
+                    totalRecords = _branches.Count();
+                }
+                _branches = _branches.OrderBy(branchSearchFilter.Order + (Convert.ToBoolean(branchSearchFilter.Dir) ? " descending" : ""));
+                if (!Convert.ToBoolean(branchSearchFilter.Export))
+                {
+                    _branches = _branches.Skip((Convert.ToInt32(branchSearchFilter.Start) - 1) * Convert.ToInt32(branchSearchFilter.Size)).Take(Convert.ToInt32(branchSearchFilter.Size));
+                }
+                else
+                {
+                    var dataToExport = _branches.Select(b => new { b.Id, b.Address, b.ContactName, CreatedDate = b.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), b.Email, b.Geolocation, b.IsActive, b.MerchantName, b.Name, b.PhoneNum }).AsQueryable();
+                    return dataToExport.ToList();
                 }
             }
+
             return _branches.ToList();
         }
         public void UpdateBranch(Branch branchModel, int id)
         {
-            string[] excludedProps = { "Id", "MerchantId" };
+            string[] excludedProps = { "Id", "MerchantId", "CreatedDate" };
             if (branchModel != null)
             {
                 branchModel.Id = id;

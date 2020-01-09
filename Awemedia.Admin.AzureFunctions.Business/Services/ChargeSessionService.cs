@@ -28,8 +28,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public IEnumerable<object> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords)
         {
             IQueryable<UserSession> _userSessions = new List<UserSession>().AsQueryable();
-            DateTime fromDate = DateTime.Now;
-            DateTime toDate = DateTime.Now;
+            DateTime fromDate = DateTime.Now.ToUniversalTime();
+            DateTime toDate = DateTime.Now.ToUniversalTime();
             fromDate = Utility.ParseStartAndEndDates(userSessionSearchFilter, ref toDate);
             totalRecords = 0;
             int days = (toDate - fromDate).Days;
