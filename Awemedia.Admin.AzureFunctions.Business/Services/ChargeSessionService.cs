@@ -71,7 +71,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     }
                     else
                     {
-                        var dataToExport = _userSessions.Select(u => new { u.Id, u.ChargeRentalRevnue, Currency = u.ChargeParams != null ? GetChargeOption(u.ChargeParams).Currency : null, u.ChargeStationId, CreatedDate = u.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), u.DeviceId, u.TransactionId, u.MerchantName, u.Mobile, SessionStartTime = u.SessionStartTime != null ? u.SessionStartTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, SessionEndTime = u.SessionEndTime != null ? u.SessionEndTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, u.SessionStatus, u.SessionType, u.TransactionTypeId, u.UserAccountId }).AsQueryable();
+                        var dataToExport = _userSessions.Select(u => new { u.Id, u.ChargeRentalRevnue, Currency = u.ChargeParams != null ? GetChargeOption(u.ChargeParams).Currency : null, u.ChargeStationId, CreatedDate = u.CreatedDate.ToString("MM/dd/yyyy hh:mm:ss tt"), u.DeviceId, u.TransactionId, u.MerchantName, u.Mobile, SessionStartTime = u.SessionStartTime != null ? u.SessionStartTime.Value.ToString("MM/dd/yyyy hh:mm:ss tt") : null, SessionEndTime = u.SessionEndTime != null ? u.SessionEndTime.Value.ToString("MM/dd/yyyy hh:mm:ss tt") : null, u.SessionStatus, u.SessionType, u.TransactionTypeId, u.UserAccountId }).AsQueryable();
                         return dataToExport.ToList();
                     }
                 }
