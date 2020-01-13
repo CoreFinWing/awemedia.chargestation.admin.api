@@ -60,7 +60,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     {
                         if (Convert.ToBoolean(userSessionSearchFilter.IsStatusPaymentCompletedOrAbove))
                         {
-                            _userSessions = _userSessions.Where(u => u.SessionStatus == Convert.ToString(Enums.SessionStatus.Charging) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.ChargingCompleted) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.PaymentCompleted));
+                            _userSessions = _userSessions.Where(u => (u.SessionStatus == Convert.ToString(Enums.SessionStatus.Charging) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.ChargingCompleted) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.PaymentCompleted)) && u.SessionType == Convert.ToString(Enums.SessionType.Paid));
                             totalRecords = _userSessions.Count();
                         }
                     }
@@ -71,16 +71,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     }
                     else
                     {
-                        var dataToExport = _userSessions.Select(u => new { u.Id, u.ChargeRentalRevnue, Currency = u.ChargeParams != null ? GetChargeOption(u.ChargeParams).Currency : null, u.ChargeStationId, CreatedDate = u.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), u.DeviceId, u.TransactionId, u.MerchantName, u.Mobile, SessionStartTime = u.SessionStartTime != null ? u.SessionStartTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, SessionEndTime = u.SessionEndTime != null ? u.SessionEndTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, u.SessionStatus, u.SessionType, u.TransactionTypeId, u.UserAccountId }).AsQueryable();
+                        var dataToExport = _userSessions.Select(u => new { u.Id, u.ChargeRentalRevnue, Currency = u.ChargeParams != null ? (GetChargeOption(u.ChargeParams) == null ? null : GetChargeOption(u.ChargeParams).Currency) : null, u.ChargeStationId, CreatedDate = u.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), u.DeviceId, u.TransactionId, u.MerchantName, u.Mobile, SessionStartTime = u.SessionStartTime != null ? u.SessionStartTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, SessionEndTime = u.SessionEndTime != null ? u.SessionEndTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, u.SessionStatus, u.SessionType, u.TransactionTypeId, u.UserAccountId }).AsQueryable();
                         return dataToExport.ToList();
                     }
                 }
             }
             return _userSessions.ToList();
         }
-
-
-
         public UserSession GetById(Guid Id)
         {
             IQueryable<DAL.DataContracts.UserSession> userSessions = _baseService.GetAll("SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant").AsQueryable();
@@ -100,7 +97,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             JObject jObject = JObject.Parse(chargeParams);
             string chargeOptionId = (string)jObject.SelectToken("ChargeOptionId");
-            return _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
+            if (Convert.ToInt32(chargeOptionId) > 0)
+            {
+                return _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
+            }
+            return null;
         }
     }
 }

@@ -14,7 +14,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string Geolocation { get; set; }
         [Required]
         public int? BranchId { get; set; }
-        [Required]
         public string ChargeControllerId { get; set; }
         [Required]
         public string DeviceId { get; set; }
