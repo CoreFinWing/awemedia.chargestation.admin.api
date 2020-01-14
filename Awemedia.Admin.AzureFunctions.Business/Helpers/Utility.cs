@@ -1,4 +1,6 @@
 ﻿using Awemedia.Admin.AzureFunctions.Business.Models;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Helpers
@@ -25,6 +27,33 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
             }
 
             return fromDate;
+        }
+        public static void UploadTextToBlob(string keys)
+        {
+            if (!string.IsNullOrEmpty(keys))
+            {
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("BlobStorageConnectionString"));
+                CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
+                CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("BlobStorageContainer"));
+                container.CreateIfNotExistsAsync();
+                CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("AWSCognitoFileName"));
+                blob.Properties.CacheControl = "max-age=3600";
+                blob.Properties.ContentType = "application/json";
+                blob.SetPropertiesAsync();
+                blob.UploadTextAsync(keys);
+            }
+        }
+        public static string DownloadTextFromBlobAsync()
+        {
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("BlobStorageConnectionString"));
+            CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("BlobStorageContainer"));
+            CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("AWSCognitoFileName"));
+            if (blob.ExistsAsync().Result)
+            {
+                return blob.DownloadTextAsync().Result;
+            }
+            return string.Empty;
         }
     }
 }

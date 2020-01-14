@@ -33,13 +33,14 @@ namespace Awemedia.Chargestation.AzureFunctions.Helpers
                         ValidIssuer = Environment.GetEnvironmentVariable("ValidIssuer"),
                         IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
                         {
-                            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("BlobStorageConnectionString"));
-                            CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
-                            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("BlobStorageContainer"));
-                            CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("AWSCognitoFileName"));
-                            var json = blob.DownloadTextAsync().Result;
-                            var keys = JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
-                            return (IEnumerable<SecurityKey>)keys;
+                            var json = Admin.AzureFunctions.Business.Helpers.Utility.DownloadTextFromBlobAsync();
+                            if (!string.IsNullOrWhiteSpace(json))
+                            {
+                                return JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
+                            }
+                            var jwksJson = new WebClient().DownloadString(parameters.ValidIssuer + "/.well-known/jwks.json");
+                            Admin.AzureFunctions.Business.Helpers.Utility.UploadTextToBlob(jwksJson);
+                            return JsonConvert.DeserializeObject<JsonWebKeySet>(jwksJson).Keys;
                         }
                     };
                     ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out SecurityToken validatedToken);
@@ -52,5 +53,6 @@ namespace Awemedia.Chargestation.AzureFunctions.Helpers
                 return false;
             }
         }
+
     }
 }

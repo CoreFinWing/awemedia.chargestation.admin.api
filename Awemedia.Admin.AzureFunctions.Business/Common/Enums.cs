@@ -21,5 +21,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Common
             ChargeFailed = 11,
             SessionTimedOut = 12
         }
+        public enum SessionType
+        {
+            Promotion = 1,
+            Paid = 2
+        }
     }
 }
