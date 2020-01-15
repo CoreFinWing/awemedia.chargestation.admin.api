@@ -33,12 +33,24 @@ namespace Awemedia.Chargestation.AzureFunctions.Helpers
                         ValidIssuer = Environment.GetEnvironmentVariable("ValidIssuer"),
                         IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
                         {
-                            var json = Admin.AzureFunctions.Business.Helpers.Utility.DownloadTextFromBlobAsync();
-                            if (!string.IsNullOrWhiteSpace(json))
+                            var blobData = Admin.AzureFunctions.Business.Helpers.Utility.DownloadTextFromBlobAsync().Result;
+                            if (blobData != null)
                             {
-                                return JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
+                                if (!string.IsNullOrWhiteSpace(blobData["ExpirationDate"]))
+                                {
+                                    if (Convert.ToDateTime(blobData["ExpirationDate"]) > DateTime.Now.ToUniversalTime())
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(blobData["Json"]))
+                                        {
+                                            return JsonConvert.DeserializeObject<JsonWebKeySet>(Convert.ToString(blobData["Json"])).Keys;
+                                        }
+                                    }
+                                }
                             }
-                            var jwksJson = new WebClient().DownloadString(parameters.ValidIssuer + "/.well-known/jwks.json");
+                            WebClient client = new WebClient();
+                            var clientData = client.DownloadData(parameters.ValidIssuer + "/.well-known/jwks.json");
+                            var jwksJson = client.DownloadString(parameters.ValidIssuer + "/.well-known/jwks.json");
+                            WebHeaderCollection webHeaderCollection = client.ResponseHeaders;
                             Admin.AzureFunctions.Business.Helpers.Utility.UploadTextToBlob(jwksJson);
                             return JsonConvert.DeserializeObject<JsonWebKeySet>(jwksJson).Keys;
                         }
