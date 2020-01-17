@@ -1,23 +1,16 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
+using Awemedia.Admin.AzureFunctions.Business.Interfaces;
+using Awemedia.Admin.AzureFunctions.Business.Models;
+using Awemedia.Admin.AzureFunctions.Extensions;
+using Awemedia.Admin.AzureFunctions.Resolver;
+using Awemedia.Chargestation.AzureFunctions.Helpers;
+using AzureFunctions.Autofac;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
-using System.Net.Http;
-using Awemedia.Admin.AzureFunctions.Business.Interfaces;
-using Awemedia.Chargestation.AzureFunctions.Helpers;
-using Awemedia.Admin.AzureFunctions.Business.Models;
-using Microsoft.AspNetCore.WebUtilities;
+using System;
 using System.Net;
-using AzureFunctions.Autofac;
-using Awemedia.Admin.AzureFunctions.Resolver;
-using Awemedia.Admin.AzureFunctions.Extensions;
-using Awemedia.Chargestation.AzureFunctions.Extensions;
+using System.Net.Http;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
@@ -49,7 +42,8 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeSessionService.GetById(Guid.Parse(Id)));
             }
-            return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+ 
+           return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
         }
     }
 }
