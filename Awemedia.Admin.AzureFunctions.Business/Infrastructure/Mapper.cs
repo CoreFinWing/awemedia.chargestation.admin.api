@@ -31,7 +31,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 MerchantName = chargeStation.Branch?.Merchant.BusinessName,
                 Branch = chargeStation.Branch == null ? null : MapBranchModelObject(chargeStation.Branch),
                 BatteryLevel = chargeStation.BatteryLevel,
-                IsOnline = chargeStation.ModifiedDate >= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), malaysiaTimeZone)).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) ? true : false,
+                IsOnline = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.ModifiedDate, malaysiaTimeZone)) >= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), malaysiaTimeZone)).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) ? true : false,
                 LastPingTimeStamp = chargeStation.LastPingTimeStamp,
                 BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? chargeStation.BatteryLevel + " as of " + chargeStation.LastPingTimeStamp : "",
                 IsActive = chargeStation.IsActive,
