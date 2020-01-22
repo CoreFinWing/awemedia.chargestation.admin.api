@@ -113,7 +113,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                                 foreach (var chargeStation in branch.ChargeStation)
                                 {
                                     chargeStation.IsActive = IsActive;
-                                    chargeStation.ModifiedDate = DateTime.Now.ToUniversalTime();
                                 }
                             }
                             _baseService.AddOrUpdate(branch, branchId);
