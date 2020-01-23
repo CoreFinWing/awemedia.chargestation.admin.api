@@ -117,7 +117,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (chargeStation != null)
             {
                 chargeStation.BranchId = chargeStationModel.BranchId;
-                chargeStation.ModifiedDate = DateTime.Now.ToUniversalTime();
             }
             ChargeStation model = _baseService.AddOrUpdate(chargeStation, guid, excludedProps);
             return model.Id;
@@ -156,7 +155,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                         if (chargeStation != null)
                         {
                             chargeStation.IsActive = IsActive;
-                            chargeStation.ModifiedDate = DateTime.Now.ToUniversalTime();
                             _baseService.AddOrUpdate(chargeStation, chargestationId, excludedProps);
                         }
                     }
