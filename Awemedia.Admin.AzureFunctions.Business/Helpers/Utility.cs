@@ -12,7 +12,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
         {
             TimeZoneInfo specifiedTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneKey);
             DateTime convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeUtc, specifiedTimeZone);
-            return convertedDateTime.ToString("MM/dd/yyyy hh:mm:ss tt");
+            return convertedDateTime.ToString("yyyy-MM-dd hh:mm:ss tt");
         }
         public static DateTime ParseStartAndEndDates(BaseSearchFilter userSessionSearchFilter, ref DateTime toDate)
         {

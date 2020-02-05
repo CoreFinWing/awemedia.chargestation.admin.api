@@ -73,7 +73,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 }
                 else
                 {
-                    var dataToExport = _branches.Select(b => new { b.Id, b.Address, b.ContactName, CreatedDate = b.CreatedDate.ToString("MM/dd/yyyy hh:mm:ss tt"), b.Email, b.Geolocation, b.IsActive, b.MerchantName, b.Name, b.PhoneNum }).AsQueryable();
+                    var dataToExport = _branches.Select(b => new { b.Id, b.Address, b.ContactName, CreatedDate = b.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), b.Email, b.Geolocation, b.IsActive, b.MerchantName, b.Name, b.PhoneNum }).AsQueryable();
                     return dataToExport.ToList();
                 }
             }
