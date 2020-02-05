@@ -9,5 +9,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
     {
         IEnumerable<object> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords);
         UserSession GetById(Guid Id);
+        IEnumerable<UserSession> GetSuccessfulSessions();
     }
 }

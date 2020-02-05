@@ -71,7 +71,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     }
                     else
                     {
-                        var dataToExport = _userSessions.Select(u => new { u.Id, u.ChargeRentalRevnue, Currency = u.ChargeParams != null ? (GetChargeOption(u.ChargeParams) == null ? null : GetChargeOption(u.ChargeParams).Currency) : null, u.ChargeStationId, CreatedDate = u.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), u.DeviceId, u.TransactionId, u.MerchantName, u.Mobile, SessionStartTime = u.SessionStartTime != null ? u.SessionStartTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, SessionEndTime = u.SessionEndTime != null ? u.SessionEndTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, u.SessionStatus, u.SessionType, u.TransactionTypeId, u.UserAccountId }).AsQueryable();
+                        var dataToExport = _userSessions.Select(u => new { u.Id, u.ChargeRentalRevnue, Currency = u.ChargeParams != null ? (GetChargeOption(u.ChargeParams) == null ? null : GetChargeOption(u.ChargeParams).Currency) : null, u.ChargeStationId, CreatedDate = u.CreatedDate.ToString("MM/dd/yyyy hh:mm:ss tt"), u.DeviceId, u.TransactionId, u.MerchantName, u.Mobile, SessionStartTime = u.SessionStartTime != null ? u.SessionStartTime.Value.ToString("MM/dd/yyyy hh:mm:ss tt") : null, SessionEndTime = u.SessionEndTime != null ? u.SessionEndTime.Value.ToString("MM/dd/yyyy hh:mm:ss tt") : null, u.SessionStatus, u.SessionType, u.TransactionTypeId, u.UserAccountId }).AsQueryable();
                         return dataToExport.ToList();
                     }
                 }
@@ -102,6 +102,17 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 return _chargeOptionService.GetById(Convert.ToInt32(chargeOptionId));
             }
             return null;
+        }
+        public IEnumerable<UserSession> GetSuccessfulSessions()
+        {
+            IQueryable<UserSession> _userSessions = new List<UserSession>().AsQueryable();
+            DateTime toDate = DateTime.Now.ToUniversalTime();
+            DateTime fromDate = toDate.AddDays(-7);
+            IQueryable<DAL.DataContracts.UserSession> userSessions = _baseService.GetAll("SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
+            _userSessions = userSessions.Select(t => MappingProfile.MapUserSessionModelObject(t)).AsQueryable();
+            _userSessions = _userSessions.Where(u => (u.SessionStatus == Convert.ToString(Enums.SessionStatus.Charging) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.ChargingCompleted) || u.SessionStatus == Convert.ToString(Enums.SessionStatus.PaymentCompleted)) && u.SessionType == Convert.ToString(Enums.SessionType.Paid));
+            _userSessions = _userSessions.Select(u => new UserSession() { Id = u.Id, ChargeRentalRevnue = u.ChargeRentalRevnue, Currency = u.ChargeParams != null ? (GetChargeOption(u.ChargeParams) == null ? null : GetChargeOption(u.ChargeParams).Currency) : null, ChargeStationId = u.ChargeStationId, CreatedDate = Convert.ToDateTime(u.CreatedDate.ToString("MM/dd/yyyy hh:mm:ss tt")), ModifiedDate = Convert.ToDateTime(u.ModifiedDate.ToString("MM/dd/yyyy hh:mm:ss tt")), DeviceId = u.DeviceId, TransactionId = u.TransactionId, MerchantName = u.MerchantName, Mobile = u.Mobile, SessionStartTime = u.SessionStartTime != null ? DateTime.Parse(u.SessionStartTime.Value.ToString("MM/dd/yyyy hh:mm:ss tt")) : (DateTime?)null, SessionEndTime = u.SessionEndTime != null ? DateTime.Parse(u.SessionEndTime.Value.ToString("MM/dd/yyyy hh:mm:ss tt")) : (DateTime?)null, SessionStatus = u.SessionStatus, SessionType = u.SessionType, TransactionTypeId = u.TransactionTypeId, UserAccountId = u.UserAccountId, PortNumber = u.PortNumber }).AsQueryable();
+            return _userSessions.ToList();
         }
     }
 }
