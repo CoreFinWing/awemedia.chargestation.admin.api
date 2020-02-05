@@ -12,6 +12,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
     [DependencyInjectionConfig(typeof(DIConfig))]
     public static class ReportFunctions
     {
+        private static string malaysiaTimeZone = Environment.GetEnvironmentVariable("MalaysiaTimeZone");
         [FunctionName("ReportFunctions")]
         public static async System.Threading.Tasks.Task ExportToExcelAsync([TimerTrigger("%ReportScheduleExpression%", RunOnStartup = false)]TimerInfo myTimer, ILogger log, [Inject]IChargeSessionService _chargeSessionService, [Inject]IEmailService _emailService)
         {
@@ -20,8 +21,8 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             await Utility.UploadExcelStreamToBlob(listToExport, blobName);
             var stream = Utility.DownloadExcelStreamFromBlob().Result;
             var base64Array = Convert.ToBase64String(stream.ToArray());
-            var toDate = DateTime.Now.ToUniversalTime();
-            var fromDate = DateTime.Now.ToUniversalTime().AddDays(-7);
+            var toDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), malaysiaTimeZone));
+            var fromDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime().AddDays(-7), malaysiaTimeZone));
             EmailModel emailModel = new EmailModel
             {
                 Content = " Paid Sessions Report from <strong>" + fromDate + "</strong>  to <strong> " + toDate + "</strong> ",

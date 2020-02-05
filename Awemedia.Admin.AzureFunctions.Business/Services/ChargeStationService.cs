@@ -79,7 +79,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 }
                 else
                 {
-                    var dataToExport = _chargeStations.Select(c => new { c.Id, c.BatteryInfoDisplayField, c.BranchName, c.ChargeControllerId, CreatedDate = c.CreatedDate.ToString("MM/dd/yyyy hh:mm:ss tt"), ModifiedDate = c.ModifiedDate.ToString("MM/dd/yyyy hh:mm:ss tt"), c.DeviceId, c.Geolocation, c.IsActive, c.IsOnline, c.LastPingTimeStamp, c.MerchantName }).AsQueryable();
+                    var dataToExport = _chargeStations.Select(c => new { c.Id, c.BatteryInfoDisplayField, c.BranchName, c.ChargeControllerId, CreatedDate = c.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), ModifiedDate = c.ModifiedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), c.DeviceId, c.Geolocation, c.IsActive, c.IsOnline, c.LastPingTimeStamp, c.MerchantName }).AsQueryable();
                     return dataToExport.ToList();
                 }
 
@@ -117,7 +117,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (chargeStation != null)
             {
                 chargeStation.BranchId = chargeStationModel.BranchId;
-                chargeStation.ModifiedDate = DateTime.Now.ToUniversalTime();
             }
             ChargeStation model = _baseService.AddOrUpdate(chargeStation, guid, excludedProps);
             return model.Id;
@@ -156,7 +155,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                         if (chargeStation != null)
                         {
                             chargeStation.IsActive = IsActive;
-                            chargeStation.ModifiedDate = DateTime.Now.ToUniversalTime();
                             _baseService.AddOrUpdate(chargeStation, chargestationId, excludedProps);
                         }
                     }
