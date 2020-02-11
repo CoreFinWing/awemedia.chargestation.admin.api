@@ -30,6 +30,7 @@ namespace Awemedia.Admin.AzureFunctions.Resolver
                 builder.RegisterType<BranchService>().As<IBranchService>();
                 builder.RegisterType<NotificationService>().As<INotificationService>();
                 builder.RegisterType<ChargeSessionService>().As<IChargeSessionService>();
+                builder.RegisterType<EmailService>().As<IEmailService>();
             }, functionName);
         }
     }
