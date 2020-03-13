@@ -31,6 +31,7 @@ namespace Awemedia.Admin.AzureFunctions.Resolver
                 builder.RegisterType<NotificationService>().As<INotificationService>();
                 builder.RegisterType<ChargeSessionService>().As<IChargeSessionService>();
                 builder.RegisterType<EmailService>().As<IEmailService>();
+                builder.RegisterType<EventService>().As<IEventService>();
             }, functionName);
         }
     }
