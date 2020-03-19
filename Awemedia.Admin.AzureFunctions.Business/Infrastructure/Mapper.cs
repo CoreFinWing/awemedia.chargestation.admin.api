@@ -307,5 +307,20 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             }
             return _userSessions;
         }
+
+        public static Event MapEventsResponseObject(DAL.DataContracts.Events events)
+        {
+            return new Event()
+            {
+                DateTime = events.DateTime,
+                DeviceId = events.DeviceId,
+                EventData = events.EventData,
+                EventTypeId = events.EventTypeId,
+                IsActive = events.IsActive,
+                Id = events.Id,
+                ChargeStationId = events.ChargeStationId,
+                EventName = events.EventType.Name
+            };
+        }
     }
 }
