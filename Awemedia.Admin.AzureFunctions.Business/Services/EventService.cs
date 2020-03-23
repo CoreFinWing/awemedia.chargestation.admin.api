@@ -19,31 +19,31 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<object> Get(BaseSearchFilter eventSearchFilter, out int totalRecords)
         {
-            IQueryable<Event> _events = new List<Event>().AsQueryable();
             totalRecords = 0;
-            IQueryable<DAL.DataContracts.Events> events = _baseService.GetAll("EventType").AsQueryable();
-            _events = events.Select(t => MappingProfile.MapEventsResponseObject(t)).AsQueryable();
-            totalRecords = _events.Count();
+            IQueryable<DAL.DataContracts.Events> events = null;
+            IQueryable<Event> _events = null;
             if (eventSearchFilter != null)
             {
-
+                if (Convert.ToBoolean(eventSearchFilter.Export))
+                {
+                    var dataToExport = _baseService.GetAll("EventType").Select(e => new { e.Id, e.EventType.Name, e.EventData, e.ChargeStationId, e.DateTime }).AsQueryable();
+                    return dataToExport.ToList();
+                }
+                events = _baseService.GetAll("EventType").Skip((Convert.ToInt32(eventSearchFilter.Start) - 1) * Convert.ToInt32(eventSearchFilter.Size)).Take(Convert.ToInt32(eventSearchFilter.Size)).AsQueryable();
+                _events = events.Select(t => MappingProfile.MapEventsResponseObject(t));
                 if (!string.IsNullOrEmpty(eventSearchFilter.Search) && !string.IsNullOrEmpty(eventSearchFilter.Type))
                 {
                     _events = _events.Search(eventSearchFilter.Type, eventSearchFilter.Search);
                     totalRecords = _events.Count();
                 }
                 _events = _events.OrderBy(eventSearchFilter.Order + (Convert.ToBoolean(eventSearchFilter.Dir) ? " descending" : ""));
-                if (!Convert.ToBoolean(eventSearchFilter.Export))
-                {
-                    _events = _events.Skip((Convert.ToInt32(eventSearchFilter.Start) - 1) * Convert.ToInt32(eventSearchFilter.Size)).Take(Convert.ToInt32(eventSearchFilter.Size));
-                }
-                else
-                {
-                    var dataToExport = _events.Select(e => new { e.Id, e.EventName, e.EventData, e.ChargeStationId, e.DateTime }).AsQueryable();
-                    return dataToExport.ToList();
-                }
             }
-            return _events.ToList();
+            else
+            {
+                events = _baseService.GetAll("EventType").AsQueryable();
+                _events = events.Select(t => MappingProfile.MapEventsResponseObject(t));
+            }
+            return _events;
         }
     }
 }
