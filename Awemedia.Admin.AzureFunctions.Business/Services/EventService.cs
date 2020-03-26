@@ -31,6 +31,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 }
                 events = _baseService.GetAll("EventType").Skip((Convert.ToInt32(eventSearchFilter.Start) - 1) * Convert.ToInt32(eventSearchFilter.Size)).Take(Convert.ToInt32(eventSearchFilter.Size)).AsQueryable();
                 _events = events.Select(t => MappingProfile.MapEventsResponseObject(t));
+                totalRecords = _events.Count();
                 if (!string.IsNullOrEmpty(eventSearchFilter.Search) && !string.IsNullOrEmpty(eventSearchFilter.Type))
                 {
                     _events = _events.Search(eventSearchFilter.Type, eventSearchFilter.Search);
@@ -42,6 +43,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 events = _baseService.GetAll("EventType").AsQueryable();
                 _events = events.Select(t => MappingProfile.MapEventsResponseObject(t));
+                totalRecords = _events.Count();
             }
             return _events;
         }
