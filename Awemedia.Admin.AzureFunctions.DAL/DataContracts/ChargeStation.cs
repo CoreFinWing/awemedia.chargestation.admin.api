@@ -24,6 +24,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public DateTime? LastPingTimeStamp { get; set; }
         public bool? IsOnline { get; set; }
         public string AppVersion { get; set; }
+        public string LastBatteryLevel { get; set; }
+        public DateTime? LastBatteryLevelAvailablityTime { get; set; }
+
         public Branch Branch { get; set; }
         public ICollection<UserSession> UserSession { get; set; }
     }

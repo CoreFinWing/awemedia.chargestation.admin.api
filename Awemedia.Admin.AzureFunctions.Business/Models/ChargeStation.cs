@@ -29,6 +29,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public bool IsActive { get; set; }
         public ICollection<UserSession> userSessions { get; set; }
         public string AppVersion { get; set; }
+        public string LastBatteryInfoDisplayField { get; set; }
 
     }
 }
