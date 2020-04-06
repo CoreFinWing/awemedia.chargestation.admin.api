@@ -36,7 +36,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? chargeStation.BatteryLevel + " as of " + chargeStation.LastPingTimeStamp.GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss tt") : "",
                 IsActive = chargeStation.IsActive,
                 userSessions = MapSessionList(chargeStation.UserSession),
-                AppVersion = chargeStation.AppVersion
+                AppVersion = chargeStation.AppVersion,
+                LastBatteryInfoDisplayField = chargeStation.BatteryLevel == "n/a" ? (chargeStation.LastBatteryLevel == null ? null : chargeStation.LastBatteryLevel + " as of " + Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.LastBatteryLevelAvailablityTime.GetValueOrDefault(), malaysiaTimeZone)) : null
             };
         }
         public static Models.ChargeOption MapChargeOptionsResponseObjects(DAL.DataContracts.ChargeOptions chargeOptions)
