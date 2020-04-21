@@ -33,7 +33,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 BatteryLevel = chargeStation.BatteryLevel,
                 IsOnline = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.ModifiedDate, malaysiaTimeZone)) >= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), malaysiaTimeZone)).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) ? true : false,
                 LastPingTimeStamp = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.LastPingTimeStamp.GetValueOrDefault(), malaysiaTimeZone)),
-                BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? chargeStation.BatteryLevel + " as of " + chargeStation.LastPingTimeStamp.GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss tt") : "",
+                BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? chargeStation.BatteryLevel + " as of " + Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.LastPingTimeStamp.GetValueOrDefault(), malaysiaTimeZone): "",
                 IsActive = chargeStation.IsActive,
                 userSessions = MapSessionList(chargeStation.UserSession),
                 AppVersion = chargeStation.AppVersion,
