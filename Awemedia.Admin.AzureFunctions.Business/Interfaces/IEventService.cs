@@ -8,5 +8,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
     public interface IEventService
     {
         IEnumerable<object> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords);
+        object GetById(int id);
     }
 }

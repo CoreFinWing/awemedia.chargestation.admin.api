@@ -27,7 +27,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         [FunctionName("Events")]
         public HttpResponseMessage Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "events")] HttpRequestMessage httpRequestMessage, [Inject]IErrorHandler _errorHandler, [Inject]IEventService eventService)
-         {
+        {
             if (!httpRequestMessage.IsAuthorized())
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
@@ -37,6 +37,16 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             if (queryDictionary.Count() > 0)
                 _eventSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = eventService.Get(_eventSearchFilter, out int totalRecords), total = totalRecords });
+        }
+        [FunctionName("event-detail")]
+        public HttpResponseMessage GetById(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "events/{id}")] HttpRequestMessage httpRequestMessage, [Inject]IErrorHandler _errorHandler, [Inject]IEventService eventService, int id)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            if (id > 0)
+                return httpRequestMessage.CreateResponse(HttpStatusCode.OK, eventService.GetById(id));
+            return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
         }
     }
 }
