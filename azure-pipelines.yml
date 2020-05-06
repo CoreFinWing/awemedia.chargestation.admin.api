@@ -10,7 +10,7 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
-- script: dotnet restore ~/awemedia.chargestation.api/**/*.csproj
+- script: dotnet restore ~/Awemedia.Admin.AzureFunctions/**/*.csproj
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
@@ -19,7 +19,7 @@ steps:
       **/*.csproj
     arguments: --output publish_output --configuration Release
 
-- script: cd Awemedia.Chargestation.AzureFunctions
+- script: cd Awemedia.Admin.AzureFunctions
   displayName: current folder
 
 - script: dir
