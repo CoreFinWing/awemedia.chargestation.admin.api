@@ -10,7 +10,6 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
-- script: dotnet restore ~/Awemedia.Admin.AzureFunctions/**/*.csproj
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
