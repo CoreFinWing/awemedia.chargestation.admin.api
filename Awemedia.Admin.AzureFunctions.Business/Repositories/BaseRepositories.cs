@@ -26,18 +26,27 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
             _entities = context.Set<T>();
             _errorHandler = errorHandler;
         }
-        public IEnumerable<T> GetAll()
+        public IQueryable<T> GetAll()
         {
-            return _entities.ToList();
+            return _entities.AsQueryable();
         }
-        public IEnumerable<T> GetAll(params string[] include)
+        public IQueryable<T> GetAll(params string[] include)
         {
             IQueryable<T> query = _context.Set<T>();
             foreach (string item in include)
             {
                 query = query.Include(item);
             }
-            return query.ToList();
+            return query.AsQueryable();
+        }
+        public IQueryable<T> GetTopNRecords(int count, Expression<Func<T,int>> orderBy,params string[] include)
+        {
+            IQueryable<T> query = _context.Set<T>().OrderByDescending(orderBy).Take(count);
+            foreach (string item in include)
+            {
+                query = query.Include(item);
+            }
+            return query.AsQueryable();
         }
         public T GetById(int id)
         {
@@ -65,7 +74,16 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
 
         public IEnumerable<T> Where(Expression<Func<T, bool>> exp)
         {
-            return _entities.Where(exp);
+            return _entities.Where(exp).AsQueryable();
+        }
+        public IQueryable<T> Where(Expression<Func<T, bool>> exp, string[] include)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            foreach (string item in include)
+            {
+                query = query.Include(item);
+            }
+            return query.Where(exp).AsQueryable();
         }
         public T Insert(T entity)
         {

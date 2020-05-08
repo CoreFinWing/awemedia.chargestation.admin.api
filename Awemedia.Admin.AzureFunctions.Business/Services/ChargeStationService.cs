@@ -24,20 +24,19 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         public IEnumerable<object> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, bool isActive = true)
         {
-            IQueryable<ChargeStationModel> _chargeStations = new List<ChargeStationModel>().AsQueryable();
-            DateTime fromDate = DateTime.Now.ToUniversalTime();
-            DateTime toDate = DateTime.Now.ToUniversalTime();
+            string[] navigationalProps = { "Branch", "Branch.Merchant" };
+            IEnumerable<ChargeStationModel> _chargeStations = null;
             totalRecords = 0;
             if (!string.IsNullOrEmpty(chargeStationSearchFilter.FromDate) && !string.IsNullOrEmpty(chargeStationSearchFilter.ToDate))
             {
+                DateTime fromDate = DateTime.Now.ToUniversalTime();
+                DateTime toDate = DateTime.Now.ToUniversalTime();
                 fromDate = Utility.ParseStartAndEndDates(chargeStationSearchFilter, ref toDate);
-                IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").Where(a => a.CreatedDate.Date >= fromDate && a.CreatedDate.Date <= toDate).AsQueryable();
-                _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+                _chargeStations = _baseService.Where(a => a.CreatedDate.Date >= fromDate && a.CreatedDate.Date <= toDate, navigationalProps).Select(t => MappingProfile.MapChargeStationResponseObject(t)).ToList();
             }
             else
             {
-                IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant").AsQueryable();
-                _chargeStations = chargeStations.Select(t => MappingProfile.MapChargeStationResponseObject(t)).AsQueryable();
+                _chargeStations = _baseService.GetAll(navigationalProps).Select(t => MappingProfile.MapChargeStationResponseObject(t)).ToList();
             }
             totalRecords = _chargeStations.Count();
             if (isActive)
@@ -57,12 +56,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 if (Convert.ToInt32(chargeStationSearchFilter.MerchantId) > 0)
                 {
-                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).AsQueryable();
+                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.Branch.MerchantId == Convert.ToInt32(chargeStationSearchFilter.MerchantId)).ToList();
                     totalRecords = _chargeStations.Count();
                 }
                 if (Convert.ToInt32(chargeStationSearchFilter.BranchId) > 0)
                 {
-                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.BranchId == Convert.ToInt32(chargeStationSearchFilter.BranchId)).AsQueryable();
+                    _chargeStations = _chargeStations.Where(a => a.Branch == null ? false : a.BranchId == Convert.ToInt32(chargeStationSearchFilter.BranchId)).ToList();
                     totalRecords = _chargeStations.Count();
                 }
                 if (!string.IsNullOrEmpty(chargeStationSearchFilter.Search) && !string.IsNullOrEmpty(chargeStationSearchFilter.Type))
@@ -72,7 +71,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     totalRecords = _chargeStations.Count();
                 }
 
-                _chargeStations = _chargeStations.OrderBy(chargeStationSearchFilter.Order + (Convert.ToBoolean(chargeStationSearchFilter.Dir) ? " descending" : ""));
+                _chargeStations = _chargeStations.OrderBy(chargeStationSearchFilter.Order, chargeStationSearchFilter.Dir);
                 if (!Convert.ToBoolean(chargeStationSearchFilter.Export))
                 {
                     _chargeStations = _chargeStations.Skip((Convert.ToInt32(chargeStationSearchFilter.Start) - 1) * Convert.ToInt32(chargeStationSearchFilter.Size)).Take(Convert.ToInt32(chargeStationSearchFilter.Size));

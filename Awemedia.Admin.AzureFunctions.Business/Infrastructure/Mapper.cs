@@ -81,6 +81,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
         }
         public static Models.Merchant MapMerchantModelObject(DAL.DataContracts.Merchant merchant)
         {
+            if (merchant == null)
+                return null;
             return new Models.Merchant()
             {
                 RegisteredBusinessName = merchant.BusinessName,
@@ -319,7 +321,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 IsActive = events.IsActive,
                 Id = events.Id,
                 ChargeStationId = events.ChargeStationId,
-                EventName = events.EventType.Name
+                EventName = events.EventType?.Name
             };
         }
     }

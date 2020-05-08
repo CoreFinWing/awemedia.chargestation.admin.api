@@ -22,25 +22,24 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<object> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, bool isActive = true)
         {
-            IQueryable<MerchantModel> _merchants = new List<MerchantModel>().AsQueryable();
-            DateTime fromDate = DateTime.Now.ToUniversalTime();
-            DateTime toDate = DateTime.Now.ToUniversalTime();
+            IEnumerable<MerchantModel> _merchants = null;
             totalRecords = 0;
+            string[] navigationalProps = { "Branch", "IndustryType", "Branch.ChargeStation" };
             if (!string.IsNullOrEmpty(merchantSearchFilter.FromDate) && !string.IsNullOrEmpty(merchantSearchFilter.ToDate))
             {
+                DateTime fromDate = DateTime.Now.ToUniversalTime();
+                DateTime toDate = DateTime.Now.ToUniversalTime();
                 fromDate = Utility.ParseStartAndEndDates(merchantSearchFilter, ref toDate);
-                IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").Where(a => a.CreatedDate.Value.Date >= fromDate && a.CreatedDate.Value.Date <= toDate).AsQueryable();
-                _merchants = merchants.Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
+                _merchants = _baseService.Where(a => a.CreatedDate.Value.Date >= fromDate && a.CreatedDate.Value.Date <= toDate, navigationalProps).Select(t => MappingProfile.MapMerchantModelObject(t)).ToList();
             }
             else
             {
-                IQueryable<Merchant> merchants = _baseService.GetAll("Branch", "IndustryType", "Branch.ChargeStation").AsQueryable();
-                _merchants = merchants.Select(t => MappingProfile.MapMerchantModelObject(t)).AsQueryable();
+                _merchants = _baseService.GetAll(navigationalProps).Select(t => MappingProfile.MapMerchantModelObject(t)).ToList();
             }
             totalRecords = _merchants.Count();
             if (isActive)
             {
-                _merchants = _merchants.Where(item => item.IsActive.Equals(isActive)).AsQueryable();
+                _merchants = _merchants.Where(item => item.IsActive.Equals(isActive)).ToList();
                 totalRecords = _merchants.Count();
             }
             if (merchantSearchFilter != null)
@@ -48,15 +47,16 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 if (!string.IsNullOrEmpty(merchantSearchFilter.Search) && !string.IsNullOrEmpty(merchantSearchFilter.Type))
                 {
                     _merchants = _merchants.Search(merchantSearchFilter.Type, merchantSearchFilter.Search);
+                    totalRecords = _merchants.Count();
                 }
-                _merchants = _merchants.OrderBy(merchantSearchFilter.Order + (Convert.ToBoolean(merchantSearchFilter.Dir) ? " descending" : ""));
+                _merchants = _merchants.OrderBy(merchantSearchFilter.Order,merchantSearchFilter.Dir);
                 if (!Convert.ToBoolean(merchantSearchFilter.Export))
                 {
                     _merchants = _merchants.Skip((Convert.ToInt32(merchantSearchFilter.Start) - 1) * Convert.ToInt32(merchantSearchFilter.Size)).Take(Convert.ToInt32(merchantSearchFilter.Size));
                 }
                 else
                 {
-                    var dataToExport = _merchants.Select(m => new { m.Id, m.IndustryName, m.LicenseNumber, m.IsActive, m.NumOfActiveLocations, m.PhoneNumber, m.ProfitSharePercentage, m.RegisteredBusinessName, m.SecondaryContact, m.SecondaryPhone, m.ContactName, m.ChargeStationsOrdered, m.Dba, m.DepositMoneyPaid, m.Email }).AsQueryable();
+                    var dataToExport = _merchants.ToList().Select(m => new { m.Id, m.IndustryName, m.LicenseNumber, m.IsActive, m.NumOfActiveLocations, m.PhoneNumber, m.ProfitSharePercentage, m.RegisteredBusinessName, m.SecondaryContact, m.SecondaryPhone, m.ContactName, m.ChargeStationsOrdered, m.Dba, m.DepositMoneyPaid, m.Email });
                     return dataToExport.ToList();
                 }
             }

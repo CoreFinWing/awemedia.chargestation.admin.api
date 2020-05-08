@@ -7,12 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
     public class EventService : IEventService
     {
         private readonly IBaseService<DAL.DataContracts.Events> _baseService;
+        private readonly string[] navigationalProps = { "EventType" };
         public EventService(IBaseService<DAL.DataContracts.Events> baseService)
         {
             _baseService = baseService;
@@ -22,22 +24,23 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             int count = Convert.ToInt32(Environment.GetEnvironmentVariable("EventsListCountToDisplay"));
             totalRecords = 0;
-            IQueryable<DAL.DataContracts.Events> events = null;
-            IQueryable<Event> _events = null;
+            IEnumerable<Event> _events = null;
             if (eventSearchFilter != null)
             {
-                _events = _baseService.GetAll("EventType").OrderByDescending(a => a.Id).Take(count).AsQueryable().Select(t => MappingProfile.MapEventsResponseObject(t));
-                totalRecords = _events.Count();
                 if (!string.IsNullOrEmpty(eventSearchFilter.FromDate) && !string.IsNullOrEmpty(eventSearchFilter.ToDate))
                 {
                     DateTime fromDate = DateTime.Now.ToUniversalTime();
                     DateTime toDate = DateTime.Now.ToUniversalTime();
                     fromDate = Utility.ParseStartAndEndDates(eventSearchFilter, ref toDate);
-                    events = _baseService.GetAll("EventType").Where(a => Convert.ToDateTime(GetFormattedDate(a)).Date >= fromDate && Convert.ToDateTime(GetFormattedDate(a)).Date <= toDate).AsQueryable();
-                    _events = events.Select(t => MappingProfile.MapEventsResponseObject(t));
+                    _events = _baseService.Where(a => Convert.ToDateTime(GetFormattedDate(a)).Date >= fromDate && Convert.ToDateTime(GetFormattedDate(a)).Date <= toDate, navigationalProps).Select(t => MappingProfile.MapEventsResponseObject(t)).ToList();
                     totalRecords = _events.Count();
                 }
-
+                else
+                {
+                    Expression<Func<DAL.DataContracts.Events, int>> orderByDesc = x => x.Id;
+                    _events = _baseService.GetTopNRecords(count, orderByDesc, "EventType").ToList().Select(t => MappingProfile.MapEventsResponseObject(t));
+                    totalRecords = _events.Count();
+                }
                 if (Convert.ToBoolean(eventSearchFilter.Export))
                 {
                     var dataToExport = _events.Select(e => new { e.Id, e.EventName, e.EventData, e.ChargeStationId, e.DateTime }).AsQueryable();
@@ -49,16 +52,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     _events = _events.Search(eventSearchFilter.Type, eventSearchFilter.Search);
                     totalRecords = _events.Count();
                 }
-                _events = _events.Skip((Convert.ToInt32(eventSearchFilter.Start) - 1) * Convert.ToInt32(eventSearchFilter.Size)).Take(Convert.ToInt32(eventSearchFilter.Size)).AsQueryable();
-                _events = _events.OrderBy(eventSearchFilter.Order + (Convert.ToBoolean(eventSearchFilter.Dir) ? " descending" : ""));
+                _events = _events.Skip((Convert.ToInt32(eventSearchFilter.Start) - 1) * Convert.ToInt32(eventSearchFilter.Size)).Take(Convert.ToInt32(eventSearchFilter.Size));
+                _events = _events.OrderBy(eventSearchFilter.Order,eventSearchFilter.Dir).ToList();
+                return _events;
             }
             else
             {
-                events = _baseService.GetAll("EventType").AsQueryable();
-                _events = events.Select(t => MappingProfile.MapEventsResponseObject(t));
-                totalRecords = _events.Count();
+                return _baseService.GetAll("EventType").Select(t => MappingProfile.MapEventsResponseObject(t)).ToList();
             }
-            return _events;
         }
 
         private static string GetFormattedDate(DAL.DataContracts.Events a)
@@ -68,7 +69,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         public object GetById(int id)
         {
-            var data = _baseService.GetAll("EventType").Where(e => e.Id == id).AsQueryable().FirstOrDefault();
+            var data = _baseService.GetById(id, navigationalProps);
             if (data != null)
             {
                 object eventData = DBNull.Value;

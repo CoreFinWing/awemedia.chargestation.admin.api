@@ -27,7 +27,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<object> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords)
         {
-            IQueryable<UserSession> _userSessions = new List<UserSession>().AsQueryable();
+            string[] navigationalProps = { "SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant" };
+            IEnumerable<UserSession> _userSessions = null;
             DateTime fromDate = DateTime.Now.ToUniversalTime();
             DateTime toDate = DateTime.Now.ToUniversalTime();
             fromDate = Utility.ParseStartAndEndDates(userSessionSearchFilter, ref toDate);
@@ -35,19 +36,18 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             int days = (toDate - fromDate).Days;
             if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("DateRangeDays")))
             {
-                IQueryable<DAL.DataContracts.UserSession> userSessions = _baseService.GetAll("SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant").Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate).AsQueryable();
-                _userSessions = userSessions.Select(t => MappingProfile.MapUserSessionModelObject(t)).AsQueryable();
+                _userSessions = _baseService.Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate, navigationalProps).Select(t => MappingProfile.MapUserSessionModelObject(t)).ToList();
                 totalRecords = _userSessions.Count();
                 if (userSessionSearchFilter != null)
                 {
                     if (Convert.ToInt32(userSessionSearchFilter.MerchantId) > 0)
                     {
-                        _userSessions = _userSessions.Where(a => a.ChargeStation.Branch == null ? true : a.ChargeStation.Branch.MerchantId == Convert.ToInt32(userSessionSearchFilter.MerchantId)).AsQueryable();
+                        _userSessions = _userSessions.Where(a => a.ChargeStation.Branch == null ? true : a.ChargeStation.Branch.MerchantId == Convert.ToInt32(userSessionSearchFilter.MerchantId)).ToList();
                         totalRecords = _userSessions.Count();
                     }
                     if (!string.IsNullOrEmpty(userSessionSearchFilter.StationId))
                     {
-                        _userSessions = _userSessions.Where(a => a.ChargeStationId == Guid.Parse(userSessionSearchFilter.StationId)).AsQueryable();
+                        _userSessions = _userSessions.Where(a => a.ChargeStationId == Guid.Parse(userSessionSearchFilter.StationId)).ToList();
                         totalRecords = _userSessions.Count();
                     }
                     if (!string.IsNullOrEmpty(userSessionSearchFilter.Search) && !string.IsNullOrEmpty(userSessionSearchFilter.Type))
@@ -64,15 +64,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                             totalRecords = _userSessions.Count();
                         }
                     }
-                    _userSessions = _userSessions.OrderBy(userSessionSearchFilter.Order + (Convert.ToBoolean(userSessionSearchFilter.Dir) ? " descending" : ""));
+                    _userSessions = _userSessions.OrderBy(userSessionSearchFilter.Order, userSessionSearchFilter.Dir);
                     if (!Convert.ToBoolean(userSessionSearchFilter.Export))
                     {
                         _userSessions = _userSessions.Skip((Convert.ToInt32(userSessionSearchFilter.Start) - 1) * Convert.ToInt32(userSessionSearchFilter.Size)).Take(Convert.ToInt32(userSessionSearchFilter.Size));
                     }
                     else
                     {
-
-                        var dataToExport = _userSessions.Select(u => new { u.Id, u.ChargeRentalRevnue, Currency = u.ChargeParams != null ? (GetChargeOption(u.ChargeParams) == null ? null : GetChargeOption(u.ChargeParams).Currency) : null, u.ChargeStationId, CreatedDate = u.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), u.DeviceId, u.TransactionId, u.MerchantName, u.Mobile, SessionStartTime = u.SessionStartTime != null ? u.SessionStartTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, SessionEndTime = u.SessionEndTime != null ? u.SessionEndTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, u.SessionStatus, u.SessionType, u.TransactionTypeId, u.UserAccountId }).AsQueryable();
+                        var dataToExport = _userSessions.ToList().Select(u => new { u.Id, u.ChargeRentalRevnue, Currency = u.ChargeParams != null ? (GetChargeOption(u.ChargeParams) == null ? null : GetChargeOption(u.ChargeParams).Currency) : null, u.ChargeStationId, CreatedDate = u.CreatedDate.ToString("yyyy-MM-dd hh:mm:ss tt"), u.DeviceId, u.TransactionId, u.MerchantName, u.Mobile, SessionStartTime = u.SessionStartTime != null ? u.SessionStartTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, SessionEndTime = u.SessionEndTime != null ? u.SessionEndTime.Value.ToString("yyyy-MM-dd hh:mm:ss tt") : null, u.SessionStatus, u.SessionType, u.TransactionTypeId, u.UserAccountId }).AsQueryable();
                         return dataToExport.ToList();
                     }
                 }
