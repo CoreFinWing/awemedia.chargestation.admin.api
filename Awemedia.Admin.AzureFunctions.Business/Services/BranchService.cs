@@ -33,20 +33,19 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<object> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, bool isActive = true)
         {
-            IQueryable<Branch> _branches = new List<Branch>().AsQueryable();
-            DateTime fromDate = DateTime.Now.ToUniversalTime();
-            DateTime toDate = DateTime.Now.ToUniversalTime();
+            string[] navigationalProps = { "Merchant" };
+            IEnumerable<Branch> _branches = null;
             totalRecords = 0;
             if (!string.IsNullOrEmpty(branchSearchFilter.FromDate) && !string.IsNullOrEmpty(branchSearchFilter.ToDate))
             {
+                DateTime fromDate = DateTime.Now.ToUniversalTime();
+                DateTime toDate = DateTime.Now.ToUniversalTime();
                 fromDate = Utility.ParseStartAndEndDates(branchSearchFilter, ref toDate);
-                IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").Where(a => a.CreatedDate.Value.Date >= fromDate && a.CreatedDate.Value.Date <= toDate).AsQueryable();
-                _branches = branches.Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
+                _branches = _baseService.Where(a => a.CreatedDate.Value.Date >= fromDate && a.CreatedDate.Value.Date <= toDate, navigationalProps).Select(t => MappingProfile.MapBranchModelObject(t)).ToList();
             }
             else
             {
-                IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").AsQueryable();
-                _branches = branches.Select(t => MappingProfile.MapBranchModelObject(t)).AsQueryable();
+                _branches = _baseService.GetAll(navigationalProps).Select(t => MappingProfile.MapBranchModelObject(t)).ToList();
             }
             totalRecords = _branches.Count();
             if (isActive)
@@ -66,7 +65,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     _branches = _branches.Search(branchSearchFilter.Type, branchSearchFilter.Search);
                     totalRecords = _branches.Count();
                 }
-                _branches = _branches.OrderBy(branchSearchFilter.Order + (Convert.ToBoolean(branchSearchFilter.Dir) ? " descending" : ""));
+                _branches = _branches.OrderBy(branchSearchFilter.Order, branchSearchFilter.Dir);
                 if (!Convert.ToBoolean(branchSearchFilter.Export))
                 {
                     _branches = _branches.Skip((Convert.ToInt32(branchSearchFilter.Start) - 1) * Convert.ToInt32(branchSearchFilter.Size)).Take(Convert.ToInt32(branchSearchFilter.Size));

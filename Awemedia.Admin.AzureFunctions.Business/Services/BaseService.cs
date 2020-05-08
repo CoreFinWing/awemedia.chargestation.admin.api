@@ -1,6 +1,7 @@
 ﻿using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -24,6 +25,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return _repository.GetAll(include);
         }
+        public IQueryable<T> GetTopNRecords(int count, Expression<Func<T,int>> orderBy, params string[] includes)
+        {
+            return _repository.GetTopNRecords(count,orderBy,includes);
+        }
         public T GetById(int id)
         {
             return _repository.GetById(id);
@@ -36,6 +41,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public IEnumerable<T> Where(Expression<Func<T, bool>> exp)
         {
             return _repository.Where(exp);
+        }
+        public IQueryable<T> Where(Expression<Func<T, bool>> exp, string[] include)
+        {
+            return _repository.Where(exp, include).AsQueryable();
         }
 
         public T AddOrUpdate(T entry, int Id)
