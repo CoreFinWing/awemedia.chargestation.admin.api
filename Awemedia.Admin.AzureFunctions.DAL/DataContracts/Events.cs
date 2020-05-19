@@ -12,7 +12,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public int EventTypeId { get; set; }
         public string DeviceId { get; set; }
         public Guid? ChargeStationId { get; set; }
-        public DateTime ServerDateTime { get; set; }
+        public DateTime? ServerDateTime { get; set; }
         public EventType EventType { get; set; }
     }
 }

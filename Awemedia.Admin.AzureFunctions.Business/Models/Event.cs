@@ -14,5 +14,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string DeviceId { get; set; }
         public Guid? ChargeStationId { get; set; }
         public string EventName { get; set; }
+        public DateTime? ServerDateTime { get; set; }
     }
 }
