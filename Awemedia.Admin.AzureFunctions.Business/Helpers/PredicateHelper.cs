@@ -28,7 +28,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
 
             switch (sortDirection.ToLower())
             {
-                case "asc":
+                case "false":
                     return source.AsQueryable().OrderBy(sortExpression);
                 default:
                     return source.AsQueryable().OrderByDescending(sortExpression);

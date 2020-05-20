@@ -31,7 +31,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                //optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_staging"));
                 optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_staging"));
             }
         }
@@ -160,6 +159,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .HasForeignKey(d => d.EventTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_EventID_EventTypeId");
+
+                entity.Property(e => e.ServerDateTime)
+                      .HasColumnType("datetime");
             });
 
             modelBuilder.Entity<EventType>(entity =>

@@ -81,7 +81,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 {
                     eventData = data.EventData;
                 }
-                return new { data.Id, data.EventType.Name, data.DeviceId, data.ChargeStationId, data.DateTime, data.IsActive, EventData = eventData };
+                return new { data.Id, data.EventType.Name, data.DeviceId, data.ChargeStationId, data.DateTime, data.IsActive, EventData = eventData,data.ServerDateTime };
             }
             return DBNull.Value;
         }
