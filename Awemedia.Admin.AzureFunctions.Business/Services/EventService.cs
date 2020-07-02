@@ -53,7 +53,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     totalRecords = _events.Count();
                 }
                 _events = _events.Skip((Convert.ToInt32(eventSearchFilter.Start) - 1) * Convert.ToInt32(eventSearchFilter.Size)).Take(Convert.ToInt32(eventSearchFilter.Size));
-                _events = _events.OrderBy(eventSearchFilter.Order,eventSearchFilter.Dir).ToList();
+                _events = _events.OrderBy(eventSearchFilter.Order, eventSearchFilter.Dir).ToList();
                 return _events;
             }
             else
@@ -73,6 +73,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (data != null)
             {
                 object eventData = DBNull.Value;
+                var ServerDateTime = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(data.ServerDateTime.Value, Environment.GetEnvironmentVariable("MalaysiaTimeZone")));
                 if (data.EventType.Name == "video started" || data.EventType.Name == "video ended" || data.EventType.Name == "video failed")
                 {
                     eventData = JsonConvert.DeserializeObject(data.EventData);
@@ -81,7 +82,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 {
                     eventData = data.EventData;
                 }
-                return new { data.Id, data.EventType.Name, data.DeviceId, data.ChargeStationId, data.DateTime, data.IsActive, EventData = eventData,data.ServerDateTime };
+                return new { data.Id, data.EventType.Name, data.DeviceId, data.ChargeStationId, data.DateTime, data.IsActive, EventData = eventData, ServerDateTime };
             }
             return DBNull.Value;
         }
