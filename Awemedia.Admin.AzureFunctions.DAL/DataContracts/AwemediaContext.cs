@@ -23,6 +23,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public virtual DbSet<IndustryType> IndustryType { get; set; }
         public virtual DbSet<Merchant> Merchant { get; set; }
         public virtual DbSet<Notification> Notification { get; set; }
+        public virtual DbSet<Promotion> Promotion { get; set; }
+        public virtual DbSet<PromotionType> PromotionType { get; set; }
         public virtual DbSet<SessionStatus> SessionStatus { get; set; }
         public virtual DbSet<SessionType> SessionType { get; set; }
         public virtual DbSet<UserSession> UserSession { get; set; }
@@ -119,11 +121,14 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
                 entity.Property(e => e.Geolocation).IsUnicode(false);
 
-                entity.Property(e => e.LastPingTimeStamp).HasColumnType("datetime");
-                entity.Property(e => e.LastBatteryLevelAvailablityTime).HasColumnType("datetime");
                 entity.Property(e => e.LastBatteryLevel)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.LastBatteryLevelAvailablityTime).HasColumnType("datetime");
+
+                entity.Property(e => e.LastPingTimeStamp).HasColumnType("datetime");
+
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Uid)
@@ -151,17 +156,17 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
                 entity.Property(e => e.EventData)
                     .IsRequired()
-                    .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.ServerDateTime)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("('0001-01-01T00:00:00.0000000')");
 
                 entity.HasOne(d => d.EventType)
                     .WithMany(p => p.Events)
                     .HasForeignKey(d => d.EventTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_EventID_EventTypeId");
-
-                entity.Property(e => e.ServerDateTime)
-                      .HasColumnType("datetime");
             });
 
             modelBuilder.Entity<EventType>(entity =>
@@ -254,28 +259,49 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
             {
                 entity.HasIndex(e => e.UserSessionId);
 
-                entity.Property(e => e.DeviceId)
-                    .IsRequired()
-                    .IsUnicode(false);
+                entity.Property(e => e.DeviceId).IsUnicode(false);
 
-                entity.Property(e => e.DeviceToken)
-                    .IsRequired()
-                    .IsUnicode(false);
+                entity.Property(e => e.DeviceToken).IsUnicode(false);
 
                 entity.Property(e => e.LoggedDateTime).HasColumnType("datetime");
 
-                entity.Property(e => e.NotificationResult)
-                    .IsRequired()
-                    .IsUnicode(false);
+                entity.Property(e => e.NotificationResult).IsUnicode(false);
 
-                entity.Property(e => e.Payload)
-                    .IsRequired()
-                    .IsUnicode(false);
+                entity.Property(e => e.Payload).IsUnicode(false);
 
                 entity.HasOne(d => d.UserSession)
                     .WithMany(p => p.Notification)
                     .HasForeignKey(d => d.UserSessionId)
                     .HasConstraintName("FK_UserSession_Notifications");
+            });
+
+            modelBuilder.Entity<Promotion>(entity =>
+            {
+                entity.Property(e => e.EndDate).HasColumnType("datetime");
+
+                entity.Property(e => e.PromotionDesc)
+                    .IsRequired()
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StartDate).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Branch)
+                    .WithMany(p => p.Promotion)
+                    .HasForeignKey(d => d.BranchId)
+                    .HasConstraintName("FK_Promotion_Branch");
+
+                entity.HasOne(d => d.PromotionType)
+                    .WithMany(p => p.Promotion)
+                    .HasForeignKey(d => d.PromotionTypeId)
+                    .HasConstraintName("FK_Promotion_PromotionType");
+            });
+
+            modelBuilder.Entity<PromotionType>(entity =>
+            {
+                entity.Property(e => e.PromotionType1)
+                    .HasColumnName("PromotionType")
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<SessionStatus>(entity =>
@@ -324,10 +350,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.TransactionId)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
                 entity.Property(e => e.Mobile)
                     .HasMaxLength(50)
                     .IsUnicode(false);
@@ -337,6 +359,10 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 entity.Property(e => e.SessionEndTime).HasColumnType("datetime");
 
                 entity.Property(e => e.SessionStartTime).HasColumnType("datetime");
+
+                entity.Property(e => e.TransactionId)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.TransactionTypeId)
                     .HasMaxLength(50)

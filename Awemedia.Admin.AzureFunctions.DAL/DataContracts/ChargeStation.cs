@@ -21,8 +21,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public int? BranchId { get; set; }
         public bool IsActive { get; set; }
         public string BatteryLevel { get; set; }
-        public DateTime? LastPingTimeStamp { get; set; }
         public bool? IsOnline { get; set; }
+        public DateTime? LastPingTimeStamp { get; set; }
         public string AppVersion { get; set; }
         public string LastBatteryLevel { get; set; }
         public DateTime? LastBatteryLevelAvailablityTime { get; set; }

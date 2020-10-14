@@ -8,6 +8,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public Branch()
         {
             ChargeStation = new HashSet<ChargeStation>();
+            Promotion = new HashSet<Promotion>();
         }
 
         public int Id { get; set; }
@@ -24,5 +25,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
         public Merchant Merchant { get; set; }
         public ICollection<ChargeStation> ChargeStation { get; set; }
+        public ICollection<Promotion> Promotion { get; set; }
     }
 }
