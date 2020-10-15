@@ -7,12 +7,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
     {
         public int Id { get; set; }
         public string PromotionDesc { get; set; }
-        public int? PromotionTypeId { get; set; }
+        public int? PromotionType { get; set; }
         public int? BranchId { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
         public Branch Branch { get; set; }
-        public PromotionType PromotionType { get; set; }
     }
 }

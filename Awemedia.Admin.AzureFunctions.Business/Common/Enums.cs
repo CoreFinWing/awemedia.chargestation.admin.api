@@ -26,5 +26,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Common
             Promotion = 1,
             Paid = 2
         }
+        public enum PromotionType
+        {
+            Free = 1
+        }
     }
 }

@@ -4,14 +4,16 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    partial class AwemediaContextModelSnapshot : ModelSnapshot
+    [Migration("20201015051523_RemovedPromotionTypeTable")]
+    partial class RemovedPromotionTypeTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -363,7 +365,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .IsRequired()
                         .IsUnicode(false);
 
-                    b.Property<int?>("PromotionType");
+                    b.Property<string>("PromotionType")
+                        .HasMaxLength(100)
+                        .IsUnicode(false);
 
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime");

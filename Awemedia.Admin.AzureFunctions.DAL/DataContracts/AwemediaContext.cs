@@ -24,7 +24,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public virtual DbSet<Merchant> Merchant { get; set; }
         public virtual DbSet<Notification> Notification { get; set; }
         public virtual DbSet<Promotion> Promotion { get; set; }
-        public virtual DbSet<PromotionType> PromotionType { get; set; }
         public virtual DbSet<SessionStatus> SessionStatus { get; set; }
         public virtual DbSet<SessionType> SessionType { get; set; }
         public virtual DbSet<UserSession> UserSession { get; set; }
@@ -289,19 +288,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .WithMany(p => p.Promotion)
                     .HasForeignKey(d => d.BranchId)
                     .HasConstraintName("FK_Promotion_Branch");
-
-                entity.HasOne(d => d.PromotionType)
-                    .WithMany(p => p.Promotion)
-                    .HasForeignKey(d => d.PromotionTypeId)
-                    .HasConstraintName("FK_Promotion_PromotionType");
-            });
-
-            modelBuilder.Entity<PromotionType>(entity =>
-            {
-                entity.Property(e => e.PromotionType1)
-                    .HasColumnName("PromotionType")
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<SessionStatus>(entity =>
