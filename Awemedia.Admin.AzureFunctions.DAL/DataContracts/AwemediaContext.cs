@@ -276,13 +276,17 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<Promotion>(entity =>
             {
-                entity.Property(e => e.EndDate).HasColumnType("datetime");
+                entity.Property(e => e.EndDate).HasColumnType("date");
+
+                entity.Property(e => e.EndTime).HasColumnType("time(0)");
 
                 entity.Property(e => e.PromotionDesc)
                     .IsRequired()
                     .IsUnicode(false);
 
-                entity.Property(e => e.StartDate).HasColumnType("datetime");
+                entity.Property(e => e.StartDate).HasColumnType("date");
+
+                entity.Property(e => e.StartTime).HasColumnType("time(0)");
 
                 entity.HasOne(d => d.Branch)
                     .WithMany(p => p.Promotion)
