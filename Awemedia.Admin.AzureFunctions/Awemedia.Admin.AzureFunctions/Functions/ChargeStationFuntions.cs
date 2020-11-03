@@ -137,5 +137,19 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
 
         }
+
+        [FunctionName("DetachFromBranch")]
+        public HttpResponseMessage DetachFromBranch(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "Patch", Route = "charge-stations/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, string chargeStationId, [Inject]IBranchService _branchService)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            ChargeStation chargeStation = new ChargeStation { BranchId = null };
+            var _chargeStation = _chargeStationService.GetById(Guid.Parse(chargeStationId));
+            object device = _chargeStationService.IsChargeStationExists(Guid.Parse(_chargeStation.Id));
+            if (device == DBNull.Value)
+                return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DeviceNotRegistered));
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, Guid.Parse(_chargeStation.Id)));
+        }
     }
 }

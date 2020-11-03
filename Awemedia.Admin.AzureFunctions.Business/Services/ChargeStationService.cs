@@ -122,8 +122,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public ChargeStationModel GetById(Guid guid)
         {
-            IQueryable<ChargeStation> chargeStations = _baseService.GetAll("Branch", "Branch.Merchant", "Branch.Merchant.Branch", "UserSession", "UserSession.SessionStatusNavigation", "UserSession.SessionTypeNavigation").AsQueryable();
-            var chargeStation = chargeStations.Where(u => u.Id == guid).FirstOrDefault();
+            string[] navigationProps = { "Branch", "Branch.Merchant", "Branch.Merchant.Branch", "UserSession", "UserSession.SessionStatusNavigation", "UserSession.SessionTypeNavigation" };
+            var chargeStation = _baseService.Where(u => u.Id == guid, navigationProps).FirstOrDefault();
             if (chargeStation != null)
             {
                 return MappingProfile.MapChargeStationResponseObject(chargeStation);
