@@ -14,7 +14,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
 {
     public class MappingProfile
     {
-        private static string malaysiaTimeZone = Environment.GetEnvironmentVariable("MalaysiaTimeZone");
+        private static string malaysiaTimeZone = Environment.GetEnvironmentVariable("malaysia_time_zone");
         public static Models.ChargeStation MapChargeStationResponseObject(DAL.DataContracts.ChargeStation chargeStation)
         {
             return new Models.ChargeStation()
@@ -31,7 +31,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 MerchantName = chargeStation.Branch?.Merchant.BusinessName,
                 Branch = chargeStation.Branch == null ? null : MapBranchModelObject(chargeStation.Branch),
                 BatteryLevel = chargeStation.BatteryLevel,
-                IsOnline = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.ModifiedDate, malaysiaTimeZone)) >= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), malaysiaTimeZone)).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("OnlineChargeStationInterval"))) ? true : false,
+                IsOnline = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.ModifiedDate, malaysiaTimeZone)) >= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), malaysiaTimeZone)).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("check_online_chargestation_time_interval"))) ? true : false,
                 LastPingTimeStamp = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeStation.LastPingTimeStamp.GetValueOrDefault(), malaysiaTimeZone)),
                 BatteryInfoDisplayField = !string.IsNullOrEmpty(chargeStation.BatteryLevel) ? (chargeStation.BatteryLevel == null ? null : chargeStation.BatteryLevel + " as of " + chargeStation.LastPingTimeStamp.GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss tt")) : null,
                 IsActive = chargeStation.IsActive,

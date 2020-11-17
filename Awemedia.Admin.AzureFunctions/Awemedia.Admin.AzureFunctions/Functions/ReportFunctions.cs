@@ -12,12 +12,12 @@ namespace Awemedia.Admin.AzureFunctions.Functions
     [DependencyInjectionConfig(typeof(DIConfig))]
     public static class ReportFunctions
     {
-        private static string malaysiaTimeZone = Environment.GetEnvironmentVariable("MalaysiaTimeZone");
+        private static string malaysiaTimeZone = Environment.GetEnvironmentVariable("malaysia_time_zone");
         [FunctionName("ReportFunctions")]
-        public static async System.Threading.Tasks.Task ExportToExcelAsync([TimerTrigger("%ReportScheduleExpression%", RunOnStartup = false)]TimerInfo myTimer, ILogger log, [Inject]IChargeSessionService _chargeSessionService, [Inject]IEmailService _emailService)
+        public static async System.Threading.Tasks.Task ExportToExcelAsync([TimerTrigger("%weekly_report_send_job_cron_expression%", RunOnStartup = false)]TimerInfo myTimer, ILogger log, [Inject]IChargeSessionService _chargeSessionService, [Inject]IEmailService _emailService)
         {
             var listToExport = _chargeSessionService.GetSuccessfulSessions();
-            var blobName = Environment.GetEnvironmentVariable("WeeklyReportExcelFileName");
+            var blobName = Environment.GetEnvironmentVariable("weekly_sessions_report_excel_file_name");
             await Utility.UploadExcelStreamToBlob(listToExport, blobName);
             var stream = Utility.DownloadExcelStreamFromBlob().Result;
             var base64Array = Convert.ToBase64String(stream.ToArray());
@@ -27,7 +27,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             {
                 Content = " Paid Sessions Report from <strong>" + fromDate + "</strong>  to <strong> " + toDate + "</strong> ",
                 ExcelReportBase64 = base64Array,
-                MailRecipientsTo = Environment.GetEnvironmentVariable("MailRecipientsTo"),
+                MailRecipientsTo = Environment.GetEnvironmentVariable("reports_recipient_emails"),
                 Subject = "Paid Sessions Report from " + fromDate + "  to " + toDate ,
                 FileName ="Weekly_Paid_Sessions_Report.xlsx"
             };

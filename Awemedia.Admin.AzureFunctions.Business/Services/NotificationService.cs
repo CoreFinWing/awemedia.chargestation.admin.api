@@ -24,10 +24,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             string result = string.Empty;
 
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(Environment.GetEnvironmentVariable("WebAddress"));
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(Environment.GetEnvironmentVariable("fcm_web_address"));
             httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Headers.Add(string.Format("Authorization: key={0}", Environment.GetEnvironmentVariable("ServerKey")));
-            httpWebRequest.Headers.Add(string.Format("Sender: id={0}", Environment.GetEnvironmentVariable("SenderId")));
+            httpWebRequest.Headers.Add(string.Format("Authorization: key={0}", Environment.GetEnvironmentVariable("fcm_server_key")));
+            httpWebRequest.Headers.Add(string.Format("Sender: id={0}", Environment.GetEnvironmentVariable("fcm_sender_id")));
             httpWebRequest.Method = "POST";
             var device = _chargeStationService.GetById(MappingProfile.StringToGuid(notification.DeviceId));
             if (device != null)

@@ -29,8 +29,8 @@ namespace Awemedia.Chargestation.AzureFunctions.Helpers
                         ValidateIssuer = true,
                         ValidateLifetime = true,
                         ValidateAudience = true,
-                        ValidAudience = Environment.GetEnvironmentVariable("ValidAudience"),
-                        ValidIssuer = Environment.GetEnvironmentVariable("ValidIssuer"),
+                        ValidAudience = Environment.GetEnvironmentVariable("cognito_pool_web_client_id"),
+                        ValidIssuer = Environment.GetEnvironmentVariable("cognito_issuer"),
                         IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
                         {
                             var blobData = Admin.AzureFunctions.Business.Helpers.Utility.DownloadTextFromBlobAsync().Result;

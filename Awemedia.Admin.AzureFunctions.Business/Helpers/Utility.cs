@@ -34,14 +34,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
         }
         public static void UploadTextToBlob(string keys)
         {
-            double cacheDuration = Convert.ToDouble(Environment.GetEnvironmentVariable("jwksKeysCache"));
+            double cacheDuration = Convert.ToDouble(Environment.GetEnvironmentVariable("jwks_keys_cache_duration"));
             if (!string.IsNullOrEmpty(keys))
             {
-                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("BlobStorageConnectionString"));
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("azure_storage_connection_string"));
                 CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("BlobStorageContainer"));
+                CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
                 container.CreateIfNotExistsAsync();
-                CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("AWSCognitoFileName"));
+                CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("cognito_file_name"));
                 blob.FetchAttributesAsync();
                 blob.Properties.CacheControl = "max-age=" + cacheDuration * 60;
                 blob.Properties.ContentType = "application/json";
@@ -55,10 +55,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
         public static async System.Threading.Tasks.Task<Dictionary<string, string>> DownloadTextFromBlobAsync()
         {
             Dictionary<string, string> keyValuePairs = null;
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("BlobStorageConnectionString"));
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("azure_storage_connection_string"));
             CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("BlobStorageContainer"));
-            CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("AWSCognitoFileName"));
+            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
+            CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("cognito_file_name"));
             if (blob.ExistsAsync().Result)
             {
                 await blob.FetchAttributesAsync();
@@ -77,9 +77,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
         }
         public static async System.Threading.Tasks.Task UploadExcelStreamToBlob<T>(System.Collections.Generic.IEnumerable<T> listToExport, string blobName)
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("BlobStorageConnectionString"));
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("azure_storage_connection_string"));
             CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("BlobStorageContainer"));
+            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
             CloudBlockBlob blob = container.GetBlockBlobReference(blobName);
             await blob.DeleteIfExistsAsync();
             using (var excel = new ExcelPackage())
@@ -99,10 +99,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
         }
         public static async System.Threading.Tasks.Task<MemoryStream> DownloadExcelStreamFromBlob()
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("BlobStorageConnectionString"));
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("azure_storage_connection_string"));
             CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("BlobStorageContainer"));
-            CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("WeeklyReportExcelFileName"));
+            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
+            CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("weekly_sessions_report_excel_file_name"));
             var stream = new MemoryStream();
             await blob.DownloadToStreamAsync(stream);
             stream.Seek(0, SeekOrigin.Begin);

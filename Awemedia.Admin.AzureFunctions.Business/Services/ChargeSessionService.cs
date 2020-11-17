@@ -34,7 +34,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             fromDate = Utility.ParseStartAndEndDates(userSessionSearchFilter, ref toDate);
             totalRecords = 0;
             int days = (toDate - fromDate).Days;
-            if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("DateRangeDays")))
+            if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("charge_session_initial_date_range")))
             {
                 _userSessions = _baseService.Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate, navigationalProps).Select(t => MappingProfile.MapUserSessionModelObject(t)).ToList();
                 totalRecords = _userSessions.Count();

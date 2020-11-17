@@ -32,7 +32,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_staging"));
+                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));
             }
         }
 

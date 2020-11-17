@@ -22,7 +22,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<object> Get(BaseSearchFilter eventSearchFilter, out int totalRecords)
         {
-            int count = Convert.ToInt32(Environment.GetEnvironmentVariable("EventsListCountToDisplay"));
+            int count = Convert.ToInt32(Environment.GetEnvironmentVariable("events_display_count"));
             totalRecords = 0;
             IEnumerable<Event> _events = null;
             if (eventSearchFilter != null)
@@ -73,7 +73,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (data != null)
             {
                 object eventData = DBNull.Value;
-                var ServerDateTime = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(data.ServerDateTime.Value, Environment.GetEnvironmentVariable("MalaysiaTimeZone")));
+                var ServerDateTime = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(data.ServerDateTime.Value, Environment.GetEnvironmentVariable("malaysia_time_zone")));
                 if (data.EventType.Name == "video started" || data.EventType.Name == "video ended" || data.EventType.Name == "video failed")
                 {
                     eventData = JsonConvert.DeserializeObject(data.EventData);

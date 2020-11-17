@@ -45,7 +45,7 @@ namespace Awemedia.Chargestation.Api
         {
             services.AddDbContext<AwemediaContext>(options =>
                 {
-                    options.UseSqlServer(Environment.GetEnvironmentVariable("AwemediaConnection_staging"));
+                    options.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));
                 });
            
             services.Configure<ApiBehaviorOptions>(options =>
