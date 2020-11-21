@@ -41,7 +41,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
                 CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
                 container.CreateIfNotExistsAsync();
-                CloudBlockBlob blob = container.GetBlockBlobReference("jwks.json");
+                CloudBlockBlob blob = container.GetBlockBlobReference("cognito-jwks.json");
                 blob.FetchAttributesAsync();
                 blob.Properties.CacheControl = "max-age=" + cacheDuration * 60;
                 blob.Properties.ContentType = "application/json";
