@@ -4,14 +4,16 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    partial class AwemediaContextModelSnapshot : ModelSnapshot
+    [Migration("20201120195516_DroppedMasterTables")]
+    partial class DroppedMasterTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -193,50 +195,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.EventType", b =>
-                {
-                    b.Property<int>("Id");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<bool>("IsActive");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EventType");
-                });
-
-            modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.IndustryType", b =>
-                {
-                    b.Property<int>("Id");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<bool>("IsActive");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("datetime");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IndustryType");
-                });
-
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Merchant", b =>
                 {
                     b.Property<int>("Id")
@@ -369,38 +327,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.ToTable("Promotion");
                 });
 
-            modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.SessionStatus", b =>
-                {
-                    b.Property<int>("Id");
-
-                    b.Property<bool>("IsActive");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SessionStatus");
-                });
-
-            modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.SessionType", b =>
-                {
-                    b.Property<int>("Id");
-
-                    b.Property<bool>("IsActive");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SessionType");
-                });
-
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.UserSession", b =>
                 {
                     b.Property<Guid>("Id");
@@ -446,7 +372,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
                     b.Property<int?>("SessionStatus");
 
+                    b.Property<int?>("SessionStatusNavigationId");
+
                     b.Property<int?>("SessionType");
+
+                    b.Property<int?>("SessionTypeNavigationId");
 
                     b.Property<string>("TransactionId")
                         .HasMaxLength(50)
@@ -466,7 +396,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
                     b.HasIndex("SessionStatus");
 
+                    b.HasIndex("SessionStatusNavigationId");
+
                     b.HasIndex("SessionType");
+
+                    b.HasIndex("SessionTypeNavigationId");
 
                     b.ToTable("UserSession");
                 });
@@ -485,22 +419,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .WithMany("ChargeStation")
                         .HasForeignKey("BranchId")
                         .HasConstraintName("FK_ChargeStation_Branch");
-                });
-
-            modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Events", b =>
-                {
-                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.EventType", "EventType")
-                        .WithMany("Events")
-                        .HasForeignKey("EventTypeId")
-                        .HasConstraintName("FK_EventID_EventTypeId");
-                });
-
-            modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Merchant", b =>
-                {
-                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.IndustryType", "IndustryType")
-                        .WithMany("Merchant")
-                        .HasForeignKey("IndustryTypeId")
-                        .HasConstraintName("FK_Merchant_IndustryType");
                 });
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Notification", b =>
@@ -525,16 +443,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .WithMany("UserSession")
                         .HasForeignKey("ChargeStationId")
                         .HasConstraintName("FK_UserSession_ChargeStation");
-
-                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.SessionStatus", "SessionStatusNavigation")
-                        .WithMany("UserSession")
-                        .HasForeignKey("SessionStatus")
-                        .HasConstraintName("FK_SessionStatus_UserSession");
-
-                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.SessionType", "SessionTypeNavigation")
-                        .WithMany("UserSession")
-                        .HasForeignKey("SessionType")
-                        .HasConstraintName("FK_SessionType_UserSession");
                 });
 #pragma warning restore 612, 618
         }

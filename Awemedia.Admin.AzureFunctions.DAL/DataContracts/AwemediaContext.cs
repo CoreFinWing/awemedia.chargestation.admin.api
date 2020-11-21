@@ -157,9 +157,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .IsRequired()
                     .IsUnicode(false);
 
-                entity.Property(e => e.ServerDateTime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("('0001-01-01T00:00:00.0000000')");
+                entity.Property(e => e.ServerDateTime).HasColumnType("datetime");
 
                 entity.HasOne(d => d.EventType)
                     .WithMany(p => p.Events)
@@ -170,6 +168,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<EventType>(entity =>
             {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
@@ -182,6 +182,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<IndustryType>(entity =>
             {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
@@ -276,6 +278,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<Promotion>(entity =>
             {
+                entity.HasIndex(e => e.BranchId);
+
                 entity.Property(e => e.EndDate).HasColumnType("datetime");
 
                 entity.Property(e => e.PromotionDesc)
@@ -292,6 +296,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<SessionStatus>(entity =>
             {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
                 entity.Property(e => e.Status)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -300,6 +306,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<SessionType>(entity =>
             {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
                 entity.Property(e => e.Type)
                     .IsRequired()
                     .HasMaxLength(50)
