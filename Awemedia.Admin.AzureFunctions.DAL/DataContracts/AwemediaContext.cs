@@ -32,7 +32,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));
+                optionsBuilder.UseSqlServer("server=192.168.72.193;database=Awemedia;user=admin;password=login@123;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             }
         }
 
@@ -157,7 +157,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .IsRequired()
                     .IsUnicode(false);
 
-                entity.Property(e => e.ServerDateTime).HasColumnType("datetime");
+                entity.Property(e => e.ServerDateTime)
+                    .HasColumnType("datetime");
 
                 entity.HasOne(d => d.EventType)
                     .WithMany(p => p.Events)
@@ -168,8 +169,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<EventType>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
@@ -182,8 +181,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<IndustryType>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
@@ -296,8 +293,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<SessionStatus>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Status)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -306,8 +301,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<SessionType>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Type)
                     .IsRequired()
                     .HasMaxLength(50)

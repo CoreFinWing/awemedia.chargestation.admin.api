@@ -195,7 +195,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.EventType", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
@@ -217,7 +219,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.IndustryType", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime");
@@ -371,7 +375,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.SessionStatus", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<bool>("IsActive");
 
@@ -387,7 +393,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.SessionType", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<bool>("IsActive");
 

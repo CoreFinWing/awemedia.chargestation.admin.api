@@ -30,14 +30,14 @@ namespace Awemedia.Chargestation.Api
 
         public Startup(IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-
+            
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", true, true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
-
+           
 
             LogManager.LoadConfiguration(System.String.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
         }
@@ -47,23 +47,20 @@ namespace Awemedia.Chargestation.Api
                 {
                     options.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));
                 });
+           
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
-            using (var connection = new AwemediaContext())
-            {
-                connection.Database.Migrate();
-            }
         }
 
         public void Configure(IWebJobsBuilder builder)
         {
             ConfigureServices(builder.Services);
         }
-
+      
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
-        {
+        {           
             app.UseMvc();
         }
     }
