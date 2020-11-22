@@ -1,4 +1,5 @@
-﻿using Awemedia.Admin.AzureFunctions.Business.Models;
+﻿using Awemedia.Admin.AzureFunctions.Business.Common;
+using Awemedia.Admin.AzureFunctions.Business.Models;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using OfficeOpenXml;
@@ -41,7 +42,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
                 CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
                 container.CreateIfNotExistsAsync();
-                CloudBlockBlob blob = container.GetBlockBlobReference("cognito-jwks.json");
+                CloudBlockBlob blob = container.GetBlockBlobReference(Constants.cognitoAuthKeyFileName);
                 blob.FetchAttributesAsync();
                 blob.Properties.CacheControl = "max-age=" + cacheDuration * 60;
                 blob.Properties.ContentType = "application/json";
@@ -58,7 +59,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("azure_storage_connection_string"));
             CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
-            CloudBlockBlob blob = container.GetBlockBlobReference("jwks.json");
+            CloudBlockBlob blob = container.GetBlockBlobReference(Constants.cognitoAuthKeyFileName);
             if (blob.ExistsAsync().Result)
             {
                 await blob.FetchAttributesAsync();
