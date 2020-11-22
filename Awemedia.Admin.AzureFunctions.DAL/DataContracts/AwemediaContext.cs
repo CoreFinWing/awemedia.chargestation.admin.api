@@ -32,7 +32,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("server=192.168.72.193;database=Awemedia;user=admin;password=login@123;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));
             }
         }
 
