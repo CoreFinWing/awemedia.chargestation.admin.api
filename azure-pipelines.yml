@@ -24,6 +24,13 @@ steps:
 - script: dir
   displayName: List files
 
+- task: CmdLine@2
+  inputs:
+    script: |
+      dotnet tool install –global dotnet-ef –version 3.1.0
+      
+      dotnet ef migrations script –startup-project $(Build.SourcesDirectory)\Awemedia.Admin.AzureFunctions.DAL -o $(build.artifactstagingdirectory)\migrations\scripts.sql -i
+      
 - task: ArchiveFiles@2
   displayName: 'Archive files'
   inputs:
