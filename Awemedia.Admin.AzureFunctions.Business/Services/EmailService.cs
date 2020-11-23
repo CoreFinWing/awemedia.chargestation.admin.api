@@ -12,7 +12,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         private readonly string _fromEmailAddress;
         public EmailService()
         {
-            _sendGridKey = Environment.GetEnvironmentVariable("sendgrid_api_key");
+            _sendGridKey = Environment.GetEnvironmentVariable("email_sendgrid_api_key");
             _fromEmailAddress = Environment.GetEnvironmentVariable("reports_sender_email");
         }
         public async System.Threading.Tasks.Task SendEmailAsync(EmailModel emailModel)
