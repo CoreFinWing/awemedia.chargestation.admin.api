@@ -24,6 +24,13 @@ steps:
 - script: dir
   displayName: List files
 
+- task: DotNetCoreCLI@2
+  displayName: 'Create migration'
+  inputs:
+    command: custom
+    custom: ef
+    arguments: 'migrations script -i -o migration.sql' 
+    
 - task: ArchiveFiles@2
   displayName: 'Archive files'
   inputs:
