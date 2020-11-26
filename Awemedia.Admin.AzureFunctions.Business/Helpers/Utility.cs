@@ -40,7 +40,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
             {
                 CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("azure_storage_connection_string"));
                 CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
+                CloudBlobContainer container = serviceClient.GetContainerReference(Constants.amChargeStationContainerName);
                 container.CreateIfNotExistsAsync();
                 CloudBlockBlob blob = container.GetBlockBlobReference(Constants.cognitoAuthKeyFileName);
                 blob.FetchAttributesAsync();
@@ -58,7 +58,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
             Dictionary<string, string> keyValuePairs = null;
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("azure_storage_connection_string"));
             CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
+            CloudBlobContainer container = serviceClient.GetContainerReference(Constants.amChargeStationContainerName);
+            await container.CreateIfNotExistsAsync();
             CloudBlockBlob blob = container.GetBlockBlobReference(Constants.cognitoAuthKeyFileName);
             if (blob.ExistsAsync().Result)
             {
@@ -80,7 +81,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("azure_storage_connection_string"));
             CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
+            CloudBlobContainer container = serviceClient.GetContainerReference(Constants.amChargeStationContainerName);
+            await container.CreateIfNotExistsAsync();
             CloudBlockBlob blob = container.GetBlockBlobReference(blobName);
             await blob.DeleteIfExistsAsync();
             using (var excel = new ExcelPackage())
@@ -102,7 +104,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
         {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("azure_storage_connection_string"));
             CloudBlobClient serviceClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = serviceClient.GetContainerReference(Environment.GetEnvironmentVariable("admin_api_azure_storage_container_name"));
+            CloudBlobContainer container = serviceClient.GetContainerReference(Constants.amChargeStationContainerName);
+            await container.CreateIfNotExistsAsync();
             CloudBlockBlob blob = container.GetBlockBlobReference(Environment.GetEnvironmentVariable("weekly_sessions_report_excel_file_name"));
             var stream = new MemoryStream();
             await blob.DownloadToStreamAsync(stream);

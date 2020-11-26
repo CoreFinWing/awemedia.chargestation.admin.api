@@ -90,7 +90,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", notificationPayloadBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
             NotificationPayload notificationPayload = notificationPayloadBody.Value;
             notificationPayload.Command = "Start Charge";
-            var maxDuration = Environment.GetEnvironmentVariable("notification_max_duration");
+            var maxDuration = Environment.GetEnvironmentVariable("remote_push_max_charge_duration");
             if (Convert.ToInt32(notificationPayload.CommandParams["Duration"]) <= Convert.ToInt32(maxDuration))
             {
                 var chargeStation = _chargeStationService.GetById(Convert.ToInt32(id));

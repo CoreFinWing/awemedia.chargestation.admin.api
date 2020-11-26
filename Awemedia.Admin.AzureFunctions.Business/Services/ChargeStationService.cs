@@ -48,7 +48,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 if (Convert.ToBoolean(chargeStationSearchFilter.IsOnline))
                 {
-                    _chargeStations = _chargeStations.Where(c => c.ModifiedDate >= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), Environment.GetEnvironmentVariable("malaysia_time_zone"))).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("check_online_chargestation_time_interval"))) && c.IsActive).AsQueryable();
+                    _chargeStations = _chargeStations.Where(c => c.ModifiedDate <= Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(DateTime.Now.ToUniversalTime(), Environment.GetEnvironmentVariable("malaysia_time_zone"))).AddMinutes(Convert.ToDouble(Environment.GetEnvironmentVariable("chargestation_online_check_interval_mins"))) && c.IsActive).AsQueryable();
                     totalRecords = _chargeStations.Count();
                 }
             }
