@@ -16,19 +16,13 @@ steps:
     command: build
     projects: |
       **/*.csproj
-    arguments: --output publish_output --configuration Release
+    arguments: --output $(Build.ArtifactStagingDirectory) --configuration Release
 
-- script: cd Awemedia.Admin.AzureFunctions
-  displayName: current folder
 
-- script: dir
-  displayName: List files
-
-    
 - task: ArchiveFiles@2
   displayName: 'Archive files'
   inputs:
-    rootFolderOrFile: '$(System.DefaultWorkingDirectory)/publish_output'
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
     includeRootFolder: false
     archiveType: zip
     archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
