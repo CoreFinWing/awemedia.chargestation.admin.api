@@ -46,7 +46,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Common
                 { 9,"charge station not returning the battery level"},
                 { 12,"video started" },
                 { 13,"video ended" },
-                { 14,"video failed"}
+                { 14,"video failed"},
+                { 15,"battery command retried"},
+                { 16,"charging command retried"}
         };
     }
 }
