@@ -48,7 +48,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Common
                 { 13,"video ended" },
                 { 14,"video failed"},
                 { 15,"battery command retried"},
-                { 16,"charging command retried"}
+                { 16,"charging command retried"},
+                {17,"failed to get battery level after retring 5 times" }
         };
     }
 }
