@@ -6,7 +6,6 @@ using Awemedia.Chargestation.Api;
 using Awemedia.Chargestation.Api.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +18,6 @@ using NLog;
 [assembly: WebJobsStartup(typeof(Startup))]
 namespace Awemedia.Chargestation.Api
 {
-
     public class Startup : IWebJobsStartup
     {
         private IConfigurationRoot Configuration { get; }
@@ -47,11 +45,6 @@ namespace Awemedia.Chargestation.Api
                 {
                     options.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));
                 });
-           
-            services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.SuppressModelStateInvalidFilter = true;
-            });
         }
 
         public void Configure(IWebJobsBuilder builder)
@@ -61,7 +54,7 @@ namespace Awemedia.Chargestation.Api
       
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {           
-            app.UseMvc();
+           
         }
     }
 }
