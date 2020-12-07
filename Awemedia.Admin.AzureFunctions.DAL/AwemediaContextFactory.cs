@@ -19,9 +19,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL
                 .AddEnvironmentVariables()
                 .AddCommandLine(args)
                 .Build();
-            Console.WriteLine(configuration.GetValue<string>("admin-api-sql-migration-connection-string"));
+            Console.WriteLine(configuration["admin-api-sql-migration-connection-string"]);
             var optionsBuilder = new DbContextOptionsBuilder<AwemediaContext>();
-            optionsBuilder.UseSqlServer(configuration.GetValue<string>("admin-api-sql-migration-connection-string"), x => x.MigrationsAssembly("Awemedia.Admin.AzureFunctions.DAL"));
+            optionsBuilder.UseSqlServer(configuration["admin-api-sql-migration-connection-string"], x => x.MigrationsAssembly("Awemedia.Admin.AzureFunctions.DAL"));
 
             return new AwemediaContext(optionsBuilder.Options);
         }
