@@ -35,7 +35,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _chargeStationSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _chargeStationService.Get(_chargeStationSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_chargeStationSearchFilter.IsActive) == true ? "false" : _chargeStationSearchFilter.IsActive)), total = totalRecords });
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _chargeStationService.Get(_chargeStationSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_chargeStationSearchFilter.IsActive) == true ? "false" : _chargeStationSearchFilter.IsActive)), total = totalRecords });
         }
         [FunctionName("AddChargeStation")]
         public HttpResponseMessage Post(
@@ -51,7 +51,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             object device = _chargeStationService.IsChargeStationExists(guid);
             if (device != DBNull.Value)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DuplicateRecordFound));
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.AddChargeStation(chargeStation));
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _chargeStationService.AddChargeStation(chargeStation));
         }
         [FunctionName("UpdateChargeStation")]
         public HttpResponseMessage Put(
@@ -76,7 +76,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             object device = _chargeStationService.IsChargeStationExists(Guid.Parse(_chargeStation.Id));
             if (device == DBNull.Value)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DeviceNotRegistered));
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, Guid.Parse(_chargeStation.Id)));
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, Guid.Parse(_chargeStation.Id)));
         }
 
         [FunctionName("start-charge")]
@@ -116,7 +116,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             }
             if (!string.IsNullOrEmpty(chargeStationId))
             {
-                return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.GetById(Guid.Parse(chargeStationId)));
+                return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _chargeStationService.GetById(Guid.Parse(chargeStationId)));
             }
             return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
         }
@@ -149,7 +149,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             object device = _chargeStationService.IsChargeStationExists(Guid.Parse(_chargeStation.Id));
             if (device == DBNull.Value)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DeviceNotRegistered));
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, Guid.Parse(_chargeStation.Id)));
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, Guid.Parse(_chargeStation.Id)));
         }
     }
 }

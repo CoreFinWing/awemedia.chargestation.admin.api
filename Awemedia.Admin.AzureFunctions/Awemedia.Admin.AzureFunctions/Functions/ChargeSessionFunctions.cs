@@ -3,6 +3,7 @@ using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.Extensions;
 using Awemedia.Admin.AzureFunctions.Resolver;
+using Awemedia.Chargestation.AzureFunctions.Extensions;
 using Awemedia.Chargestation.AzureFunctions.Helpers;
 using AzureFunctions.Autofac;
 using Microsoft.AspNetCore.WebUtilities;
@@ -29,7 +30,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             {
                 _chargeSessionSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
             }
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _chargeSessionService.Get(_chargeSessionSearchFilter, out int totalRecords), total = totalRecords });
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _chargeSessionService.Get(_chargeSessionSearchFilter, out int totalRecords), total = totalRecords });
         }
 
         [FunctionName("charge-session")]
@@ -40,7 +41,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (!string.IsNullOrEmpty(Id))
             {
-                return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _chargeSessionService.GetById(Guid.Parse(Id)));
+                return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _chargeSessionService.GetById(Guid.Parse(Id)));
             }
  
            return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);

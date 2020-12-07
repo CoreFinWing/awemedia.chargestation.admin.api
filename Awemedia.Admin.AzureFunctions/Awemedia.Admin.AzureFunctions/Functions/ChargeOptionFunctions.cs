@@ -40,7 +40,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             {
                 _chargeOptionSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
             }
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _chargeOptionService.Get(_chargeOptionSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_chargeOptionSearchFilter.IsActive) == true ? "false" : _chargeOptionSearchFilter.IsActive)), total = totalRecords });
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _chargeOptionService.Get(_chargeOptionSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_chargeOptionSearchFilter.IsActive) == true ? "false" : _chargeOptionSearchFilter.IsActive)), total = totalRecords });
         }
         [FunctionName("AddChargeOptions")]
         public HttpResponseMessage Post(

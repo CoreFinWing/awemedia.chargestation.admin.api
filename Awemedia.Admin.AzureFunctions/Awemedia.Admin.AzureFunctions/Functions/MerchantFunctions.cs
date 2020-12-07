@@ -39,7 +39,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _merchantSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _merchantService.Get(_merchantSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_merchantSearchFilter.IsActive) == true ? "false" : _merchantSearchFilter.IsActive)), total = totalRecords });
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _merchantService.Get(_merchantSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_merchantSearchFilter.IsActive) == true ? "false" : _merchantSearchFilter.IsActive)), total = totalRecords });
         }
         [FunctionName("merchant")]
         public HttpResponseMessage GetById(
@@ -49,7 +49,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _merchantService.GetById(Id));
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _merchantService.GetById(Id));
         }
         [FunctionName("AddMerchant")]
         public HttpResponseMessage Post(
@@ -63,7 +63,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             if (!merchantBody.IsValid)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", merchantBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
             Merchant merchant = merchantBody.Value;
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _merchantService.AddMerchant(merchant));
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _merchantService.AddMerchant(merchant));
         }
         [FunctionName("Active_InActive_Merchant")]
         public HttpResponseMessage Patch(
@@ -111,7 +111,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 string keyword = queryDictionary["keyword"].ToString();
                 if (!string.IsNullOrEmpty(keyword))
                 {
-                    return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _merchantService.Search(keyword));
+                    return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _merchantService.Search(keyword));
                 }
             }
             return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);

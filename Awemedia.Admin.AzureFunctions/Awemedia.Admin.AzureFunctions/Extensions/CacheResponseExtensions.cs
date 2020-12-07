@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -16,5 +17,6 @@ namespace Awemedia.Chargestation.AzureFunctions.Extensions
             };
             return responseMessage;
         }
+        public static HttpResponseMessage CreateResponseWithData<T>(this HttpRequestMessage requestMessage, HttpStatusCode statusCode, T content) { return new HttpResponseMessage() { StatusCode = statusCode, Content = new StringContent(JsonConvert.SerializeObject(content)) }; }
     }
 }

@@ -38,7 +38,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _branchSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = _branchService.Get(_branchSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_branchSearchFilter.IsActive) == true ? "false" : _branchSearchFilter.IsActive)), total = totalRecords });
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _branchService.Get(_branchSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_branchSearchFilter.IsActive) == true ? "false" : _branchSearchFilter.IsActive)), total = totalRecords });
         }
         [FunctionName("Branch")]
         public HttpResponseMessage GetById(
@@ -48,7 +48,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, _branchService.GetById(Id));
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _branchService.GetById(Id));
         }
         [FunctionName("AddBranch")]
         public HttpResponseMessage Post(

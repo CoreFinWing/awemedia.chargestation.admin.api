@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using System.Linq;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Extensions;
+using Awemedia.Chargestation.AzureFunctions.Extensions;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
@@ -36,7 +37,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _eventSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponse(HttpStatusCode.OK, new { data = eventService.Get(_eventSearchFilter, out int totalRecords), total = totalRecords });
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = eventService.Get(_eventSearchFilter, out int totalRecords), total = totalRecords });
         }
         [FunctionName("event-detail")]
         public HttpResponseMessage GetById(
@@ -45,7 +46,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             if (!httpRequestMessage.IsAuthorized())
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (id > 0)
-                return httpRequestMessage.CreateResponse(HttpStatusCode.OK, eventService.GetById(id));
+                return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, eventService.GetById(id));
             return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
         }
     }
