@@ -25,5 +25,18 @@ namespace Awemedia.Admin.AzureFunctions.DAL
 
             return new AwemediaContext(optionsBuilder.Options);
         }
+        public AwemediaContext CreateDbContext()
+        {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", true)
+                .AddEnvironmentVariables()
+                .Build();
+            Console.WriteLine(configuration["admin-api-sql-migration-connection-string"]);
+            var optionsBuilder = new DbContextOptionsBuilder<AwemediaContext>();
+            optionsBuilder.UseSqlServer(configuration["admin-api-sql-migration-connection-string"], x => x.MigrationsAssembly("Awemedia.Admin.AzureFunctions.DAL"));
+
+            return new AwemediaContext(optionsBuilder.Options);
+        }
     }
 }

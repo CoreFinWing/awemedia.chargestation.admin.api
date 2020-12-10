@@ -11,62 +11,60 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            using (var context = new AwemediaContext())
+            var context = new AwemediaContextFactory().CreateDbContext();
+            foreach (var type in Constants.sessionTypes)
             {
-                foreach (var type in Constants.sessionTypes)
+                if (!context.SessionType.Any(s => s.Type == type.Value))
                 {
-                    if (!context.SessionType.Any(s => s.Type == type.Value))
-                    {
-                        migrationBuilder.Sql("SET IDENTITY_INSERT dbo.SessionType ON");
-                        migrationBuilder.InsertData(table: "SessionType",
-                            columns: new[] { "Id", "IsActive", "Type" },
-                            values: new object[,] {
+                    migrationBuilder.Sql("SET IDENTITY_INSERT dbo.SessionType ON");
+                    migrationBuilder.InsertData(table: "SessionType",
+                        columns: new[] { "Id", "IsActive", "Type" },
+                        values: new object[,] {
                                 { type.Key,true,type.Value },
-                                 });
-                        migrationBuilder.Sql("SET IDENTITY_INSERT dbo.SessionType OFF");
-                    }
+                             });
+                    migrationBuilder.Sql("SET IDENTITY_INSERT dbo.SessionType OFF");
                 }
+            }
 
-                foreach (var status in Constants.sessionStatuses)
+            foreach (var status in Constants.sessionStatuses)
+            {
+                if (!context.SessionStatus.Any(s => s.Status == status.Value))
                 {
-                    if (!context.SessionStatus.Any(s => s.Status == status.Value))
-                    {
-                        migrationBuilder.Sql("SET IDENTITY_INSERT dbo.SessionStatus ON");
-                        migrationBuilder.InsertData(table: "SessionStatus",
-                           columns: new[] { "Id", "Status", "IsActive" },
-                           values: new object[,] {
+                    migrationBuilder.Sql("SET IDENTITY_INSERT dbo.SessionStatus ON");
+                    migrationBuilder.InsertData(table: "SessionStatus",
+                       columns: new[] { "Id", "Status", "IsActive" },
+                       values: new object[,] {
                 { status.Key,status.Value,true },
-                           });
-                        migrationBuilder.Sql("SET IDENTITY_INSERT dbo.SessionStatus OFF");
-                    }
+                       });
+                    migrationBuilder.Sql("SET IDENTITY_INSERT dbo.SessionStatus OFF");
                 }
+            }
 
-                foreach (var type in Constants.industryTypes)
+            foreach (var type in Constants.industryTypes)
+            {
+                if (!context.IndustryType.Any(s => s.Name == type.Value))
                 {
-                    if (!context.IndustryType.Any(s => s.Name == type.Value))
-                    {
 
-                        migrationBuilder.Sql("SET IDENTITY_INSERT dbo.IndustryType ON");
-                        migrationBuilder.InsertData(table: "IndustryType",
-                            columns: new[] { "Id", "Name", "IsActive", "CreatedDate", "ModifiedDate" },
-                            values: new object[,] {
+                    migrationBuilder.Sql("SET IDENTITY_INSERT dbo.IndustryType ON");
+                    migrationBuilder.InsertData(table: "IndustryType",
+                        columns: new[] { "Id", "Name", "IsActive", "CreatedDate", "ModifiedDate" },
+                        values: new object[,] {
                 { type.Key,type.Value,true,DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") },
-                            });
-                        migrationBuilder.Sql("SET IDENTITY_INSERT dbo.IndustryType OFF");
-                    }
+                        });
+                    migrationBuilder.Sql("SET IDENTITY_INSERT dbo.IndustryType OFF");
                 }
-                foreach (var type in Constants.eventTypes)
+            }
+            foreach (var type in Constants.eventTypes)
+            {
+                if (!context.EventType.Any(s => s.Name == type.Value))
                 {
-                    if (!context.EventType.Any(s => s.Name == type.Value))
-                    {
-                        migrationBuilder.Sql("SET IDENTITY_INSERT dbo.EventType ON");
-                        migrationBuilder.InsertData(table: "EventType",
-                           columns: new[] { "Id", "Name", "IsActive", "CreatedDate", "ModifiedDate" },
-                           values: new object[,] {
+                    migrationBuilder.Sql("SET IDENTITY_INSERT dbo.EventType ON");
+                    migrationBuilder.InsertData(table: "EventType",
+                       columns: new[] { "Id", "Name", "IsActive", "CreatedDate", "ModifiedDate" },
+                       values: new object[,] {
                 { type.Key,type.Value,true,DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") },
-                   });
-                        migrationBuilder.Sql("SET IDENTITY_INSERT dbo.EventType OFF");
-                    }
+               });
+                    migrationBuilder.Sql("SET IDENTITY_INSERT dbo.EventType OFF");
                 }
             }
         }
