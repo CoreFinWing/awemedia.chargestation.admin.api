@@ -7,6 +7,7 @@ using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.Extensions;
 using Awemedia.Admin.AzureFunctions.Resolver;
 using Awemedia.Chargestation.AzureFunctions.Extensions;
+using Awemedia.Chargestation.AzureFunctions.Helpers;
 using AzureFunctions.Autofac;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Azure.WebJobs;
@@ -21,10 +22,10 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "promotion")] HttpRequestMessage httpRequestMessage, [Inject]IErrorHandler _errorHandler, [Inject]IPromotionService promotionService)
         {
-            //if (!httpRequestMessage.IsAuthorized())
-            //{
-            //    return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
-            //}
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
             BaseSearchFilter _promotionSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
