@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
-    public class BaseService<T> : IBaseService<T>
+    public class BaseService<T> : IBaseService<T> where T :class
     {
         private readonly IBaseRepository<T> _repository;
 
@@ -100,6 +99,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public T GetById(Guid guid)
         {
             return _repository.GetById(guid);
+        }
+        public IEnumerable<T> Get(out int count, Expression<Func<T, bool>> filter = null, string[] includePaths = null, int? page = null, int? pageSize = null)
+        {
+            return _repository.Get(out count, filter, includePaths, page, pageSize);
         }
     }
 }

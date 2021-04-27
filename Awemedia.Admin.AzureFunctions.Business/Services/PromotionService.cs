@@ -2,12 +2,10 @@
 using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Business.Models;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
@@ -19,16 +17,16 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             _baseService = baseService;
         }
-        
+      
         public IEnumerable<object> Get(BaseSearchFilter promotionSearchFilter, out int totalRecords)
         {
             totalRecords = 0;
-            IEnumerable<Promotion> _promotion = _baseService.GetAll().Select(t => MappingProfile.MapPromotionModelObject(t)).ToList();
-            totalRecords = _promotion.Count();
+            IEnumerable<Promotion> _promotion = new List<Promotion>();
             if (promotionSearchFilter != null)
             {
                 Expression<Func<DAL.DataContracts.Promotion, int>> orderByDesc = x => x.Id;
-                _promotion = _baseService.GetAll(navigationalProps).ToList().Select(t => MappingProfile.MapPromotionModelObject(t));
+                 _promotion = _baseService.Get(out totalRecords, null, navigationalProps,  Convert.ToInt32(promotionSearchFilter.Start), Convert.ToInt32(promotionSearchFilter.Size)).Select(t => MappingProfile.MapPromotionModelObject(t)).ToList();
+                
                 totalRecords = _promotion.Count();
 
                 if (!string.IsNullOrEmpty(promotionSearchFilter.Search) && !string.IsNullOrEmpty(promotionSearchFilter.Type))
@@ -36,7 +34,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     _promotion = _promotion.Search(promotionSearchFilter.Type, promotionSearchFilter.Search);
                     totalRecords = _promotion.Count();
                 }
-                _promotion = _promotion.Skip((Convert.ToInt32(promotionSearchFilter.Start) - 1) * Convert.ToInt32(promotionSearchFilter.Size)).Take(Convert.ToInt32(promotionSearchFilter.Size));
                 _promotion = _promotion.OrderBy(promotionSearchFilter.Order, promotionSearchFilter.Dir).ToList();
             }
             else
