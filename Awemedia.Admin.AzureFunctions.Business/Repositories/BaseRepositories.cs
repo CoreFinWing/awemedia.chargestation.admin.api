@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using System.Runtime.InteropServices;
 
@@ -133,5 +132,31 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
             return _entities.Find(guid);
         }
 
+        public IEnumerable<T> Get(out int count,
+           Expression<Func<T, bool>> filter = null,
+           string[] includePaths = null,
+           int? page = null,
+           int? pageSize = null)
+        {
+            IQueryable<T> query = _entities;
+            count = query.Count();
+            if (includePaths != null)
+            {
+                for (var i = 0; i < includePaths.Count(); i++)
+                {
+                    query = query.Include(includePaths[i]);
+                }
+            }
+            if (filter != null)
+            {
+                query = query.Where(filter);
+                count = query.Count();
+            }
+            if (pageSize != null)
+            {
+                query = query.Skip(((int)page - 1) * (int)pageSize).Take((int)pageSize);
+            }
+            return query.ToList();
+        }
     }
 }

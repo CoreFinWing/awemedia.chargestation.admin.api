@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Promotion = Awemedia.Admin.AzureFunctions.Business.Models.Promotion;
 using UserSession = Awemedia.Admin.AzureFunctions.DAL.DataContracts.UserSession;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
@@ -324,6 +325,33 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 ChargeStationId = events.ChargeStationId,
                 EventName = events.EventType?.Name,
                 ServerDateTime = events.ServerDateTime != null ? Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(events.ServerDateTime.GetValueOrDefault(), malaysiaTimeZone)) : (DateTime?)null,
+            };
+        }
+
+        public static Promotion MapPromotionModelObject(DAL.DataContracts.Promotion promotion)
+        {
+            return new Promotion()
+            {
+               Id=promotion.Id,
+               PromotionDesc=promotion.PromotionDesc,
+               BranchId=promotion.BranchId,
+               StartDate=promotion.StartDate,
+               EndDate=promotion.EndDate,
+               BranchName=promotion.Branch?.Name,
+               PromotionType=promotion.PromotionType
+            };
+        }
+
+        public static DAL.DataContracts.Promotion MapPromotionObject(Models.Promotion promotion)
+        {
+            return new DAL.DataContracts.Promotion()
+            {
+                Id = promotion.Id,
+                PromotionDesc = promotion.PromotionDesc,
+                BranchId = promotion.BranchId,
+                StartDate = promotion.StartDate,
+                EndDate = promotion.EndDate,
+                PromotionType = promotion.PromotionType
             };
         }
     }
