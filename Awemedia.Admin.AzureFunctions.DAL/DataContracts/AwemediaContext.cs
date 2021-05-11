@@ -284,6 +284,9 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .IsUnicode(false);
 
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
+                entity.Property(e => e.Mobile)
+                  .HasMaxLength(50)
+                  .IsUnicode(false);
 
                 entity.HasOne(d => d.Branch)
                     .WithMany(p => p.Promotion)

@@ -11,7 +11,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int? PromotionType { get; set; }
-
+        public string Mobile { get; set; }
         public Branch Branch { get; set; }
     }
 }

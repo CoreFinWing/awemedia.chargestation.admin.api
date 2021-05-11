@@ -85,6 +85,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _repository.Insert(entry);
             return entry;
         }
+
         public void Remove(int id)
         {
             var label = _repository.GetById(id);
