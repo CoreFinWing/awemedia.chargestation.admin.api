@@ -12,6 +12,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int? PromotionType { get; set; }
+        public string Mobile { get; set; }
         public string BranchName { get; set; }
     }
 }
