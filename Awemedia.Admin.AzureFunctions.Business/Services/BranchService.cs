@@ -133,5 +133,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             }
             return MappingProfile.MapBranchModelObject(branch);
         }
+        public List<object> Search(string keyword)
+        {
+            return _baseService.Where(m => m.Name.ToLower().Contains(keyword)).Select(s => new { s.Id, s.Name }).ToList<object>();
+        }
     }
 }

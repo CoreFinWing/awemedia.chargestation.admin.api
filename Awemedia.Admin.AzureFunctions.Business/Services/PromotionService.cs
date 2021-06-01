@@ -42,7 +42,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 _promotion = _baseService.GetAll("Promotion").Select(t => MappingProfile.MapPromotionModelObject(t)).ToList();
             }
             var groupedData = _promotion.GroupBy(r => r.BranchName)
-                                           .Select(group => new { group.Key, Value = group.Select(x => new { x.Id, x.PromotionDesc, x.StartDate, x.EndDate, x.PromotionType, x.Mobile }) });
+                                           .Select(group => new { group.Key, Value = group.Select(x => new { x.Id, x.PromotionDesc, x.StartDate, x.EndDate, x.PromotionType, x.Mobile, x.BranchName, x.BranchId, x.IsActive }) });
             totalRecords = groupedData.Count();
             groupedData = groupedData.Skip((Convert.ToInt32(promotionSearchFilter.Start) - 1) * Convert.ToInt32(promotionSearchFilter.Size))
                                          .Take(Convert.ToInt32(promotionSearchFilter.Size));
@@ -88,7 +88,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         public Promotion GetById(int id)
         {
-            IQueryable<DAL.DataContracts.Promotion> promotions = _baseService.GetAll().AsQueryable();
+            IQueryable<DAL.DataContracts.Promotion> promotions = _baseService.GetAll("Branch").AsQueryable();
             var promotion = promotions.Where(b => b.Id == id).FirstOrDefault();
             if (promotion == null)
             {
@@ -96,10 +96,30 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             }
             return MappingProfile.MapPromotionModelObject(promotion);
         }
-
         public void Remove(int id)
         {
             _baseService.Remove(id);
+        }
+
+        public void MarkActiveInActive(dynamic promotionSetToActiveInActive)
+        {
+            if (promotionSetToActiveInActive != null)
+            {
+                if (promotionSetToActiveInActive.Length > 0)
+                {
+                    foreach (var item in promotionSetToActiveInActive)
+                    {
+                        int promotionId = Convert.ToInt32(item.GetType().GetProperty("Id").GetValue(item, null));
+                        bool IsActive = Convert.ToBoolean(item.GetType().GetProperty("IsActive").GetValue(item, null));
+                        var promotion = _baseService.GetById(promotionId);
+                        if (promotion != null)
+                        {
+                            promotion.IsActive = IsActive;
+                            _baseService.AddOrUpdate(promotion, promotionId);
+                        }
+                    }
+                }
+            }
         }
     }
 }
