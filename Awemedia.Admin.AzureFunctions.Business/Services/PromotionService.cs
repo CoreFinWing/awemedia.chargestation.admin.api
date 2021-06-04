@@ -101,23 +101,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _baseService.Remove(id);
         }
 
-        public void MarkActiveInActive(dynamic promotionSetToActiveInActive)
+        public void MarkActiveInActive(Status status)
         {
-            if (promotionSetToActiveInActive != null)
+            if (status != null)
             {
-                if (promotionSetToActiveInActive.Length > 0)
+                var promotion = _baseService.GetById(status.Id);
+                if (promotion != null)
                 {
-                    foreach (var item in promotionSetToActiveInActive)
-                    {
-                        int promotionId = Convert.ToInt32(item.GetType().GetProperty("Id").GetValue(item, null));
-                        bool IsActive = Convert.ToBoolean(item.GetType().GetProperty("IsActive").GetValue(item, null));
-                        var promotion = _baseService.GetById(promotionId);
-                        if (promotion != null)
-                        {
-                            promotion.IsActive = IsActive;
-                            _baseService.AddOrUpdate(promotion, promotionId);
-                        }
-                    }
+                    promotion.IsActive = status.IsActive;
+                    _baseService.AddOrUpdate(promotion, status.Id);
                 }
             }
         }
