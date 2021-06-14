@@ -94,7 +94,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 status.Id =Convert.ToInt32(promotionSetToActiveInActive[0].Id);
                 status.IsActive = Convert.ToBoolean(promotionSetToActiveInActive[0].IsActive);
 
-                _promotionService.ToggleStatus(status);
+                _promotionService.ToggleActiveStatus(status);
                 return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
             }
             return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);

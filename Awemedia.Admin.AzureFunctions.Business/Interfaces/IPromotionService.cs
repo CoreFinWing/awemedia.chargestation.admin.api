@@ -12,6 +12,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
         void UpdatePromotion(Promotion promotionModel, int id);
         Promotion GetById(int id);
         void Remove(int id);
-        void ToggleStatus(Status status);
+        void ToggleActiveStatus(Status status);
     }
 }

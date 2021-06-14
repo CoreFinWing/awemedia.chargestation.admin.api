@@ -101,7 +101,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _baseService.Remove(id);
         }
 
-        public void ToggleStatus(Status status)
+        public void ToggleActiveStatus(Status status)
         {
             if (status != null)
             {
