@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Awemedia.Admin.AzureFunctions.Helpers;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,5 +16,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public int? PromotionType { get; set; }
         public string Mobile { get; set; }
         public string BranchName { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -335,11 +335,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                Id=promotion.Id,
                PromotionDesc=promotion.PromotionDesc,
                BranchId=promotion.BranchId,
-               StartDate=promotion.StartDate,
-               EndDate=promotion.EndDate,
+               StartDate= promotion.StartDate,
+               EndDate= promotion.EndDate,
                BranchName=promotion.Branch?.Name,
                PromotionType=promotion.PromotionType,
-                Mobile = promotion.Mobile
+                Mobile = promotion.Mobile,
+                IsActive=promotion.IsActive
             };
         }
 
@@ -353,7 +354,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 StartDate = promotion.StartDate,
                 EndDate = promotion.EndDate,
                 PromotionType = promotion.PromotionType,
-                Mobile=promotion.Mobile
+                Mobile=promotion.Mobile,
+                IsActive=promotion.IsActive
             };
         }
     }

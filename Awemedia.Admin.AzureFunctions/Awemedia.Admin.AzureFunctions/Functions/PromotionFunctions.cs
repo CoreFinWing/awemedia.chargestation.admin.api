@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,6 +13,7 @@ using AzureFunctions.Autofac;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Newtonsoft.Json;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
@@ -74,6 +76,28 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _promotionService.GetById(Id));
+        }
+
+        [FunctionName("Active_InActive_Promotion")]
+        public HttpResponseMessage Patch(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "Patch", Route = "promotion")] HttpRequestMessage httpRequestMessage, [Inject]IPromotionService _promotionService, [Inject]IErrorHandler _errorHandler)
+        {
+            var jsonContent = httpRequestMessage.Content.ReadAsStringAsync().Result;
+            var definition = new[] { new { Id = "", IsActive = "" } };
+            var promotionSetToActiveInActive = JsonConvert.DeserializeAnonymousType(jsonContent, definition);
+            Status status = new Status();
+            
+            if (!httpRequestMessage.IsAuthorized())
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            if (promotionSetToActiveInActive.Length > 0)
+            {
+                status.Id =Convert.ToInt32(promotionSetToActiveInActive[0].Id);
+                status.IsActive = Convert.ToBoolean(promotionSetToActiveInActive[0].IsActive);
+
+                _promotionService.ToggleActiveStatus(status);
+                return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
+            }
+            return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
         }
     }
 }

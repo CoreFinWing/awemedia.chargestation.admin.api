@@ -13,5 +13,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public int? PromotionType { get; set; }
         public string Mobile { get; set; }
         public Branch Branch { get; set; }
+        public bool IsActive { get; set; }
     }
 }

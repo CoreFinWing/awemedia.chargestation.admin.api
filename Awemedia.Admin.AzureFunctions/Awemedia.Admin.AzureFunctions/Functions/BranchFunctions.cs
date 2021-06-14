@@ -96,5 +96,25 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             _branchService.UpdateBranch(branch, id);
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }
+
+        [FunctionName("AutoCompleteSearchBranch")]
+        public HttpResponseMessage Search(
+          [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auto-complete-search-branch")] HttpRequestMessage httpRequestMessage, [Inject]IBranchService _branchService, [Inject]IErrorHandler _errorHandler)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
+            if (queryDictionary.Count() > 0)
+            {
+                string keyword = queryDictionary["keyword"].ToString();
+                if (!string.IsNullOrEmpty(keyword))
+                {
+                    return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _branchService.Search(keyword));
+                }
+            }
+            return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+        }
     }
 }

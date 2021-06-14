@@ -12,5 +12,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
         void UpdateBranch(Branch branchModel, int id);
         void MarkActiveInActive(dynamic branchesSetToActiveInActive);
         Branch GetById(int id);
+        List<object> Search(string keyword);
     }
 }
