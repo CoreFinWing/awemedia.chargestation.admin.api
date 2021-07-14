@@ -25,5 +25,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
            string[] includePaths = null,
            int? page = null,
            int? pageSize = null);
+        IEnumerable<T> Get(out int count,
+          Expression<Func<T, int>> filter = null,
+          string[] includePaths = null,
+          int? page = null,
+          int? pageSize = null);
     }
 }

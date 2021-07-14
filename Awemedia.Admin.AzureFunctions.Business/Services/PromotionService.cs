@@ -26,7 +26,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (promotionSearchFilter != null)
             {
                 Expression<Func<DAL.DataContracts.Promotion, int>> orderByDesc = x => x.Id;
-                _promotion = _baseService.Get(out totalRecords, null, navigationalProps, Convert.ToInt32(promotionSearchFilter.Start), Convert.ToInt32(promotionSearchFilter.Size)).Select(t => MappingProfile.MapPromotionModelObject(t)).ToList();
+                _promotion = _baseService.Get(out totalRecords, orderByDesc, navigationalProps, Convert.ToInt32(promotionSearchFilter.Start), Convert.ToInt32(promotionSearchFilter.Size)).Select(t => MappingProfile.MapPromotionModelObject(t)).ToList();
 
                 totalRecords = _promotion.Count();
 
@@ -43,9 +43,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             }
             var groupedData = _promotion.GroupBy(r => r.BranchName)
                                            .Select(group => new { group.Key, Value = group.Select(x => new { x.Id, x.PromotionDesc, x.StartDate, x.EndDate, x.PromotionType, x.Mobile, x.BranchName, x.BranchId, x.IsActive }) });
-            totalRecords = groupedData.Count();
-            groupedData = groupedData.Skip((Convert.ToInt32(promotionSearchFilter.Start) - 1) * Convert.ToInt32(promotionSearchFilter.Size))
-                                         .Take(Convert.ToInt32(promotionSearchFilter.Size));
+            foreach (var item in groupedData)
+            {
+                totalRecords += item.Value.Count();
+            }
             return groupedData;
         }
 
