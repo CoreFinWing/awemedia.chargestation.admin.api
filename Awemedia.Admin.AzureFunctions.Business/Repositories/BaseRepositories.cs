@@ -158,5 +158,32 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
             }
             return query.ToList();
         }
+
+        public IEnumerable<T> Get(out int count,
+           Expression<Func<T, int>> filter = null,
+           string[] includePaths = null,
+           int? page = null,
+           int? pageSize = null)
+        {
+            IQueryable<T> query = _entities;
+            count = query.Count();
+            if (includePaths != null)
+            {
+                for (var i = 0; i < includePaths.Count(); i++)
+                {
+                    query = query.Include(includePaths[i]);
+                }
+            }
+            if (filter != null)
+            {
+                query = query.OrderByDescending(filter);
+                count = query.Count();
+            }
+            if (pageSize != null)
+            {
+                query = query.Skip(((int)page - 1) * (int)pageSize).Take((int)pageSize);
+            }
+            return query.ToList();
+        }
     }
 }
