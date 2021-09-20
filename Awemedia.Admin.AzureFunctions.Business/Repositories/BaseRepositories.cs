@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace Awemedia.Admin.AzureFunctions.Business.Repositories
 {
@@ -184,6 +185,34 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
                 query = query.Skip(((int)page - 1) * (int)pageSize).Take((int)pageSize);
             }
             return query.ToList();
+        }
+
+        public IEnumerable<T> GroupingData(IEnumerable<string> groupingColumns,
+          string[] includePaths = null)
+        {
+            IQueryable<T> data = _entities;
+
+            IOrderedEnumerable<T> groupedData = null;
+
+            if (includePaths != null)
+            {
+                for (var i = 0; i < includePaths.Count(); i++)
+                {
+                    data = data.Include(includePaths[i]);
+                }
+            }
+
+            foreach (string grpCol in groupingColumns.Where(x => !String.IsNullOrEmpty(x)))
+            {
+                var col = typeof(T).GetProperty(grpCol, BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public);
+
+                if (col != null)
+                {
+                    groupedData = groupedData == null ? data.AsEnumerable().OrderBy(x => col.GetValue(x, null))
+                                                   : groupedData.ThenBy(x => col.GetValue(x, null));
+                }
+            }
+            return groupedData ?? data.AsEnumerable();
         }
     }
 }

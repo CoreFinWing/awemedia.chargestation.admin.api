@@ -32,5 +32,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
           string[] includePaths = null,
           int? page = null,
           int? pageSize = null);
+
+        IEnumerable<T> GroupingData(IEnumerable<string> groupingColumns, string[] includePaths = null);
     }
 }

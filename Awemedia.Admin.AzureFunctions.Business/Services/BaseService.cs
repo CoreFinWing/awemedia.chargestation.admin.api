@@ -109,5 +109,11 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             return _repository.Get(out count, filter, includePaths, page, pageSize);
         }
+
+        public IEnumerable<T> GroupingData(IEnumerable<string> groupingColumns, string[] includePaths = null)
+        {
+            return _repository.GroupingData(groupingColumns, includePaths);
+
+        }
     }
 }

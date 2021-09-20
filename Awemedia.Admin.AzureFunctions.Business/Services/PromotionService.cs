@@ -23,11 +23,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             totalRecords = 0;
             IEnumerable<Promotion> _promotion = new List<Promotion>();
+            PaginatedInputModel pagingParams = new PaginatedInputModel();
             if (promotionSearchFilter != null)
             {
+                pagingParams.GroupingColumns = new List<string>() { "BranchId" };
                 Expression<Func<DAL.DataContracts.Promotion, int>> orderByDesc = x => x.Id;
-                _promotion = _baseService.Get(out totalRecords, orderByDesc, navigationalProps, Convert.ToInt32(promotionSearchFilter.Start), Convert.ToInt32(promotionSearchFilter.Size)).Select(t => MappingProfile.MapPromotionModelObject(t)).ToList();
-
+                _promotion = _baseService.GroupingData(pagingParams.GroupingColumns, navigationalProps).Select(t => MappingProfile.MapPromotionModelObject(t)).ToList();
                 totalRecords = _promotion.Count();
 
                 if (!string.IsNullOrEmpty(promotionSearchFilter.Search) && !string.IsNullOrEmpty(promotionSearchFilter.Type))
@@ -35,18 +36,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     _promotion = _promotion.Search(promotionSearchFilter.Type, promotionSearchFilter.Search);
                     totalRecords = _promotion.Count();
                 }
-                _promotion = _promotion.OrderBy(promotionSearchFilter.Order, promotionSearchFilter.Dir).ToList();
             }
             else
             {
                 _promotion = _baseService.GetAll("Promotion").Select(t => MappingProfile.MapPromotionModelObject(t)).ToList();
             }
+            _promotion = _promotion.Skip(((int)Convert.ToInt32(promotionSearchFilter.Start) - 1) * (int)Convert.ToInt32(promotionSearchFilter.Size)).Take((int)Convert.ToInt32(promotionSearchFilter.Size));
+
             var groupedData = _promotion.GroupBy(r => r.BranchName)
                                            .Select(group => new { group.Key, Value = group.Select(x => new { x.Id, x.PromotionDesc, x.StartDate, x.EndDate, x.PromotionType, x.Mobile, x.BranchName, x.BranchId, x.IsActive }) });
-            foreach (var item in groupedData)
-            {
-                totalRecords += item.Value.Count();
-            }
             return groupedData;
         }
 
