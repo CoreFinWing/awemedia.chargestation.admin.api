@@ -59,7 +59,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<ChargeOption> Get(BaseSearchFilter chargeOptionSearchFilter, out int totalRecords, bool isActive = true)
         {
-            IEnumerable<ChargeOption> _chargeOptions = _baseService.GetAll().Select(t => MappingProfile.MapChargeOptionsResponseObjects(t)).ToList();
+            IEnumerable<ChargeOption> _chargeOptions = _baseService.GetAll("Country").Select(t => MappingProfile.MapChargeOptionsResponseObjects(t)).ToList();
             totalRecords = _chargeOptions.Count();
             if (isActive)
             {
@@ -73,7 +73,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                     _chargeOptions = _chargeOptions.Search(chargeOptionSearchFilter.Type, chargeOptionSearchFilter.Search);
                     totalRecords = _chargeOptions.Count();
                 }
-                _chargeOptions = _chargeOptions.OrderBy(chargeOptionSearchFilter.Order,chargeOptionSearchFilter.Dir);
+                _chargeOptions = _chargeOptions.OrderBy(chargeOptionSearchFilter.Order, chargeOptionSearchFilter.Dir);
                 if (!Convert.ToBoolean(chargeOptionSearchFilter.Export))
                 {
                     _chargeOptions = _chargeOptions.Skip((Convert.ToInt32(chargeOptionSearchFilter.Start) - 1) * Convert.ToInt32(chargeOptionSearchFilter.Size)).Take(Convert.ToInt32(chargeOptionSearchFilter.Size));
@@ -81,6 +81,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             }
             return _chargeOptions.ToList();
         }
+
         private static Expression<Func<DAL.DataContracts.ChargeOptions, bool>> GetFilteredBySearch(BaseSearchFilter chargeOptionsSearchFilter)
         {
             return e => e.ChargeDuration.ToString().Contains(chargeOptionsSearchFilter.Search) || e.CreatedDate.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Currency.ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Id.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.Price.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search) || e.ModifiedDate.ToString().ToLower().Contains(chargeOptionsSearchFilter.Search);

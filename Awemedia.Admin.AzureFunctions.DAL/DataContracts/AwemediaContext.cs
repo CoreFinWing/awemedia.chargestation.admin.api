@@ -27,6 +27,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public virtual DbSet<SessionStatus> SessionStatus { get; set; }
         public virtual DbSet<SessionType> SessionType { get; set; }
         public virtual DbSet<UserSession> UserSession { get; set; }
+        public virtual DbSet<Country> Country { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -83,6 +84,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<ChargeOptions>(entity =>
             {
+                entity.HasIndex(e => e.CountryId);
+
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Currency)
@@ -93,6 +96,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Price).HasColumnType("money");
+
+                entity.HasOne(d => d.Country)
+                  .WithMany(p => p.ChargeOptions)
+                  .HasForeignKey(d => d.CountryId)
+                  .HasConstraintName("FK_ChargeOptions_Country");
             });
 
             modelBuilder.Entity<ChargeStation>(entity =>
@@ -292,6 +300,12 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .WithMany(p => p.Promotion)
                     .HasForeignKey(d => d.BranchId)
                     .HasConstraintName("FK_Promotion_Branch");
+            });
+
+            modelBuilder.Entity<Country>(entity =>
+            {
+                entity.Property(e => e.CountryName);
+                entity.Property(e => e.Currency);
             });
 
             modelBuilder.Entity<SessionStatus>(entity =>

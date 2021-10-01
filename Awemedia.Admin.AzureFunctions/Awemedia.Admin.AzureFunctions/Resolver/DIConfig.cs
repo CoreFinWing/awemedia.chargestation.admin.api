@@ -33,6 +33,7 @@ namespace Awemedia.Admin.AzureFunctions.Resolver
                 builder.RegisterType<EmailService>().As<IEmailService>();
                 builder.RegisterType<EventService>().As<IEventService>();
                 builder.RegisterType<PromotionService>().As<IPromotionService>();
+                builder.RegisterType<CountryService>().As<ICountryService>();
             }, functionName);
         }
     }
