@@ -15,5 +15,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         [Required]
         public string Currency { get; set; }
         public bool IsActive { get; set; }
+        public int CountryId { get; set; }
+        public string CountryName { get; set; }
+        public Country Country { get; set; }
     }
 }
