@@ -4,14 +4,16 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    partial class AwemediaContextModelSnapshot : ModelSnapshot
+    [Migration("20211001062552_AddedCountryIdColumnInChargeOptions")]
+    partial class AddedCountryIdColumnInChargeOptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,13 +29,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("varchar(500)")
-                        .HasMaxLength(500)
-                        .IsUnicode(false);
-
-                    b.Property<string>("City")
-                        .IsRequired()
                         .HasColumnType("varchar(500)")
                         .HasMaxLength(500)
                         .IsUnicode(false);
@@ -43,10 +38,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .HasColumnType("varchar(50)")
                         .HasMaxLength(50)
                         .IsUnicode(false);
-
-                    b.Property<int?>("CountryId")
-                        .IsRequired()
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -81,12 +72,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(50)")
                         .HasMaxLength(50)
-                        .IsUnicode(false);
-
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasColumnType("varchar(500)")
-                        .HasMaxLength(500)
                         .IsUnicode(false);
 
                     b.HasKey("Id");

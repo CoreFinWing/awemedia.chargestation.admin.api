@@ -51,7 +51,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 Id = chargeOptions.Id,
                 IsActive = chargeOptions.IsActive,
                 ModifiedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(chargeOptions.ModifiedDate, malaysiaTimeZone)),
-                Price = chargeOptions.Price,
+                Price = chargeOptions.Price
             };
         }
         public static DAL.DataContracts.ChargeOptions MapChargeOptionsObjects(Models.ChargeOption chargeOptionsResponse)
@@ -65,6 +65,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 IsActive = true,
                 ModifiedDate = DateTime.Now.ToUniversalTime(),
                 Price = chargeOptionsResponse.Price,
+                CountryId = chargeOptionsResponse.CountryId
             };
         }
         public static DAL.DataContracts.ChargeStation MapChargeStationObject(Models.ChargeStation chargeStationResponse)

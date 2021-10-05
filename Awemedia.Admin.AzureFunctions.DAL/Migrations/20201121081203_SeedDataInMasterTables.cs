@@ -67,6 +67,20 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     migrationBuilder.Sql("SET IDENTITY_INSERT dbo.EventType OFF");
                 }
             }
+
+            foreach (var type in Constants.countries)
+            {
+                if (!context.Country.Any(s => s.CountryName == type.Item2))
+                {
+                    migrationBuilder.Sql("SET IDENTITY_INSERT dbo.Country ON");
+                    migrationBuilder.InsertData(table: "Country",
+                        columns: new[] { "CountryId", "CountryName", "Currency" },
+                        values: new object[,] {
+                                { type.Item1,type.Item2,type.Item3 },
+                             });
+                    migrationBuilder.Sql("SET IDENTITY_INSERT dbo.Country OFF");
+                }
+            }
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

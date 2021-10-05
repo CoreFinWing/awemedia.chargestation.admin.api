@@ -12,5 +12,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
+        public int? CountryId { get; set; }
+        public Country Country { get; set; }
     }
 }

@@ -42,6 +42,22 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             }
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _chargeOptionService.Get(_chargeOptionSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_chargeOptionSearchFilter.IsActive) == true ? "false" : _chargeOptionSearchFilter.IsActive)), total = totalRecords });
         }
+
+        [FunctionName("country")]
+        public HttpResponseMessage GetCountries(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "country")] HttpRequestMessage httpRequestMessage, [Inject]ICountryService _countryService, [Inject]IErrorHandler _errorHandler)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            BaseSearchFilter _chargeOptionSearchFilter = null;
+            var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
+            if (queryDictionary.Count > 0)
+            {
+                _chargeOptionSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
+            }
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _countryService.GetCountries()});
+        }
+
         [FunctionName("AddChargeOptions")]
         public HttpResponseMessage Post(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "charge-options")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionService _chargeOptionService, [Inject]IErrorHandler _errorHandler)
