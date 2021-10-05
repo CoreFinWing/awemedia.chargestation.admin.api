@@ -32,7 +32,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));
+                //optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));
+                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("Server=tcp:awemedia-chargestation-sqlsvr-test.database.windows.net,1433;Initial Catalog=awemedia-chargestation-db-test;Persist Security Info=False;User ID=it-admin;Password=sdf@23Yusda;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
             }
         }
 
@@ -43,8 +44,23 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 entity.HasIndex(e => e.MerchantId);
 
                 entity.Property(e => e.Address)
+                    .IsRequired()
                     .HasMaxLength(500)
                     .IsUnicode(false);
+
+                entity.Property(e => e.City)
+                   .IsRequired()
+                   .HasMaxLength(500)
+                   .IsUnicode(false);
+
+                entity.Property(e => e.PostalCode)
+                   .IsRequired()
+                    .HasMaxLength(500)
+                   .IsUnicode(false);
+
+                entity.Property(e => e.CountryId)
+                   .IsRequired()
+                    .HasColumnType("int");
 
                 entity.Property(e => e.ContactName)
                     .IsRequired()
@@ -79,6 +95,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .HasForeignKey(d => d.MerchantId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Branch_Merchant");
+
+                //entity.HasOne(d => d.Country)
+                //   .WithMany(p => p.Branch)
+                //   .HasForeignKey(d => d.CountryId)
+                //   .HasConstraintName("FK_Branch_Country");
             });
 
             modelBuilder.Entity<ChargeOptions>(entity =>

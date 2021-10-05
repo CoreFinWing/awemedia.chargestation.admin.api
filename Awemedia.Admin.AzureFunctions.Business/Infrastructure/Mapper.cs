@@ -199,6 +199,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
         {
 
             _branch.Address = branch.Address;
+            _branch.City = branch.City;
+            _branch.PostalCode = branch.PostalCode;
+            _branch.CountryId = branch.CountryId;
             _branch.ContactName = branch.ContactName;
             _branch.CreatedDate = DateTime.Now.ToUniversalTime();
             _branch.Email = branch.Email;
@@ -217,6 +220,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             return new Models.Branch()
             {
                 Address = branch.Address,
+                City = branch.City,
+                PostalCode = branch.PostalCode,
+                CountryId = branch.CountryId,
                 ContactName = branch.ContactName,
                 CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(branch.CreatedDate.GetValueOrDefault(), malaysiaTimeZone)),
                 Email = branch.Email,
@@ -332,15 +338,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
         {
             return new Promotion()
             {
-               Id=promotion.Id,
-               PromotionDesc=promotion.PromotionDesc,
-               BranchId=promotion.BranchId,
-               StartDate= promotion.StartDate,
-               EndDate= promotion.EndDate,
-               BranchName=promotion.Branch?.Name,
-               PromotionType=promotion.PromotionType,
+                Id = promotion.Id,
+                PromotionDesc = promotion.PromotionDesc,
+                BranchId = promotion.BranchId,
+                StartDate = promotion.StartDate,
+                EndDate = promotion.EndDate,
+                BranchName = promotion.Branch?.Name,
+                PromotionType = promotion.PromotionType,
                 Mobile = promotion.Mobile,
-                IsActive=promotion.IsActive
+                IsActive = promotion.IsActive
             };
         }
 
@@ -354,8 +360,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 StartDate = promotion.StartDate,
                 EndDate = promotion.EndDate,
                 PromotionType = promotion.PromotionType,
-                Mobile=promotion.Mobile,
-                IsActive=promotion.IsActive
+                Mobile = promotion.Mobile,
+                IsActive = promotion.IsActive
             };
         }
     }
