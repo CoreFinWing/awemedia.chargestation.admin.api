@@ -9,6 +9,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
+        public string City { get; set; }
+        public string PostalCode { get; set; }
         public string ContactName { get; set; }
         public string PhoneNum { get; set; }
         public string Email { get; set; }
@@ -18,6 +20,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string MerchantName { get; set; }
         public Merchant Merchant { get; set; }
         public bool IsActive { get; set; }
+        public int? CountryId { get; set; }
         public ICollection<ChargeStation> ChargeStation { get; set; }
     }
 }
