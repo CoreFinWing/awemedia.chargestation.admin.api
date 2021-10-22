@@ -109,6 +109,19 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 NumOfActiveLocations = merchant.NumOfActiveLocations
             };
         }
+
+        public static Models.Country MapCountryModelObject(DAL.DataContracts.Country country)
+        {
+            if (country == null)
+                return null;
+            return new Models.Country()
+            {
+                CountryId=country.CountryId,
+                CountryName=country.CountryName,
+                Currency=country.Currency
+            };
+        }
+
         public static DAL.DataContracts.Merchant MapMerchantObject(Models.Merchant merchant, DAL.DataContracts.Merchant _merchant)
         {
             _merchant.BusinessName = merchant.RegisteredBusinessName;

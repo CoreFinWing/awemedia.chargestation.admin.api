@@ -61,7 +61,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                    .IsUnicode(false);
 
                 entity.Property(e => e.CountryId)
-                   //.IsRequired()
                     .HasColumnType("int");
 
                 entity.Property(e => e.ContactName)

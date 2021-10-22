@@ -19,8 +19,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string Geolocation { get; set; }
         public string MerchantName { get; set; }
         public Merchant Merchant { get; set; }
+        public Country Country { get; set; }
         public bool IsActive { get; set; }
         public int? CountryId { get; set; }
+        public string CountryName { get; set; }
         public ICollection<ChargeStation> ChargeStation { get; set; }
     }
 }
