@@ -116,9 +116,9 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 return null;
             return new Models.Country()
             {
-                CountryId=country.CountryId,
-                CountryName=country.CountryName,
-                Currency=country.Currency
+                CountryId = country.CountryId,
+                CountryName = country.CountryName,
+                Currency = country.Currency
             };
         }
 
@@ -237,6 +237,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 City = branch.City,
                 PostalCode = branch.PostalCode,
                 CountryId = branch.CountryId,
+                CountryName = branch.Country != null ? branch.Country.CountryName : "",
                 ContactName = branch.ContactName,
                 CreatedDate = Convert.ToDateTime(Utility.ConvertUtcToSpecifiedTimeZone(branch.CreatedDate.GetValueOrDefault(), malaysiaTimeZone)),
                 Email = branch.Email,
