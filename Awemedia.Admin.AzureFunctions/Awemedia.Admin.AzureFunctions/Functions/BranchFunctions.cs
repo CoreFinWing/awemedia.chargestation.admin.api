@@ -40,6 +40,23 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 _branchSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _branchService.Get(_branchSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_branchSearchFilter.IsActive) == true ? "false" : _branchSearchFilter.IsActive)), total = totalRecords });
         }
+
+        [FunctionName("countryforBranch")]
+        public HttpResponseMessage GetCountries(
+         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "countryforBranch")] HttpRequestMessage httpRequestMessage, [Inject]ICountryService _countryService, [Inject]IErrorHandler _errorHandler)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            BaseSearchFilter _chargeOptionSearchFilter = null;
+            var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
+            if (queryDictionary.Count > 0)
+            {
+                _chargeOptionSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
+            }
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _countryService.GetCountries() });
+        }
+
+
         [FunctionName("Branch")]
         public HttpResponseMessage GetById(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches/{Id}")] HttpRequestMessage httpRequestMessage, [Inject]IBranchService _branchService, [Inject]IErrorHandler _errorHandler, int Id)

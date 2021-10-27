@@ -33,7 +33,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public IEnumerable<object> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, bool isActive = true)
         {
-            string[] navigationalProps = { "Merchant" };
+            string[] navigationalProps = { "Merchant"};
             IEnumerable<Branch> _branches = null;
             totalRecords = 0;
             if (!string.IsNullOrEmpty(branchSearchFilter.FromDate) && !string.IsNullOrEmpty(branchSearchFilter.ToDate))
@@ -125,7 +125,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         }
         public Branch GetById(int id)
         {
-            IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant").AsQueryable();
+            IQueryable<DAL.DataContracts.Branch> branches = _baseService.GetAll("Merchant","Country").AsQueryable();
             var branch = branches.Where(b => b.Id == id).FirstOrDefault();
             if (branch == null)
             {

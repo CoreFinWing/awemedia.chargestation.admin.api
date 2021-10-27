@@ -43,9 +43,25 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
             {
                 entity.HasIndex(e => e.MerchantId);
 
+                entity.HasIndex(e => e.CountryId);
+
                 entity.Property(e => e.Address)
+                    .IsRequired()
                     .HasMaxLength(500)
                     .IsUnicode(false);
+
+                entity.Property(e => e.City)
+                   .IsRequired()
+                   .HasMaxLength(500)
+                   .IsUnicode(false);
+
+                entity.Property(e => e.PostalCode)
+                   .IsRequired()
+                    .HasMaxLength(500)
+                   .IsUnicode(false);
+
+                entity.Property(e => e.CountryId)
+                    .HasColumnType("int");
 
                 entity.Property(e => e.ContactName)
                     .IsRequired()
@@ -80,6 +96,11 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .HasForeignKey(d => d.MerchantId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Branch_Merchant");
+
+                entity.HasOne(d => d.Country)
+                   .WithMany(p => p.Branch)
+                   .HasForeignKey(d => d.CountryId)
+                   .HasConstraintName("FK_Branch_Country");
             });
 
             modelBuilder.Entity<ChargeOptions>(entity =>

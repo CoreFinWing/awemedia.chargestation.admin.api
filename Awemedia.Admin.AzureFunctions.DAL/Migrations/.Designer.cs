@@ -4,14 +4,16 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    partial class AwemediaContextModelSnapshot : ModelSnapshot
+    [Migration("20211007061410_AddedAddressRelatedColumnsInBranchTable")]
+    partial class AddedAddressRelatedColumnsInBranchTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,6 +47,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .IsUnicode(false);
 
                     b.Property<int?>("CountryId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedDate")
@@ -89,8 +92,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .IsUnicode(false);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CountryId");
 
                     b.HasIndex("MerchantId");
 
@@ -613,11 +614,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Branch", b =>
                 {
-                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Country", "Country")
-                        .WithMany("Branch")
-                        .HasForeignKey("CountryId")
-                        .HasConstraintName("FK_Branch_Country");
-
                     b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Merchant", "Merchant")
                         .WithMany("Branch")
                         .HasForeignKey("MerchantId")
