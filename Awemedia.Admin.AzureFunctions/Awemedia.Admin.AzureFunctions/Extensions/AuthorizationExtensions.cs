@@ -19,6 +19,8 @@ namespace Awemedia.Chargestation.AzureFunctions.Helpers
         {
             try
             {
+                //temp code for skipping cognito auth
+                return true;
                 bool isAuthorized = false;
                 if (!string.IsNullOrEmpty(Convert.ToString(req.Headers.Authorization)))
                 {
