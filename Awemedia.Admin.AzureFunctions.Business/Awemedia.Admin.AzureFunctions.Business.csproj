@@ -18,5 +18,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Awemedia.Admin.AzureFunctions.DAL\Awemedia.Admin.AzureFunctions.DAL.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\User\" />
+  </ItemGroup>
   
 </Project>
