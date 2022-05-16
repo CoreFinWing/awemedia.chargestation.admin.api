@@ -15,13 +15,13 @@ using System.Threading.Tasks;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
-   
+
     public class UserFunction
     {
         private string tenant = Environment.GetEnvironmentVariable("b2c-Tenant");
         private string clientId = Environment.GetEnvironmentVariable("b2c-ClientId");
         private string clientSecret = Environment.GetEnvironmentVariable("b2c-ClientSecret");
-        
+
         [FunctionName("AddUser")]
         public async Task<HttpResponseMessage> Post(
             [HttpTrigger(AuthorizationLevel.Anonymous, "Post", Route = "users")] HttpRequestMessage httpRequestMessage)
@@ -44,7 +44,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             profile.mailNickname = userModel.Value.mailNickname;
             profile.passwordProfile = new Passwordprofile();
             profile.passwordProfile.password = userModel.Value.password;
-            profile.passwordProfile.forceChangePasswordNextLogin = false;
+            profile.passwordProfile.forceChangePasswordNextLogin = true;
             profile.passwordPolicies = "DisablePasswordExpiration";
             profile.city = userModel.Value.city;
             profile.country = userModel.Value.country;
@@ -59,6 +59,21 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             B2CGraphClient client = new B2CGraphClient(clientId, clientSecret, tenant);
             await client.CreateUser(JsonConvert.SerializeObject(profile));
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
+        }
+
+
+        [FunctionName("GetUser")]
+        public async Task<HttpResponseMessage> Get(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequestMessage httpRequestMessage)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            B2CGraphClient client = new B2CGraphClient(clientId, clientSecret, tenant);
+            var res = await client.GetAllUsers(null);
+            GetUserResponse response = JsonConvert.DeserializeObject<GetUserResponse>(res);
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK,response.value);
         }
     }
 }
