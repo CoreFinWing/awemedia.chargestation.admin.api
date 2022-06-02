@@ -62,7 +62,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         }
 
 
-        [FunctionName("GetUser")]
+        [FunctionName("GetUsers")]
         public async Task<HttpResponseMessage> Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequestMessage httpRequestMessage)
         {
@@ -73,7 +73,21 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             B2CGraphClient client = new B2CGraphClient(clientId, clientSecret, tenant);
             var res = await client.GetAllUsers(null);
             GetUserResponse response = JsonConvert.DeserializeObject<GetUserResponse>(res);
-            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK,response.value);
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK,new {data=response.value, total= response.value.Length});
+        }
+
+        [FunctionName("GetUsersId")]
+        public async Task<HttpResponseMessage> GetUser(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users/{Id}")] HttpRequestMessage httpRequestMessage, string Id)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            B2CGraphClient client = new B2CGraphClient(clientId, clientSecret, tenant);
+            var res = await client.GetUserByObjectId(Id);
+            Value response = JsonConvert.DeserializeObject<Value>(res);
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK,  response );
         }
     }
 }
