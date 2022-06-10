@@ -27,10 +27,12 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "Post", Route = "users")] HttpRequestMessage httpRequestMessage)
         {
             var userModel = httpRequestMessage.GetBodyAsync<UserModel>();
+            var userBody = httpRequestMessage.GetBodyAsync<Value>();
             if (!httpRequestMessage.IsAuthorized())
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
+            Value user = userBody.Value;
             UserProfile profile = new UserProfile();
             profile.accountEnabled = true;
             profile.signInNames = new List<SignInName>();
@@ -40,25 +42,26 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 value = userModel.Value.Email
             });
             profile.creationType = "LocalAccount";
-            profile.displayName = userModel.Value.givenName;
-            profile.mailNickname = userModel.Value.givenName;
+            profile.displayName = user.givenName;
+            profile.mailNickname = user.givenName;
             profile.passwordProfile = new Passwordprofile();
             profile.passwordProfile.password = "password@123";
             profile.passwordProfile.forceChangePasswordNextLogin = true;
             profile.passwordPolicies = "DisablePasswordExpiration";
             profile.city = userModel.Value.city;
             profile.country = userModel.Value.country;
-            profile.givenName = userModel.Value.givenName;
+            profile.givenName = user.givenName;
             profile.mail = userModel.Value.mail;
             profile.mobile = userModel.Value.mobile;
-            profile.postalCode = userModel.Value.postalCode;
+            profile.postalCode = user.postalCode;
             profile.state = userModel.Value.state;
             profile.streetAddress = userModel.Value.streetAddress;
             profile.surname = userModel.Value.surname;
-            profile.UserRoles = userModel.Value.role;
+            profile.UserRoles = user.UserRoles;
             profile.otherMails = new List<string>();
             B2CGraphClient client = new B2CGraphClient(clientId, clientSecret, tenant);
             await client.CreateUser(JsonConvert.SerializeObject(profile));
+
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }
 
@@ -96,6 +99,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
            [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "users/{id}")] HttpRequestMessage httpRequestMessage, string id)
         {
             var userBody = httpRequestMessage.GetBodyAsync<Value>();
+            var userModel = httpRequestMessage.GetBodyAsync<UserModel>();
             if (!httpRequestMessage.IsAuthorized())
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
@@ -103,14 +107,29 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             if (string.IsNullOrEmpty(id))
                 httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
             Value user = userBody.Value;
-            user.signInNames = new List<Signinname>();
-            user.signInNames.Add(new Signinname()
+
+            UserProfile profile = new UserProfile();
+            profile.signInNames = new List<SignInName>();
+            profile.signInNames.Add(new SignInName()
             {
                 type = "emailAddress",
-                value = user.Email
+                value = userModel.Value.Email
             });
+            profile.displayName = userModel.Value.givenName;
+            profile.mailNickname = user.givenName;
+            profile.city = userModel.Value.city;
+            profile.country = userModel.Value.country;
+            profile.givenName = user.givenName;
+            profile.mail = userModel.Value.mail;
+            profile.mobile = userModel.Value.mobile;
+            profile.postalCode = user.postalCode;
+            profile.state = userModel.Value.state;
+            profile.streetAddress = userModel.Value.streetAddress;
+            profile.surname = userModel.Value.surname;
+            profile.UserRoles = user.UserRoles;
+            profile.otherMails = new List<string>();
             B2CGraphClient client = new B2CGraphClient(clientId, clientSecret, tenant);
-            string userData = JsonConvert.SerializeObject(user);
+            string userData = JsonConvert.SerializeObject(profile);
             await client.UpdateUser(id, userData);
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }

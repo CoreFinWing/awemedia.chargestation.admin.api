@@ -51,18 +51,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public object telephoneNumber { get; set; }
 
         [JsonProperty("extension_171b808256604925afa4cc036b28c814_UserRoles")]
-        private string _UserRoles { get; set; }
-        public string UserRoles
-        {
-            get
-            {
-                return _UserRoles;
-            }
-            set
-            {
-                _UserRoles = value;
-            }
-        }
+        public string UserRoles { get; set; }
+
 
     }
 
