@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,7 +8,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
 
     public class UserModel
     {
-        public string emailAddress { get; set; }
+        public string Email { get; set; }
         public string displayName { get; set; }
         public string mailNickname { get; set; }
         public string password { get; set; }
@@ -20,6 +21,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string state { get; set; }
         public object streetAddress { get; set; }
         public string surname { get; set; }
+        public string companyName { get; set; }
+        public string role { get; set; }
+        public DateTime createdDateTime { get; set; }
+        public DateTime ModifiedDate { get; set; }
     }
 
     public class UserProfile
@@ -44,6 +49,21 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public object streetAddress { get; set; }
         public string surname { get; set; }
         public object telephoneNumber { get; set; }
+
+        [JsonProperty("extension_171b808256604925afa4cc036b28c814_UserRoles")]
+        private string _UserRoles { get; set; }
+        public string UserRoles
+        {
+            get
+            {
+                return _UserRoles;
+            }
+            set
+            {
+                _UserRoles = value;
+            }
+        }
+
     }
 
     public class Passwordprofile

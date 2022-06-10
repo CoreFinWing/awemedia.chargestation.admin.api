@@ -37,13 +37,13 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             profile.signInNames.Add(new SignInName()
             {
                 type = "emailAddress",
-                value = userModel.Value.emailAddress
+                value = userModel.Value.Email
             });
             profile.creationType = "LocalAccount";
-            profile.displayName = userModel.Value.displayName;
-            profile.mailNickname = userModel.Value.mailNickname;
+            profile.displayName = userModel.Value.givenName;
+            profile.mailNickname = userModel.Value.givenName;
             profile.passwordProfile = new Passwordprofile();
-            profile.passwordProfile.password = userModel.Value.password;
+            profile.passwordProfile.password = "password@123";
             profile.passwordProfile.forceChangePasswordNextLogin = true;
             profile.passwordPolicies = "DisablePasswordExpiration";
             profile.city = userModel.Value.city;
@@ -55,6 +55,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             profile.state = userModel.Value.state;
             profile.streetAddress = userModel.Value.streetAddress;
             profile.surname = userModel.Value.surname;
+            profile.UserRoles = userModel.Value.role;
             profile.otherMails = new List<string>();
             B2CGraphClient client = new B2CGraphClient(clientId, clientSecret, tenant);
             await client.CreateUser(JsonConvert.SerializeObject(profile));
@@ -76,7 +77,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK,new {data=response.value, total= response.value.Length});
         }
 
-        [FunctionName("GetUsersId")]
+        [FunctionName("GetUsersId")] 
         public async Task<HttpResponseMessage> GetUser(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users/{Id}")] HttpRequestMessage httpRequestMessage, string Id)
         {
@@ -88,6 +89,30 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var res = await client.GetUserByObjectId(Id);
             Value response = JsonConvert.DeserializeObject<Value>(res);
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK,  response );
+        }
+
+        [FunctionName("UpdateUser")]
+        public async Task<HttpResponseMessage> Put(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "users/{id}")] HttpRequestMessage httpRequestMessage, string id)
+        {
+            var userBody = httpRequestMessage.GetBodyAsync<Value>();
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            if (string.IsNullOrEmpty(id))
+                httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+            Value user = userBody.Value;
+            user.signInNames = new List<Signinname>();
+            user.signInNames.Add(new Signinname()
+            {
+                type = "emailAddress",
+                value = user.Email
+            });
+            B2CGraphClient client = new B2CGraphClient(clientId, clientSecret, tenant);
+            string userData = JsonConvert.SerializeObject(user);
+            await client.UpdateUser(id, userData);
+            return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }
     }
 }

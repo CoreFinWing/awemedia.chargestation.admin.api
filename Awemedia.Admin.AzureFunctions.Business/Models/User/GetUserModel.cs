@@ -40,7 +40,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public object lastDirSyncTime { get; set; }
         public object legalAgeGroupClassification { get; set; }
         public string mail { get; set; }
-        public string mailNickname { get; set; }
         public string mobile { get; set; }
         public object onPremisesDistinguishedName { get; set; }
         public object onPremisesSecurityIdentifier { get; set; }
@@ -55,7 +54,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string[] proxyAddresses { get; set; }
         public DateTime refreshTokensValidFromDateTime { get; set; }
         public bool? showInAddressList { get; set; }
-        public Signinname[] signInNames { get; set; }
+        public List<Signinname> signInNames { get; set; }
         public object sipProxyAddress { get; set; }
         public string state { get; set; }
         public string streetAddress { get; set; }
@@ -69,16 +68,29 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public DateTime? userStateChangedOn { get; set; }
         public string userType { get; set; }
 
-        public string Email
+        [JsonProperty("extension_171b808256604925afa4cc036b28c814_UserRoles")]
+        private string _UserRoles { get; set; }
+        public string UserRoles { 
+            get
+            {
+                return _UserRoles;
+            }
+            set
+            {
+                _UserRoles = value;
+            }
+        }
+        public string EmailAddress
         {
             get
             {
-                if (this.signInNames.Length > 0)
+                if (this.signInNames.Count > 0)
                     return this.signInNames[0].value;
                 else
                     return "";
             }
         }
+        public string Email { get; set; }
     }
 
     public class Signinname
