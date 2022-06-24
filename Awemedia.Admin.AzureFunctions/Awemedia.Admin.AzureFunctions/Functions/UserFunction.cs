@@ -1,4 +1,5 @@
-﻿using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
+﻿using Awemedia.Admin.AzureFunctions.Business.Helpers;
+using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
 using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.Business.Services;
 using Awemedia.Chargestation.AzureFunctions.Extensions;
@@ -8,6 +9,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -21,6 +23,9 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         private string tenant = Environment.GetEnvironmentVariable("b2c-Tenant");
         private string clientId = Environment.GetEnvironmentVariable("b2c-ClientId");
         private string clientSecret = Environment.GetEnvironmentVariable("b2c-ClientSecret");
+        private string FromName = Environment.GetEnvironmentVariable("email-name");
+        private string FromEmail = Environment.GetEnvironmentVariable("email-id");
+        private string APIKey = Environment.GetEnvironmentVariable("email-apikey");
 
         [FunctionName("AddUser")]
         public async Task<HttpResponseMessage> Post(
@@ -45,7 +50,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             profile.displayName = user.givenName;
             profile.mailNickname = user.givenName;
             profile.passwordProfile = new Passwordprofile();
-            profile.passwordProfile.password = "password@123";
+            profile.passwordProfile.password = RandomPassword.GetRandomPassword(10);
             profile.passwordProfile.forceChangePasswordNextLogin = true;
             profile.passwordPolicies = "DisablePasswordExpiration";
             profile.city = userModel.Value.city;
@@ -61,7 +66,16 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             profile.otherMails = new List<string>();
             B2CGraphClient client = new B2CGraphClient(clientId, clientSecret, tenant);
             await client.CreateUser(JsonConvert.SerializeObject(profile));
-
+            EmailSenderConfig config = new EmailSenderConfig();
+            config.APIKey = APIKey;
+            config.FromName = FromName;
+            config.FromEmail = FromEmail;
+            config.ToEmail = userModel.Value.Email;
+            config.ToName = userModel.Value.givenName;
+            config.Subject = "Your AweMedia account created successfully";
+            config.TextBody = string.Format("Hi {0}, You account has been created successfully on awemedia. Please use the password {1} and your email to login",config.ToName, profile.passwordProfile.password);
+            config.HtmlBody = string.Format("Hi {0}, <br/> You account has been created successfully on awemedia. <br/> <br/><br/> Please use the password <b>{1}</b> and your email to login", config.ToName, profile.passwordProfile.password);
+            SendGridEmailHelper.SendEmail(config);
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }
 
@@ -77,6 +91,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             B2CGraphClient client = new B2CGraphClient(clientId, clientSecret, tenant);
             var res = await client.GetAllUsers(null);
             GetUserResponse response = JsonConvert.DeserializeObject<GetUserResponse>(res);
+           
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK,new {data=response.value, total= response.value.Length});
         }
 
