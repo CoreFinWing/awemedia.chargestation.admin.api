@@ -74,7 +74,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             config.ToName = userModel.Value.givenName;
             config.Subject = "Your AweMedia account created successfully";
             config.TextBody = string.Format("Hi {0}, You account has been created successfully on awemedia. Please use the password {1} and your email to login",config.ToName, profile.passwordProfile.password);
-            config.HtmlBody = string.Format("Hi {0}, <br/> You account has been created successfully on awemedia. <br/> <br/><br/> Please use the password <b>{1}</b> and your email to login", config.ToName, profile.passwordProfile.password);
+            config.HtmlBody = string.Format("Hi {0}, <br/><br/> You account has been created successfully on awemedia. <br/> <br/><br/> Please use the password <b>{1}</b> and your email to login", config.ToName, profile.passwordProfile.password);
             SendGridEmailHelper.SendEmail(config);
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }

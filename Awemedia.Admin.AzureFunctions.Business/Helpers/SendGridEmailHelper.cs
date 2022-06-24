@@ -23,38 +23,45 @@ namespace Awemedia.Admin.AzureFunctions.Business.Helpers
         public const string USER_NAME = "apikey";
         public static string SendEmail(EmailSenderConfig config)
         {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(
-                config.FromName,
-               config.FromEmail
-            ));
-            message.To.Add(new MailboxAddress(
-                config.ToName,
-                config.ToEmail
-            ));
-            message.Subject = config.Subject;
-            var bodyBuilder = new BodyBuilder();
-            if(!string.IsNullOrEmpty(config.TextBody))
+            try
             {
-                bodyBuilder.TextBody = config.TextBody;
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(
+                    config.FromName,
+                   config.FromEmail
+                ));
+                message.To.Add(new MailboxAddress(
+                    config.ToName,
+                    config.ToEmail
+                ));
+                message.Subject = config.Subject;
+                var bodyBuilder = new BodyBuilder();
+                if (!string.IsNullOrEmpty(config.TextBody))
+                {
+                    bodyBuilder.TextBody = config.TextBody;
+                }
+                if (!string.IsNullOrEmpty(config.HtmlBody))
+                {
+                    bodyBuilder.HtmlBody = config.HtmlBody;
+                }
+                message.Body = bodyBuilder.ToMessageBody();
+
+                var client = new SmtpClient();
+                // SecureSocketOptions.StartTls force a secure connection over TLS
+                client.Connect("smtp.sendgrid.net", 587, SecureSocketOptions.StartTls);
+                client.Authenticate(
+                    userName: USER_NAME,
+                    password: config.APIKey
+                );
+
+                var log = client.Send(message);
+                client.Disconnect(true);
+                return log;
             }
-            if (!string.IsNullOrEmpty(config.HtmlBody))
+            catch (Exception ex)
             {
-                bodyBuilder.HtmlBody = config.HtmlBody;
+                throw ex;
             }
-            message.Body = bodyBuilder.ToMessageBody();
-
-            var client = new SmtpClient();
-            // SecureSocketOptions.StartTls force a secure connection over TLS
-            client.Connect("smtp.sendgrid.net", 587, SecureSocketOptions.StartTls);
-            client.Authenticate(
-                userName: USER_NAME,
-                password: config.APIKey
-            );
-
-            var log = client.Send(message);
-            client.Disconnect(true);
-            return log;
         }
     }
 }
