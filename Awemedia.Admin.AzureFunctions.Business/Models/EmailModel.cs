@@ -15,5 +15,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string ExcelReportBase64 { get; set; }
         public string FileName { get; set; }
         public string RecipientName { get; set; }
+
+        public bool HasAttachment 
+        { 
+            get
+            {
+                return !string.IsNullOrEmpty(FileName);
+            }
+        }
     }
 }

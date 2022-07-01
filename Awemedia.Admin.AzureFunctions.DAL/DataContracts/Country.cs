@@ -10,6 +10,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             ChargeOptions = new HashSet<ChargeOptions>();
             Branch = new HashSet<Branch>();
+            User = new HashSet<User>();
         }
         public int CountryId { get; set; }
         public string CountryName { get; set; }
@@ -17,5 +18,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         
         public ICollection<ChargeOptions> ChargeOptions { get; set; }
         public ICollection<Branch> Branch { get; set; }
+        public ICollection<User> User { get; set; }
     }
 }
