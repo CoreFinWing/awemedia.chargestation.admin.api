@@ -66,7 +66,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             user.MappedMerchant = "";
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _userService.AddUser(user));
         }
-     
+
         [FunctionName("UpdateUser")]
         public HttpResponseMessage Put(
            [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "users/{id}")] HttpRequestMessage httpRequestMessage, [Inject] IUserService _userService, [Inject] IErrorHandler _errorHandler, int id)
@@ -113,8 +113,11 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             BaseSearchFilter _userSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
+            {
                 _userSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _roleService.GetAll(Convert.ToBoolean(String.IsNullOrEmpty(_userSearchFilter.IsActive) == true ? "true" : _userSearchFilter.IsActive))});
+                return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _roleService.GetAll(Convert.ToBoolean(String.IsNullOrEmpty(_userSearchFilter.IsActive) == true ? "true" : _userSearchFilter.IsActive)) });
+            }
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _roleService.GetAll(true) });
         }
         [FunctionName("role")]
         public HttpResponseMessage GetRoleById(

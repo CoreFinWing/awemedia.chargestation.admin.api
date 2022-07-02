@@ -125,6 +125,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 Mobile = user.Mobile,
                 PostalCode = user.PostalCode,
                 Role = MapRoleModelObject(user.Role),
+                RoleId = user.RoleId,
                 State = user.State,
                 CreatedDate = user.CreatedDate.Value,
                 MappedMerchant = user.MappedMerchant,
@@ -188,7 +189,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _user.MappedMerchant = user.MappedMerchant;
             _user.Mobile = user.Mobile;
             _user.PostalCode = user.PostalCode;
-            _user.Role = MapRoleObject( user.Role);
+            _user.Role = MapRoleObject(user.Role);
+            _user.RoleId = user.RoleId;
             _user.State = user.State;
             _user.City = user.City;
             _user.CountryId = user.CountryId;
@@ -219,14 +221,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _user.MappedMerchant = user.MappedMerchant;
             _user.Mobile = user.Mobile;
             _user.PostalCode = user.PostalCode;
-            _user.Role = user.Id;
+            _user.Role = user.RoleId;
             _user.State = user.State;
             _user.City = user.City;
             _user.CreatedDate = user.Id == 0 ? DateTime.Now.ToUniversalTime() : user.CreatedDate.ToUniversalTime();
             _user.ModifiedDate = DateTime.Now.ToUniversalTime();
             return _user;
         }
-              
+
         public static ICollection<Models.Branch> MapBranchModelsObject(List<DAL.DataContracts.Branch> branch)
         {
             Models.Branch _branch = null;
