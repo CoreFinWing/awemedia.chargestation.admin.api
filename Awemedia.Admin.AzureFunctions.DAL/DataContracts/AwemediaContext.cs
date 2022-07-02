@@ -450,10 +450,14 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                  .HasMaxLength(500)
                  .IsUnicode(false);
 
-                entity.Property(e => e.Role)
+                entity.Property(e => e.RoleId)
                   .IsRequired()
-                  .HasMaxLength(500)
                   .IsUnicode(false);
+
+                entity.HasOne(d => d.Role)
+                 .WithMany(p => p.User)
+                 .HasForeignKey(d => d.RoleId)
+                 .HasConstraintName("FK_User_Role"); 
 
                 entity.Property(e => e.UserId)
                 .IsRequired()

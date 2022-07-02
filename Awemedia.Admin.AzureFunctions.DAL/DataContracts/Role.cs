@@ -10,5 +10,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public string Name { get; set; }
         public string DisplayName { get; set; }
         public bool IsActive { get; set; }
+        public ICollection<User> User { get; set; }
     }
 }
