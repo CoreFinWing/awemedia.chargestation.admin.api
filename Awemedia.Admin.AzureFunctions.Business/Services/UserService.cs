@@ -31,7 +31,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         {
             IEnumerable<UserModel> _users = null;
             totalRecords = 0;
-            string[] navigationalProps = { "Country" };
+            string[] navigationalProps = { "Country", "Role" };
             if (!string.IsNullOrEmpty(userSearchFilter.FromDate) && !string.IsNullOrEmpty(userSearchFilter.ToDate))
             {
                 DateTime fromDate = DateTime.Now.ToUniversalTime();

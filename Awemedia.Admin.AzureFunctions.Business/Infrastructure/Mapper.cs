@@ -124,7 +124,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 CountryId = user.CountryId,
                 Mobile = user.Mobile,
                 PostalCode = user.PostalCode,
-                Role = MapRoleModelObject(user.Role),
+                RoleName = user.Role?.DisplayName,
                 RoleId = user.RoleId,
                 State = user.State,
                 CreatedDate = user.CreatedDate.Value,

@@ -16,6 +16,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string State { get; set; }
         public int CountryId { get; set; }
         public int PostalCode { get; set; }
+        public string RoleName { get; set; }
         public RoleModel Role { get; set; }
         public int RoleId { get; set; }
         public string MappedMerchant { get; set; }
