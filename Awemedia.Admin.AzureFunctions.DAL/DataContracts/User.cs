@@ -17,7 +17,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public string State { get; set; }
         public int CountryId { get; set; }
         public int PostalCode { get; set; }
-        public string Role { get; set; }
+        public Role Role { get; set; }
         public string MappedMerchant { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }

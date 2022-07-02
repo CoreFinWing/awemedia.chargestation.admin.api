@@ -35,6 +35,7 @@ namespace Awemedia.Admin.AzureFunctions.Resolver
                 builder.RegisterType<PromotionService>().As<IPromotionService>();
                 builder.RegisterType<CountryService>().As<ICountryService>();
                 builder.RegisterType<UserService>().As<IUserService>();
+                builder.RegisterType<RoleService>().As<IRoleService>();
             }, functionName);
         }
     }

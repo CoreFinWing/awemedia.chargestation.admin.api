@@ -29,12 +29,12 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public virtual DbSet<UserSession> UserSession { get; set; }
         public virtual DbSet<Country> Country { get; set; }
         public virtual DbSet<User> User { get; set; }
-
+        public virtual DbSet<Role> Role { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));
+                optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=awemedia-chargestation-db-test;Integrated Security=True");//Environment.GetEnvironmentVariable("db_connection_string")
             }
         }
 

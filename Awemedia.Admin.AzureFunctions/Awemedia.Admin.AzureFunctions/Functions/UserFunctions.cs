@@ -101,5 +101,30 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         //    }
         //    return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
         //}
+
+        [FunctionName("roles")]
+        public HttpResponseMessage GetRoles(
+          [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roles")] HttpRequestMessage httpRequestMessage, [Inject] IRoleService _roleService, [Inject] IErrorHandler _errorHandler)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            BaseSearchFilter _userSearchFilter = null;
+            var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
+            if (queryDictionary.Count() > 0)
+                _userSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _roleService.GetAll(Convert.ToBoolean(String.IsNullOrEmpty(_userSearchFilter.IsActive) == true ? "true" : _userSearchFilter.IsActive))});
+        }
+        [FunctionName("role")]
+        public HttpResponseMessage GetRoleById(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roles/{Id}")] HttpRequestMessage httpRequestMessage, [Inject] IRoleService _roleService, [Inject] IErrorHandler _errorHandler, int Id)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _roleService.GetById(Id));
+        }
     }
 }

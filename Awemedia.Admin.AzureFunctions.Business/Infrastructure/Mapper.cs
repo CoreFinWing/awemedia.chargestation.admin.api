@@ -116,19 +116,34 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 return null;
             return new Models.UserModel()
             {
-                Id=user.Id,
-                Email=user.Email,
-                Name=user.Name,
-                City=user.City,
-                Country= MapCountryModelObject(user.Country),
-                CountryId=user.CountryId,
-                Mobile=user.Mobile,
-                PostalCode=user.PostalCode,
-                Role=user.Role,
-                State=user.State,
-                CreatedDate=user.CreatedDate.Value,
-                MappedMerchant=user.MappedMerchant,
-                ModifiedDate=user.ModifiedDate.Value
+                Id = user.Id,
+                Email = user.Email,
+                Name = user.Name,
+                City = user.City,
+                Country = MapCountryModelObject(user.Country),
+                CountryId = user.CountryId,
+                Mobile = user.Mobile,
+                PostalCode = user.PostalCode,
+                Role = MapRoleModelObject(user.Role),
+                State = user.State,
+                CreatedDate = user.CreatedDate.Value,
+                MappedMerchant = user.MappedMerchant,
+                ModifiedDate = user.ModifiedDate.Value
+            };
+        }
+
+        public static Models.RoleModel MapRoleModelObject(DAL.DataContracts.Role role)
+        {
+            if (role == null)
+            {
+                return null;
+            }
+            return new Models.RoleModel()
+            {
+                Id = role.Id,
+                Name = role.Name,
+                DisplayName = role.DisplayName,
+                IsActive = role.IsActive
             };
         }
 
@@ -165,7 +180,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             return _merchant;
         }
 
-        public static DAL.DataContracts.User MapUserObject(Models.UserModel user, DAL.DataContracts.User _user,string userId)
+        public static DAL.DataContracts.User MapUserObject(Models.UserModel user, DAL.DataContracts.User _user, string userId)
         {
             _user.Id = user.Id;
             _user.Email = user.Email;
@@ -173,7 +188,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _user.MappedMerchant = user.MappedMerchant;
             _user.Mobile = user.Mobile;
             _user.PostalCode = user.PostalCode;
-            _user.Role = user.Role;
+            _user.Role = MapRoleObject( user.Role);
             _user.State = user.State;
             _user.City = user.City;
             _user.CountryId = user.CountryId;
@@ -182,7 +197,20 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _user.UserId = userId;
             return _user;
         }
-
+        public static Role MapRoleObject(RoleModel role)
+        {
+            if (role == null)
+            {
+                return null;
+            }
+            return new Role()
+            {
+                Id = role.Id,
+                Name = role.Name,
+                DisplayName = role.DisplayName,
+                IsActive = role.IsActive
+            };
+        }
         public static ADB2C.Models.AweMediaUser MapAweMediaUserObject(Models.UserModel user, ADB2C.Models.AweMediaUser _user)
         {
             _user.Id = user.Id;
@@ -191,14 +219,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _user.MappedMerchant = user.MappedMerchant;
             _user.Mobile = user.Mobile;
             _user.PostalCode = user.PostalCode;
-            _user.Role = user.Role;
+            _user.Role = user.Id;
             _user.State = user.State;
             _user.City = user.City;
             _user.CreatedDate = user.Id == 0 ? DateTime.Now.ToUniversalTime() : user.CreatedDate.ToUniversalTime();
             _user.ModifiedDate = DateTime.Now.ToUniversalTime();
             return _user;
         }
-
+              
         public static ICollection<Models.Branch> MapBranchModelsObject(List<DAL.DataContracts.Branch> branch)
         {
             Models.Branch _branch = null;
