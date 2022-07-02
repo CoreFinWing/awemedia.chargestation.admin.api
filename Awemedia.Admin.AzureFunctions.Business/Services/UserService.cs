@@ -118,7 +118,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         public UserModel GetById(int id)
         {
-            IQueryable<User> users = _baseService.GetAll("Country").AsQueryable();
+            IQueryable<User> users = _baseService.GetAll("Country", "Role").AsQueryable();
             var user = users.Where(u => u.Id == id).FirstOrDefault();
             if (user != null)
             {
