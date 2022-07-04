@@ -10,8 +10,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
         IEnumerable<object> Get(BaseSearchFilter userSearchFilter, out int totalRecords, bool isActive = true);
         int AddUser(UserModel userModel, int id =0);
         void UpdateUser(UserModel userModel, int id);
-        //object IsUserExists(string id);
         UserModel GetById(int id);
-        //List<object> Search(string keyword);
     }
 }

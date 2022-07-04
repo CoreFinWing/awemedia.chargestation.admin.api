@@ -126,11 +126,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 return null;
             }
         }
-        //public List<object> Search(string keyword)
-        //{
-        //    return _baseService.Where(m => m.Email.ToLower().Contains(keyword)).Select(s => new { s.Id, s.BusinessName, s.LicenseNum, MerchantWithLicenseNumber = s.BusinessName + "-" + s.LicenseNum }).ToList<object>();
-        //}
-
+       
         private bool IsUserDuplicate(UserModel userModel)
         {
             bool isDuplicateUserFound = false;

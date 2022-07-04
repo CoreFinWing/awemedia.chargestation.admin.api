@@ -480,10 +480,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
             modelBuilder.Entity<Role>(entity =>
             {
-                entity.Property(e => e.Id)
-                    .IsRequired()
-                    .IsUnicode(false);
-
+               
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -496,6 +493,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 
                 entity.Property(e => e.IsActive)
                     .IsRequired()
+                    .HasDefaultValue(true)
                     .IsUnicode(false);
                              
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
