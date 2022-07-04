@@ -221,7 +221,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _user.MappedMerchant = user.MappedMerchant;
             _user.Mobile = user.Mobile;
             _user.PostalCode = user.PostalCode;
-            _user.Role = user.RoleId;
             _user.State = user.State;
             _user.City = user.City;
             _user.CreatedDate = user.Id == 0 ? DateTime.Now.ToUniversalTime() : user.CreatedDate.ToUniversalTime();

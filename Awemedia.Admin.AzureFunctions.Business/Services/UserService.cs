@@ -12,6 +12,8 @@ using System.Text.Json;
 using User = Awemedia.Admin.AzureFunctions.DAL.DataContracts.User;
 using CountryDB = Awemedia.Admin.AzureFunctions.DAL.DataContracts.Country;
 using UserModel = Awemedia.Admin.AzureFunctions.Business.Models.UserModel;
+using Role = Awemedia.Admin.AzureFunctions.DAL.DataContracts.Role;
+
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
@@ -19,13 +21,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     {
         private readonly IBaseService<User> _baseService;
         private readonly IBaseService<CountryDB> _countryService;
+        private readonly IBaseService<Role> _roleService;
         private readonly IEmailService _emailService;
         readonly string[] includedProperties = new string[] { "Country" };
-        public UserService(IBaseService<User> baseService, IBaseService<CountryDB> countryService, IEmailService emailService)
+        public UserService(IBaseService<User> baseService, IBaseService<CountryDB> countryService, IEmailService emailService, IBaseService<Role> roleService)
         {
             _baseService = baseService;
             _countryService = countryService;
             _emailService = emailService;
+            _roleService = roleService;
         }
         public IEnumerable<object> Get(BaseSearchFilter userSearchFilter, out int totalRecords, bool isActive = true)
         {
@@ -75,6 +79,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 AweMediaUser awUser = new AweMediaUser();
                 MappingProfile.MapAweMediaUserObject(userModel, awUser);
                 awUser.CountryName = _countryService.GetById(userModel.CountryId).CountryName;
+                awUser.Role = _roleService.GetById(userModel.RoleId).Name;
                 var adb2cUser = ADB2CService.CreateUserWithCustomAttribute(JsonSerializer.Serialize(awUser)).Result;
                 var user = _baseService.AddOrUpdate(MappingProfile.MapUserObject(userModel, new DAL.DataContracts.User(),adb2cUser.Item2), 0);
                 userModel.Id = user.Id;
