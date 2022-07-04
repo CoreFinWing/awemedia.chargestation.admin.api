@@ -112,15 +112,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 _baseService.AddOrUpdate(MappingProfile.MapUserObject(userModel, user,""), id, excludedProps);
             }
         }
-        //public object IsMerchantExists(string id)
-        //{
-        //    var merchant = _baseService.GetById(id);
-        //    if (merchant == null)
-        //        return DBNull.Value;
-        //    else
-        //        return merchant.Id;
-        //}
-
+       
         public UserModel GetById(int id)
         {
             IQueryable<User> users = _baseService.GetAll("Country", "Role").AsQueryable();

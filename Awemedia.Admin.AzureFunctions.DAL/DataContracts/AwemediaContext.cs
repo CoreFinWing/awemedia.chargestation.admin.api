@@ -477,6 +477,30 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                    .HasForeignKey(d => d.CountryId)
                    .HasConstraintName("FK_User_Country");
             });
+
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .IsRequired()
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DisplayName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+                
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .IsUnicode(false);
+                             
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            });
         }
     }
 }

@@ -11,5 +11,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public string DisplayName { get; set; }
         public bool IsActive { get; set; }
         public ICollection<User> User { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
     }
 }
