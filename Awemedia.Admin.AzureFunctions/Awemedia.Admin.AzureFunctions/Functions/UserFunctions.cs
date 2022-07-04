@@ -110,13 +110,6 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
-            BaseSearchFilter _userSearchFilter = null;
-            var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
-            if (queryDictionary.Count() > 0)
-            {
-                _userSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-                return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _roleService.GetAll(Convert.ToBoolean(String.IsNullOrEmpty(_userSearchFilter.IsActive) == true ? "true" : _userSearchFilter.IsActive)) });
-            }
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _roleService.GetAll(true) });
         }
         [FunctionName("role")]
