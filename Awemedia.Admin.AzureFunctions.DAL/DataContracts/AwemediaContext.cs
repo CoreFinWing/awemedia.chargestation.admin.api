@@ -34,7 +34,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=awemedia-chargestation-db-test;Integrated Security=True");
+                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));
             }
         }
 

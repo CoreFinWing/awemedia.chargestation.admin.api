@@ -64,6 +64,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             return _merchants.ToList();
         }
 
+        public IEnumerable<object> GetAllNames()
+        {
+            IEnumerable<MerchantModel> _merchants = null;
+            string[] navigationalProps = { "Branch", "IndustryType", "Branch.ChargeStation" };
+            _merchants = _baseService.GetAll(navigationalProps).Select(t => MappingProfile.MapMerchantModelObject(t)).ToList();
+            return _merchants.Select(x=>new {Id=x.Id, Name=x.RegisteredBusinessName }).ToList();
+        }
+
 
         public int AddMerchant(MerchantModel merchantModel, int id = 0)
         {

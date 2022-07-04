@@ -41,6 +41,19 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 _merchantSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _merchantService.Get(_merchantSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_merchantSearchFilter.IsActive) == true ? "false" : _merchantSearchFilter.IsActive)), total = totalRecords });
         }
+
+        [FunctionName("merchantnames")]
+        public HttpResponseMessage GetAllNames(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "merchantnames")] HttpRequestMessage httpRequestMessage, [Inject] IMerchantService _merchantService, [Inject] IErrorHandler _errorHandler)
+        {
+            if (!httpRequestMessage.IsAuthorized())
+            {
+                return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _merchantService.GetAllNames() });
+        }
+
+
         [FunctionName("merchant")]
         public HttpResponseMessage GetById(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "merchants/{Id}")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler, int Id)

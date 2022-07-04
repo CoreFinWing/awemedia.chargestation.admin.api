@@ -28,7 +28,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         public IEnumerable<object> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords)
         {
             string[] navigationalProps = { "SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant" };
-            IEnumerable<UserSession> _userSessions = null;
+            IEnumerable<UserSession> _userSessions = new List<UserSession>();
             DateTime fromDate = DateTime.Now.ToUniversalTime();
             DateTime toDate = DateTime.Now.ToUniversalTime();
             fromDate = Utility.ParseStartAndEndDates(userSessionSearchFilter, ref toDate);
