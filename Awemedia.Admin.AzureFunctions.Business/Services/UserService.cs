@@ -23,13 +23,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
         private readonly IBaseService<CountryDB> _countryService;
         private readonly IBaseService<Role> _roleService;
         private readonly IEmailService _emailService;
+        private readonly IADB2CService _adb2cService;
         readonly string[] includedProperties = new string[] { "Country" };
-        public UserService(IBaseService<User> baseService, IBaseService<CountryDB> countryService, IEmailService emailService, IBaseService<Role> roleService)
+        public UserService(IBaseService<User> baseService, IBaseService<CountryDB> countryService, IEmailService emailService, IBaseService<Role> roleService, IADB2CService adb2cService)
         {
             _baseService = baseService;
             _countryService = countryService;
             _emailService = emailService;
             _roleService = roleService;
+            _adb2cService = adb2cService;
         }
         public IEnumerable<object> Get(BaseSearchFilter userSearchFilter, out int totalRecords, bool isActive = true)
         {
@@ -80,7 +82,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 MappingProfile.MapAweMediaUserObject(userModel, awUser);
                 awUser.CountryName = _countryService.GetById(userModel.CountryId).CountryName;
                 awUser.Role = _roleService.GetById(userModel.RoleId).Name;
-                var adb2cUser = ADB2CService.CreateUserWithCustomAttribute(JsonSerializer.Serialize(awUser)).Result;
+                var adb2cUser = _adb2cService.CreateUserWithCustomAttribute(JsonSerializer.Serialize(awUser)).Result;
                 var user = _baseService.AddOrUpdate(MappingProfile.MapUserObject(userModel, new DAL.DataContracts.User(),adb2cUser.Item2), 0);
                 userModel.Id = user.Id;
 
@@ -108,7 +110,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 MappingProfile.MapAweMediaUserObject(userModel, awUser);
                 awUser.CountryName = _countryService.GetById(userModel.CountryId).CountryName;
                 var userId = _baseService.GetById(userModel.Id).UserId;
-                ADB2CService.UpdateUser(JsonSerializer.Serialize(awUser),userId).Wait();
+                _adb2cService.UpdateUser(JsonSerializer.Serialize(awUser),userId).Wait();
                 _baseService.AddOrUpdate(MappingProfile.MapUserObject(userModel, user,""), id, excludedProps);
             }
         }

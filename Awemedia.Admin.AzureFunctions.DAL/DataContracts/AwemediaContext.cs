@@ -495,9 +495,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .IsRequired()
                     .HasDefaultValue(true)
                     .IsUnicode(false);
-                             
-                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             });
         }
     }
