@@ -42,7 +42,10 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                      }
                  }
             };
-            msg.AddAttachment(emailModel.FileName, emailModel.ExcelReportBase64);
+            if (emailModel.HasAttachment)
+            {
+                msg.AddAttachment(emailModel.FileName, emailModel.ExcelReportBase64);
+            }
             await client.SendEmailAsync(msg);
         }
     }

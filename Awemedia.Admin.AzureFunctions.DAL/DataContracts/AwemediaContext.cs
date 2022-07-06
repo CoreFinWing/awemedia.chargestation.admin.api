@@ -28,7 +28,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public virtual DbSet<SessionType> SessionType { get; set; }
         public virtual DbSet<UserSession> UserSession { get; set; }
         public virtual DbSet<Country> Country { get; set; }
-
+        public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<Role> Role { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -411,6 +412,89 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .WithMany(p => p.UserSession)
                     .HasForeignKey(d => d.SessionType)
                     .HasConstraintName("FK_SessionType_UserSession");
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Email)
+                .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.City)
+                .IsRequired()
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.State)
+              .IsRequired()
+                  .HasMaxLength(500)
+                  .IsUnicode(false);
+
+                entity.Property(e => e.CountryId)
+                .IsRequired()
+                .IsUnicode(false);
+
+
+                entity.Property(e => e.PostalCode)
+                              .IsRequired()
+                              .IsUnicode(false);
+
+                entity.Property(e => e.MappedMerchant)
+                 .HasMaxLength(500)
+                 .IsUnicode(false);
+
+                entity.Property(e => e.RoleId)
+                  .IsRequired()
+                  .IsUnicode(false);
+
+                entity.HasOne(d => d.Role)
+                 .WithMany(p => p.User)
+                 .HasForeignKey(d => d.RoleId)
+                 .HasConstraintName("FK_User_Role"); 
+
+                entity.Property(e => e.UserId)
+                .IsRequired()
+                .HasColumnType("nvarchar(max)");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Mobile)
+                  .IsRequired()
+                  .HasMaxLength(50)
+                  .IsUnicode(false);
+
+                entity.HasOne(d => d.Country)
+                   .WithMany(p => p.User)
+                   .HasForeignKey(d => d.CountryId)
+                   .HasConstraintName("FK_User_Country");
+            });
+
+            modelBuilder.Entity<Role>(entity =>
+            {
+               
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DisplayName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+                
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValue(true)
+                    .IsUnicode(false);
             });
         }
     }

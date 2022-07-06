@@ -110,6 +110,44 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             };
         }
 
+        public static Models.UserModel MapUserModelObject(DAL.DataContracts.User user)
+        {
+            if (user == null)
+                return null;
+            return new Models.UserModel()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Name = user.Name,
+                City = user.City,
+                Country = MapCountryModelObject(user.Country),
+                CountryId = user.CountryId,
+                Mobile = user.Mobile,
+                PostalCode = user.PostalCode,
+                RoleName = user.Role?.DisplayName,
+                RoleId = user.RoleId,
+                State = user.State,
+                CreatedDate = user.CreatedDate.Value,
+                MappedMerchant = user.MappedMerchant,
+                ModifiedDate = user.ModifiedDate.Value
+            };
+        }
+
+        public static Models.RoleModel MapRoleModelObject(DAL.DataContracts.Role role)
+        {
+            if (role == null)
+            {
+                return null;
+            }
+            return new Models.RoleModel()
+            {
+                Id = role.Id,
+                Name = role.Name,
+                DisplayName = role.DisplayName,
+                IsActive = role.IsActive
+            };
+        }
+
         public static Models.Country MapCountryModelObject(DAL.DataContracts.Country country)
         {
             if (country == null)
@@ -142,6 +180,54 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _merchant.IsActive = true;
             return _merchant;
         }
+
+        public static DAL.DataContracts.User MapUserObject(Models.UserModel user, DAL.DataContracts.User _user, string userId)
+        {
+            _user.Id = user.Id;
+            _user.Email = user.Email;
+            _user.Name = user.Name;
+            _user.MappedMerchant = user.MappedMerchant;
+            _user.Mobile = user.Mobile;
+            _user.PostalCode = user.PostalCode;
+            _user.Role = MapRoleObject(user.Role);
+            _user.RoleId = user.RoleId;
+            _user.State = user.State;
+            _user.City = user.City;
+            _user.CountryId = user.CountryId;
+            _user.CreatedDate = user.Id == 0 ? DateTime.Now.ToUniversalTime() : user.CreatedDate.ToUniversalTime();
+            _user.ModifiedDate = DateTime.Now.ToUniversalTime();
+            _user.UserId = userId;
+            return _user;
+        }
+        public static Role MapRoleObject(RoleModel role)
+        {
+            if (role == null)
+            {
+                return null;
+            }
+            return new Role()
+            {
+                Id = role.Id,
+                Name = role.Name,
+                DisplayName = role.DisplayName,
+                IsActive = role.IsActive
+            };
+        }
+        public static ADB2C.Models.AweMediaUser MapAweMediaUserObject(Models.UserModel user, ADB2C.Models.AweMediaUser _user)
+        {
+            _user.Id = user.Id;
+            _user.Email = user.Email;
+            _user.Name = user.Name;
+            _user.MappedMerchant = user.MappedMerchant;
+            _user.Mobile = user.Mobile;
+            _user.PostalCode = user.PostalCode;
+            _user.State = user.State;
+            _user.City = user.City;
+            _user.CreatedDate = user.Id == 0 ? DateTime.Now.ToUniversalTime() : user.CreatedDate.ToUniversalTime();
+            _user.ModifiedDate = DateTime.Now.ToUniversalTime();
+            return _user;
+        }
+
         public static ICollection<Models.Branch> MapBranchModelsObject(List<DAL.DataContracts.Branch> branch)
         {
             Models.Branch _branch = null;

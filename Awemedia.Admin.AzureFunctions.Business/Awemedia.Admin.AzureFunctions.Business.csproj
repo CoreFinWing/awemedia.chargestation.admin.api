@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Awemedia.ADB2C\Awemedia.ADB2C.csproj" />
     <ProjectReference Include="..\Awemedia.Admin.AzureFunctions.DAL\Awemedia.Admin.AzureFunctions.DAL.csproj" />
   </ItemGroup>
   

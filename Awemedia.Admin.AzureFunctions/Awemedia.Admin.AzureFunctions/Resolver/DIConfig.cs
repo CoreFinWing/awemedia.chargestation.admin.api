@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Awemedia.ADB2C;
 using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Business.Repositories;
@@ -34,6 +35,11 @@ namespace Awemedia.Admin.AzureFunctions.Resolver
                 builder.RegisterType<EventService>().As<IEventService>();
                 builder.RegisterType<PromotionService>().As<IPromotionService>();
                 builder.RegisterType<CountryService>().As<ICountryService>();
+                builder.RegisterType<UserService>().As<IUserService>();
+                builder.RegisterType<RoleService>().As<IRoleService>();
+                builder.RegisterType<ADB2CService>().As<IADB2CService>();
+
+
             }, functionName);
         }
     }

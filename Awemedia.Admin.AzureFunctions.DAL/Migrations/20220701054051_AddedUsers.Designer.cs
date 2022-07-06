@@ -4,14 +4,16 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 {
     [DbContext(typeof(AwemediaContext))]
-    partial class AwemediaContextModelSnapshot : ModelSnapshot
+    [Migration("20220701054051_AddedUsers")]
+    partial class AddedUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -486,27 +488,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                     b.ToTable("Promotion");
                 });
 
-            modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Role", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("DisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Role");
-                });
-
             modelBuilder.Entity("Awemedia.Admin.AzureFunctions.DAL.DataContracts.SessionStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -563,8 +544,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .IsUnicode(false);
 
                     b.Property<int>("CountryId")
-                        .HasColumnType("int")
-                        .IsUnicode(false);
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
@@ -576,8 +556,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .IsUnicode(false);
 
                     b.Property<string>("MappedMerchant")
-                        .HasColumnType("varchar(500)")
-                        .HasMaxLength(500)
+                        .HasColumnType("varchar(1000)")
+                        .HasMaxLength(1000)
                         .IsUnicode(false);
 
                     b.Property<string>("Mobile")
@@ -597,27 +577,27 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
 
                     b.Property<int>("PostalCode")
                         .HasColumnType("int")
+                        .HasMaxLength(500)
                         .IsUnicode(false);
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int")
-                        .IsUnicode(false);
-
-                    b.Property<string>("State")
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("varchar(500)")
                         .HasMaxLength(500)
                         .IsUnicode(false);
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("State")
                         .IsRequired()
+                        .HasColumnType("varchar(50)")
+                        .HasMaxLength(50)
+                        .IsUnicode(false);
+
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CountryId");
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("User");
                 });
@@ -774,13 +754,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.Migrations
                         .WithMany("User")
                         .HasForeignKey("CountryId")
                         .HasConstraintName("FK_User_Country")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Awemedia.Admin.AzureFunctions.DAL.DataContracts.Role", "Role")
-                        .WithMany("User")
-                        .HasForeignKey("RoleId")
-                        .HasConstraintName("FK_User_Role")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
