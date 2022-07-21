@@ -7,6 +7,8 @@ using Awemedia.Admin.AzureFunctions.Functions;
 using Awemedia.chargestation.API.tests.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using OidcApiAuthorization;
+using OidcApiAuthorization.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -22,7 +24,6 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         private readonly IChargeOptionService chargeOptionsService;
         private readonly IBaseService<ChargeOptions> _baseService;
         private readonly IBaseRepository<ChargeOptions> _repository;
-       
         private readonly IErrorHandler _errorHandler;
         private static DbContextOptions<AwemediaContext> dbContextOptions { get; set; }
         private static readonly string connectionString = string.Empty;
@@ -35,14 +36,14 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
                 .UseSqlServer(connectionString)
                 .Options;
         }
-        public ChargeOptionsFunctionsTest()
+        public ChargeOptionsFunctionsTest(IApiAuthorization apiAuthorization)
         {
             var context = new AwemediaContext(dbContextOptions);
             _errorHandler = new ErrorHandler();
             _repository = new BaseRepository<ChargeOptions>(context, _errorHandler);
             _baseService = new BaseService<ChargeOptions>(_repository);
             chargeOptionsService = new ChargeOptionsService(_baseService);
-            chargeOptionFunctions = new ChargeOptionFunctions();
+            chargeOptionFunctions = new ChargeOptionFunctions(apiAuthorization);
         }
         [Fact]
         public void Get_WhenCalled_ReturnsAllItems()

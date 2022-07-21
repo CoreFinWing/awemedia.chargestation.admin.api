@@ -16,13 +16,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     public class ChargeStationService : IChargeStationService
     {
         private readonly IBaseService<ChargeStation> _baseService;
+        private readonly IBaseService<User> _userService;
 
-        public ChargeStationService(IBaseService<ChargeStation> baseService)
+        public ChargeStationService(IBaseService<ChargeStation> baseService, IBaseService<User> userService)
         {
             _baseService = baseService;
+            _userService = userService;
         }
 
-        public IEnumerable<object> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, bool isActive = true)
+        public IEnumerable<object> Get(BaseSearchFilter chargeStationSearchFilter, out int totalRecords, string email,  bool isActive = true)
         {
             string[] navigationalProps = { "Branch", "Branch.Merchant" };
             IEnumerable<ChargeStationModel> _chargeStations = null;
@@ -38,6 +40,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 _chargeStations = _baseService.GetAll(navigationalProps).Select(t => MappingProfile.MapChargeStationResponseObject(t)).ToList();
             }
+
+            //filtering based on user
+            var user = _userService.Where(x => x.Email == email, new string[] { "Role", "MappedMerchant","MappedMerchant.Merchant" }).FirstOrDefault();
+            if (user?.Role?.Name == "user")
+            {
+                _chargeStations = _chargeStations.Where(x => user.MappedMerchant.Any(m => m.Merchant.BusinessName == x.MerchantName)).AsQueryable();
+            }
+
             totalRecords = _chargeStations.Count();
             if (isActive)
             {

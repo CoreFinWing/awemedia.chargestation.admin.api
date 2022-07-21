@@ -14,17 +14,25 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
+using OidcApiAuthorization.Abstractions;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
     [DependencyInjectionConfig(typeof(DIConfig))]
     public class PromotionFunctions
     {
+        private readonly IApiAuthorization _apiAuthorization;
+        public PromotionFunctions(IApiAuthorization apiAuthorization)
+        {
+            _apiAuthorization = apiAuthorization;
+        }
+
+
         [FunctionName("Promotions")]
         public HttpResponseMessage Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "promotion")] HttpRequestMessage httpRequestMessage, [Inject]IErrorHandler _errorHandler, [Inject]IPromotionService promotionService)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -32,7 +40,9 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _promotionSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = promotionService.Get(_promotionSearchFilter, out int totalRecords), total = totalRecords });
+
+            var email = _apiAuthorization.AuthorizeAsync(httpRequestMessage.Headers).Result.ClaimsPrincipal?.Claims?.FirstOrDefault(s => s.Type.Equals("emails", StringComparison.OrdinalIgnoreCase)).Value;
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = promotionService.Get(_promotionSearchFilter, out int totalRecords,email), total = totalRecords });
         }
 
         [FunctionName("AddPromotion")]
@@ -40,7 +50,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
          [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "promotion")] HttpRequestMessage httpRequestMessage, [Inject]IPromotionService _promotionService, [Inject]IErrorHandler _errorHandler)
         {
             var promotionBody = httpRequestMessage.GetBodyAsync<Promotion>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (!promotionBody.IsValid)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", promotionBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
@@ -56,7 +66,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
            [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "promotion/{id}")] HttpRequestMessage httpRequestMessage, [Inject]IPromotionService _promotionService, [Inject]IErrorHandler _errorHandler, int id)
         {
             var promotionBody = httpRequestMessage.GetBodyAsync<Promotion>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -71,7 +81,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage GetById(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "promotion/{Id}")] HttpRequestMessage httpRequestMessage, [Inject]IPromotionService _promotionService, [Inject]IErrorHandler _errorHandler, int Id)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -87,7 +97,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var promotionSetToActiveInActive = JsonConvert.DeserializeAnonymousType(jsonContent, definition);
             Status status = new Status();
             
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (promotionSetToActiveInActive.Length > 0)
             {

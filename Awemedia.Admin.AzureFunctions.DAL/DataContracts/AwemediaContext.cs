@@ -30,6 +30,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public virtual DbSet<Country> Country { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<Role> Role { get; set; }
+        public virtual DbSet<UserMerchantMapping> UserMerchantMapping { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -446,10 +447,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                               .IsRequired()
                               .IsUnicode(false);
 
-                entity.Property(e => e.MappedMerchant)
-                 .HasMaxLength(500)
-                 .IsUnicode(false);
-
                 entity.Property(e => e.RoleId)
                   .IsRequired()
                   .IsUnicode(false);
@@ -476,6 +473,8 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                    .WithMany(p => p.User)
                    .HasForeignKey(d => d.CountryId)
                    .HasConstraintName("FK_User_Country");
+
+
             });
 
             modelBuilder.Entity<Role>(entity =>
@@ -495,6 +494,29 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                     .IsRequired()
                     .HasDefaultValue(true)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<UserMerchantMapping>(entity =>
+            {
+
+                entity.Property(e => e.UserId)
+                    .IsRequired();
+
+                entity.Property(e => e.MerchantId)
+                    .IsRequired();
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.MappedMerchant)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserMerchantMapping_User");
+
+                entity.HasOne(d => d.Merchant)
+                    .WithMany(p => p.MappedMerchant)
+                    .HasForeignKey(d => d.MerchantId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserMerchantMapping_Merchant");
+
             });
         }
     }

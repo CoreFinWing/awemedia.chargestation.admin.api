@@ -7,6 +7,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
     {
         public User()
         {
+            MappedMerchant= new HashSet<UserMerchantMapping>();
         }
         public int Id { get; set; }
         public string Email { get; set; }
@@ -19,7 +20,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public int PostalCode { get; set; }
         public int RoleId { get; set; }
         public Role Role { get; set; }
-        public string MappedMerchant { get; set; }
+        public ICollection<UserMerchantMapping> MappedMerchant { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public Country Country { get; set; }

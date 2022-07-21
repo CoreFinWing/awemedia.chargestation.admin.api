@@ -19,7 +19,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
         public string RoleName { get; set; }
         public RoleModel Role { get; set; }
         public int RoleId { get; set; }
-        public string MappedMerchant { get; set; }
+        public List<MappedMerchant> MappedMerchant { get; set; }
         public bool IsActive { get; set; }
         public Country Country { get; set; }
     }

@@ -21,17 +21,24 @@ using Awemedia.Chargestation.AzureFunctions.Extensions;
 using Awemedia.Admin.AzureFunctions.Resolver;
 using System.Collections.Generic;
 using System.Collections;
+using OidcApiAuthorization.Abstractions;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
     [DependencyInjectionConfig(typeof(DIConfig))]
     public class MerchantFunctions
     {
+        private readonly IApiAuthorization _apiAuthorization;
+        public MerchantFunctions(IApiAuthorization apiAuthorization)
+        {
+            _apiAuthorization = apiAuthorization;
+        }
+
         [FunctionName("merchants")]
         public HttpResponseMessage Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "merchants")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -39,14 +46,15 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _merchantSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _merchantService.Get(_merchantSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_merchantSearchFilter.IsActive) == true ? "false" : _merchantSearchFilter.IsActive)), total = totalRecords });
+            var email = _apiAuthorization.AuthorizeAsync(httpRequestMessage.Headers).Result.ClaimsPrincipal?.Claims?.FirstOrDefault(s => s.Type.Equals("emails", StringComparison.OrdinalIgnoreCase)).Value;
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _merchantService.Get(_merchantSearchFilter, out int totalRecords, email, Convert.ToBoolean(String.IsNullOrEmpty(_merchantSearchFilter.IsActive) == true ? "false" : _merchantSearchFilter.IsActive)), total = totalRecords });
         }
 
         [FunctionName("merchantnames")]
         public HttpResponseMessage GetAllNames(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "merchantnames")] HttpRequestMessage httpRequestMessage, [Inject] IMerchantService _merchantService, [Inject] IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -58,7 +66,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage GetById(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "merchants/{Id}")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler, int Id)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -69,7 +77,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "Post", Route = "merchants")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler)
         {
             var merchantBody = httpRequestMessage.GetBodyAsync<Merchant>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -85,7 +93,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var jsonContent = httpRequestMessage.Content.ReadAsStringAsync().Result;
             var definition = new[] { new { Id = "", IsActive = "" } };
             var merchantsSetToActiveInActive = JsonConvert.DeserializeAnonymousType(jsonContent, definition);
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (merchantsSetToActiveInActive.Count() > 0)
             {
@@ -100,7 +108,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
            [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "merchants/{id}")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler, int id)
         {
             var merchantBody = httpRequestMessage.GetBodyAsync<Merchant>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -114,7 +122,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage Search(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auto-complete-search-merchant")] HttpRequestMessage httpRequestMessage, [Inject]IMerchantService _merchantService, [Inject]IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }

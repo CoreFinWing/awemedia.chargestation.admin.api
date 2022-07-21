@@ -13,13 +13,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     public class PromotionService : IPromotionService
     {
         private readonly IBaseService<DAL.DataContracts.Promotion> _baseService;
+        private readonly IBaseService<DAL.DataContracts.User> _userService;
         private readonly string[] navigationalProps = { "Branch" };
-        public PromotionService(IBaseService<DAL.DataContracts.Promotion> baseService)
+        public PromotionService(IBaseService<DAL.DataContracts.Promotion> baseService, IBaseService<DAL.DataContracts.User> userService)
         {
             _baseService = baseService;
+            _userService = userService;
         }
 
-        public IEnumerable<object> Get(BaseSearchFilter promotionSearchFilter, out int totalRecords)
+        public IEnumerable<object> Get(BaseSearchFilter promotionSearchFilter, out int totalRecords,string email)
         {
             totalRecords = 0;
             IEnumerable<Promotion> _promotion = new List<Promotion>();
@@ -29,6 +31,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 pagingParams.GroupingColumns = new List<string>() { "BranchId" };
                 Expression<Func<DAL.DataContracts.Promotion, int>> orderByDesc = x => x.Id;
                 _promotion = _baseService.GroupingData(pagingParams.GroupingColumns, navigationalProps).Select(t => MappingProfile.MapPromotionModelObject(t)).ToList();
+
+                //filtering based on user
+                var user = _userService.Where(x => x.Email == email, new string[] { "Role", "MappedMerchant", "MappedMerchant.Merchant", "MappedMerchant.Merchant.Branch" }).FirstOrDefault();
+                if (user?.Role?.Name == "user")
+                {
+                    _promotion = _promotion.Where(x => user.MappedMerchant.Any(m => m.Merchant.Branch.FirstOrDefault().Id == x.BranchId)).AsQueryable();
+                }
+
                 totalRecords = _promotion.Count();
 
                 if (!string.IsNullOrEmpty(promotionSearchFilter.Search) && !string.IsNullOrEmpty(promotionSearchFilter.Type))

@@ -7,7 +7,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
 {
     public interface IPromotionService
     {
-        IEnumerable<object> Get(BaseSearchFilter promotionSearchFilter, out int totalRecords);
+        IEnumerable<object> Get(BaseSearchFilter promotionSearchFilter, out int totalRecords, string email);
         bool Add(Promotion promotion, out bool isDuplicateRecord, int id = 0);
         void UpdatePromotion(Promotion promotionModel, int id);
         Promotion GetById(int id);

@@ -86,6 +86,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 var user = _baseService.AddOrUpdate(MappingProfile.MapUserObject(userModel, new DAL.DataContracts.User(),adb2cUser.Item2), 0);
                 userModel.Id = user.Id;
 
+
+
                 EmailModel emailModel = new EmailModel
                 {
                     Content = string.Format("Hi {0}, <br/><br/> You account has been created successfully on awemedia. <br/> <br/><br/> Please use the password <b>{1}</b> and your email to login", user.Name, adb2cUser.Item1),
@@ -129,7 +131,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             }
         }
        
-        private bool IsUserDuplicate(UserModel userModel)
+        public bool IsUserDuplicate(UserModel userModel)
         {
             bool isDuplicateUserFound = false;
             if (userModel != null)

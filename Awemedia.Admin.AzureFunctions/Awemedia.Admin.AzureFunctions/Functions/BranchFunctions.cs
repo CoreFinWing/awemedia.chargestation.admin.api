@@ -20,17 +20,23 @@ using Awemedia.Admin.AzureFunctions.Extensions;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Chargestation.AzureFunctions.Extensions;
 using System.Collections.Generic;
+using OidcApiAuthorization.Abstractions;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
     [DependencyInjectionConfig(typeof(DIConfig))]
     public class BranchFunctions
     {
+        private readonly IApiAuthorization _apiAuthorization;
+        public BranchFunctions(IApiAuthorization apiAuthorization)
+        {
+            _apiAuthorization = apiAuthorization;
+        }
         [FunctionName("Branches")]
         public HttpResponseMessage Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches")] HttpRequestMessage httpRequestMessage, [Inject]IBranchService _branchService, [Inject]IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -38,14 +44,16 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _branchSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _branchService.Get(_branchSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_branchSearchFilter.IsActive) == true ? "false" : _branchSearchFilter.IsActive)), total = totalRecords });
+
+            var email = _apiAuthorization.AuthorizeAsync(httpRequestMessage.Headers).Result.ClaimsPrincipal?.Claims?.FirstOrDefault(s => s.Type.Equals("emails", StringComparison.OrdinalIgnoreCase)).Value;
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _branchService.Get(_branchSearchFilter, out int totalRecords,email, Convert.ToBoolean(String.IsNullOrEmpty(_branchSearchFilter.IsActive) == true ? "false" : _branchSearchFilter.IsActive)), total = totalRecords });
         }
 
         [FunctionName("countryforBranch")]
         public HttpResponseMessage GetCountries(
          [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "countryforBranch")] HttpRequestMessage httpRequestMessage, [Inject]ICountryService _countryService, [Inject]IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             BaseSearchFilter _chargeOptionSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
@@ -61,7 +69,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage GetById(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "branches/{Id}")] HttpRequestMessage httpRequestMessage, [Inject]IBranchService _branchService, [Inject]IErrorHandler _errorHandler, int Id)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -72,7 +80,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "Post", Route = "branches")] HttpRequestMessage httpRequestMessage, [Inject]IBranchService _branchService, [Inject]IErrorHandler _errorHandler)
         {
             var branchBody = httpRequestMessage.GetBodyAsync<Branch>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -89,7 +97,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var jsonContent = httpRequestMessage.Content.ReadAsStringAsync().Result;
             var definition = new[] { new { Id = "", IsActive = "" } };
             var branchesSetToActiveInActive = JsonConvert.DeserializeAnonymousType(jsonContent, definition);
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (branchesSetToActiveInActive.Length > 0)
             {
@@ -103,7 +111,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
            [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "branches/{id}")] HttpRequestMessage httpRequestMessage, [Inject]IBranchService _branchService, [Inject]IErrorHandler _errorHandler, int id)
         {
             var branchBody = httpRequestMessage.GetBodyAsync<Branch>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -118,7 +126,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage Search(
           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auto-complete-search-branch")] HttpRequestMessage httpRequestMessage, [Inject]IBranchService _branchService, [Inject]IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }

@@ -22,17 +22,24 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.WebUtilities;
 using Awemedia.Admin.AzureFunctions.Extensions;
+using OidcApiAuthorization.Abstractions;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
     [DependencyInjectionConfig(typeof(DIConfig))]
     public class ChargeOptionFunctions
     {
+        private readonly IApiAuthorization _apiAuthorization;
+        public ChargeOptionFunctions(IApiAuthorization apiAuthorization)
+        {
+            _apiAuthorization = apiAuthorization;
+        }
+
         [FunctionName("charge-options")]
         public HttpResponseMessage Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-options")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionService _chargeOptionService, [Inject]IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             BaseSearchFilter _chargeOptionSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
@@ -47,7 +54,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage GetCountries(
            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "country")] HttpRequestMessage httpRequestMessage, [Inject]ICountryService _countryService, [Inject]IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             BaseSearchFilter _chargeOptionSearchFilter = null;
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
@@ -63,7 +70,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "charge-options")] HttpRequestMessage httpRequestMessage, [Inject]IChargeOptionService _chargeOptionService, [Inject]IErrorHandler _errorHandler)
         {
             var chargeOptionsBody = httpRequestMessage.GetBodyAsync<ChargeOption>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (!chargeOptionsBody.IsValid)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", chargeOptionsBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
@@ -80,7 +87,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var jsonContent = httpRequestMessage.Content.ReadAsStringAsync().Result;
             var definition = new[] { new { Id = "", IsActive = "" } };
             var optionsSetToActiveInActive = JsonConvert.DeserializeAnonymousType(jsonContent, definition);
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (optionsSetToActiveInActive.Length > 0)
             {

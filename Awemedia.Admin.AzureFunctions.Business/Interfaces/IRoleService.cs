@@ -7,7 +7,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Interfaces
 {
     public interface IRoleService
     {
-        IEnumerable<object> GetAll(bool isActive = true);
+        IEnumerable<object> GetAll(bool isOwner=false, bool isActive = true);
 
         RoleModel GetById(int id);
     }

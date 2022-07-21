@@ -21,17 +21,24 @@ using Awemedia.Chargestation.AzureFunctions.Extensions;
 using Awemedia.Admin.AzureFunctions.Resolver;
 using System.Collections.Generic;
 using System.Collections;
+using OidcApiAuthorization.Abstractions;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
     [DependencyInjectionConfig(typeof(DIConfig))]
     public class UserFunctions
     {
+        private readonly IApiAuthorization _apiAuthorization;
+        public UserFunctions(IApiAuthorization apiAuthorization)
+        {
+            _apiAuthorization = apiAuthorization;
+        }
+
         [FunctionName("users")]
         public HttpResponseMessage Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users")] HttpRequestMessage httpRequestMessage, [Inject] IUserService _userService, [Inject] IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -45,7 +52,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage GetById(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "users/{Id}")] HttpRequestMessage httpRequestMessage, [Inject] IUserService _userService, [Inject] IErrorHandler _errorHandler, int Id)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -56,14 +63,17 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "Post", Route = "users")] HttpRequestMessage httpRequestMessage, [Inject] IUserService _userService, [Inject] IErrorHandler _errorHandler)
         {
             var userBody = httpRequestMessage.GetBodyAsync<UserModel>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
             if (!userBody.IsValid)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", userBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
             UserModel user = userBody.Value;
-            user.MappedMerchant = "";
+
+            if (_userService.IsUserDuplicate(user))
+                return httpRequestMessage.CreateErrorResponse(HttpStatusCode.Conflict, "Error - Duplicate User");
+
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _userService.AddUser(user));
         }
 
@@ -72,7 +82,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
            [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "users/{id}")] HttpRequestMessage httpRequestMessage, [Inject] IUserService _userService, [Inject] IErrorHandler _errorHandler, int id)
         {
             var userBody = httpRequestMessage.GetBodyAsync<UserModel>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -82,22 +92,32 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             _userService.UpdateUser(user, id);
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
         }
-        
+
         [FunctionName("roles")]
         public HttpResponseMessage GetRoles(
           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roles")] HttpRequestMessage httpRequestMessage, [Inject] IRoleService _roleService, [Inject] IErrorHandler _errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
+
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
-            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _roleService.GetAll(true) });
+            var result = _apiAuthorization.AuthorizeAsync(httpRequestMessage.Headers).Result;
+            if (result.Success)
+            {
+                var hasOwnerRole = result.ClaimsPrincipal?.Claims?.Any(s => s.Type.Equals("extension_UserRoles", StringComparison.OrdinalIgnoreCase) && s.Value.Equals("owner", StringComparison.OrdinalIgnoreCase)) ?? false;
+                if (hasOwnerRole)
+                {
+                    return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _roleService.GetAll(true,true) });
+                }
+            }
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _roleService.GetAll(false, true) });
         }
         [FunctionName("role")]
         public HttpResponseMessage GetRoleById(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "roles/{Id}")] HttpRequestMessage httpRequestMessage, [Inject] IRoleService _roleService, [Inject] IErrorHandler _errorHandler, int Id)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }

@@ -17,15 +17,17 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     public class ChargeSessionService : IChargeSessionService
     {
         private readonly IBaseService<DAL.DataContracts.UserSession> _baseService;
+        private readonly IBaseService<DAL.DataContracts.User> _userService;
         private readonly IChargeOptionService _chargeOptionService;
         readonly string[] navigationalProperties = new string[] { "SessionStatusNavigation", "SessionTypeNavigation", };
         readonly string[] includedProperties = new string[] { "ChargeStation", "ChargeStation.Branch.Merchant" };
-        public ChargeSessionService(IBaseService<DAL.DataContracts.UserSession> baseService, IChargeOptionService chargeOptionService)
+        public ChargeSessionService(IBaseService<DAL.DataContracts.UserSession> baseService, IBaseService<DAL.DataContracts.User> userService, IChargeOptionService chargeOptionService)
         {
             _baseService = baseService;
             _chargeOptionService = chargeOptionService;
+            _userService = userService;
         }
-        public IEnumerable<object> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords)
+        public IEnumerable<object> Get(BaseSearchFilter userSessionSearchFilter, out int totalRecords,string email)
         {
             string[] navigationalProps = { "SessionStatusNavigation", "SessionTypeNavigation", "ChargeStation", "ChargeStation.Branch.Merchant" };
             IEnumerable<UserSession> _userSessions = new List<UserSession>();
@@ -37,6 +39,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("charge_session_initial_date_range")))
             {
                 _userSessions = _baseService.Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate, navigationalProps).Select(t => MappingProfile.MapUserSessionModelObject(t)).ToList();
+
                 totalRecords = _userSessions.Count();
                 if (userSessionSearchFilter != null)
                 {

@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Awemedia.Admin.AzureFunctio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Awemedia.Admin.AzureFunctions.Tests", "..\Awemedia.Admin.AzureFunctions.Tests\Awemedia.Admin.AzureFunctions.Tests.csproj", "{B11F6EF6-4FD9-4E07-B709-C4A21039997D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Awemedia.ADB2C", "..\Awemedia.ADB2C\Awemedia.ADB2C.csproj", "{1563A0FE-9A4F-4CD4-BD8B-80DABABC66CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Awemedia.ADB2C", "..\Awemedia.ADB2C\Awemedia.ADB2C.csproj", "{1563A0FE-9A4F-4CD4-BD8B-80DABABC66CC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OidcApiAuthorization", "..\OidcApiAuthorization\OidcApiAuthorization.csproj", "{8A72E55B-3BC4-4704-9EBD-1C5A3E9586DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{1563A0FE-9A4F-4CD4-BD8B-80DABABC66CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1563A0FE-9A4F-4CD4-BD8B-80DABABC66CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1563A0FE-9A4F-4CD4-BD8B-80DABABC66CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A72E55B-3BC4-4704-9EBD-1C5A3E9586DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A72E55B-3BC4-4704-9EBD-1C5A3E9586DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A72E55B-3BC4-4704-9EBD-1C5A3E9586DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A72E55B-3BC4-4704-9EBD-1C5A3E9586DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

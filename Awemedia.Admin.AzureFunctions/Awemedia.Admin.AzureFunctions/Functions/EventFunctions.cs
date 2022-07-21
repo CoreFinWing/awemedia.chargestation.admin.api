@@ -19,17 +19,24 @@ using System.Linq;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Extensions;
 using Awemedia.Chargestation.AzureFunctions.Extensions;
+using OidcApiAuthorization.Abstractions;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
     [DependencyInjectionConfig(typeof(DIConfig))]
     public class EventFunctions
     {
+        private readonly IApiAuthorization _apiAuthorization;
+        public EventFunctions(IApiAuthorization apiAuthorization)
+        {
+            _apiAuthorization = apiAuthorization;
+        }
+
         [FunctionName("Events")]
         public HttpResponseMessage Get(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "events")] HttpRequestMessage httpRequestMessage, [Inject]IErrorHandler _errorHandler, [Inject]IEventService eventService)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -43,7 +50,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage GetById(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "events/{id}")] HttpRequestMessage httpRequestMessage, [Inject]IErrorHandler _errorHandler, [Inject]IEventService eventService, int id)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (id > 0)
                 return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, eventService.GetById(id));

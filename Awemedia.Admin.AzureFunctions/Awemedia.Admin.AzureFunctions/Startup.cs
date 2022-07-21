@@ -13,7 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog;
-
+using OidcApiAuthorization;
 
 [assembly: WebJobsStartup(typeof(Startup))]
 namespace Awemedia.Chargestation.Api
@@ -41,6 +41,7 @@ namespace Awemedia.Chargestation.Api
         }
         private void ConfigureServices(IServiceCollection services)
         {
+            services.AddOidcApiAuthorization();
             services.AddDbContext<AwemediaContext>(options =>
                 {
                     options.UseSqlServer(Environment.GetEnvironmentVariable("db_connection_string"));

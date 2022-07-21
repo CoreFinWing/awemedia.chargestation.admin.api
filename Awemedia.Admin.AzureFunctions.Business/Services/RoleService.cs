@@ -17,9 +17,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             _baseService = baseService;
         }
 
-        public IEnumerable<object> GetAll(bool isActive = true)
+        public IEnumerable<object> GetAll(bool isOwner = false, bool isActive = true)
         {
-            return _baseService.GetAll().Where(t => t.IsActive == isActive).Select(t => MappingProfile.MapRoleModelObject(t)).ToList();
+            if (!isOwner)
+                return _baseService.GetAll().Where(t => t.IsActive == isActive && t.Name!="owner").Select(t => MappingProfile.MapRoleModelObject(t)).ToList();
+            else
+                return _baseService.GetAll().Where(t => t.IsActive == isActive).Select(t => MappingProfile.MapRoleModelObject(t)).ToList();
         }
 
         public RoleModel GetById(int id)

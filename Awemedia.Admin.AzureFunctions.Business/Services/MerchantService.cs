@@ -14,13 +14,15 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     public class MerchantService : IMerchantService
     {
         private readonly IBaseService<Merchant> _baseService;
+        private readonly IBaseService<DAL.DataContracts.User> _userService;
         readonly string[] navigationalProperties = new string[] { "IndustryType" };
         readonly string[] includedProperties = new string[] { "Branch" };
-        public MerchantService(IBaseService<Merchant> baseService)
+        public MerchantService(IBaseService<Merchant> baseService, IBaseService<DAL.DataContracts.User> userService)
         {
             _baseService = baseService;
+            _userService = userService;
         }
-        public IEnumerable<object> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, bool isActive = true)
+        public IEnumerable<object> Get(BaseSearchFilter merchantSearchFilter, out int totalRecords, string email, bool isActive = true)
         {
             IEnumerable<MerchantModel> _merchants = null;
             totalRecords = 0;
@@ -36,6 +38,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 _merchants = _baseService.GetAll(navigationalProps).Select(t => MappingProfile.MapMerchantModelObject(t)).ToList();
             }
+
+            //filtering based on user
+            var user = _userService.Where(x => x.Email == email, new string[] { "Role", "MappedMerchant" }).FirstOrDefault();
+            if (user?.Role?.Name == "user")
+            {
+                _merchants = _merchants.Where(x => user.MappedMerchant.Any(m => m.MerchantId == x.Id)).AsQueryable();
+            }
+
             totalRecords = _merchants.Count();
             if (isActive)
             {

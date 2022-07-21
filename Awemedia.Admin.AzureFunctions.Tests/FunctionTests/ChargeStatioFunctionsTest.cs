@@ -15,6 +15,7 @@ using System.Net.Http.Headers;
 using Awemedia.Admin.AzureFunctions.Business;
 using Awemedia.chargestation.API.tests.Common;
 using Awemedia.Admin.AzureFunctions.Functions;
+using OidcApiAuthorization.Abstractions;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 {
@@ -22,8 +23,11 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
     {
         private const string Name = "AwemediaConnection";
         private readonly IBaseService<ChargeStation> _chargeStationBaseService;
+        
         private readonly IBaseRepository<ChargeStation> _repository;
         private readonly IBaseRepository<ChargeStation> _chargeStationRepository;
+        private readonly IBaseRepository<User> _userRepository;
+        private readonly IBaseService<User> _userBaseService;
         private readonly IChargeStationService _chargeStationService;
         private readonly IErrorHandler _errorHandler;
         private static DbContextOptions<AwemediaContext> dbContextOptions { get; set; }
@@ -39,16 +43,19 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
                 .Options;
         }
 
-        public ChargeStationFunctionsTest()
+        public ChargeStationFunctionsTest(IApiAuthorization apiAuthorization)
         {
             var context = new AwemediaContext(dbContextOptions);
 
             _errorHandler = new ErrorHandler();
             _repository = new BaseRepository<ChargeStation>(context, _errorHandler);
             _chargeStationRepository = new BaseRepository<ChargeStation>(context, _errorHandler);
+            
             _chargeStationBaseService = new BaseService<ChargeStation>(_chargeStationRepository);
-            _chargeStationService = new ChargeStationService(_chargeStationBaseService);
-            chargeStationFuntions = new ChargeStationFuntions();
+            _userRepository = new BaseRepository<User>(context, _errorHandler);
+            _userBaseService = new BaseService<User>(_userRepository);
+            _chargeStationService = new ChargeStationService(_chargeStationBaseService, _userBaseService);
+            chargeStationFuntions = new ChargeStationFuntions(apiAuthorization);
         }
 
         [Fact]

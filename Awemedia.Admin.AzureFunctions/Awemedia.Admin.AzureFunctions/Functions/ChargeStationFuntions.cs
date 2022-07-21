@@ -17,17 +17,24 @@ using Awemedia.Admin.AzureFunctions.Business.Helpers;
 using System;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using OidcApiAuthorization.Abstractions;
 
 namespace Awemedia.Admin.AzureFunctions.Functions
 {
     [DependencyInjectionConfig(typeof(DIConfig))]
     public class ChargeStationFuntions
     {
+        private readonly IApiAuthorization _apiAuthorization;
+        public ChargeStationFuntions(IApiAuthorization apiAuthorization)
+        {
+            _apiAuthorization = apiAuthorization;
+        }
+
         [FunctionName("charge-stations")]
         public HttpResponseMessage GetFiltered(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-stations")] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationService, [Inject]IErrorHandler errorHandler)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -35,14 +42,16 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var queryDictionary = QueryHelpers.ParseQuery(httpRequestMessage.RequestUri.Query);
             if (queryDictionary.Count() > 0)
                 _chargeStationSearchFilter = queryDictionary.ToObject<BaseSearchFilter>();
-            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _chargeStationService.Get(_chargeStationSearchFilter, out int totalRecords, Convert.ToBoolean(String.IsNullOrEmpty(_chargeStationSearchFilter.IsActive) == true ? "false" : _chargeStationSearchFilter.IsActive)), total = totalRecords });
+
+            var email = _apiAuthorization.AuthorizeAsync(httpRequestMessage.Headers).Result.ClaimsPrincipal?.Claims?.FirstOrDefault(s => s.Type.Equals("emails", StringComparison.OrdinalIgnoreCase)).Value;
+            return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, new { data = _chargeStationService.Get(_chargeStationSearchFilter, out int totalRecords, email, Convert.ToBoolean(String.IsNullOrEmpty(_chargeStationSearchFilter.IsActive) == true ? "false" : _chargeStationSearchFilter.IsActive)), total = totalRecords });
         }
         [FunctionName("AddChargeStation")]
         public HttpResponseMessage Post(
            [HttpTrigger(AuthorizationLevel.Anonymous, "Post", Route = "charge-stations")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler)
         {
             var chargeStationBody = httpRequestMessage.GetBodyAsync<ChargeStation>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (!chargeStationBody.IsValid)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", chargeStationBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
@@ -58,7 +67,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
            [HttpTrigger(AuthorizationLevel.Anonymous, "Put", Route = "charge-stations/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, string chargeStationId, [Inject]IBranchService _branchService)
         {
             var branchId = JObject.Parse(httpRequestMessage.Content.ReadAsStringAsync().Result);
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             ChargeStation chargeStation = new ChargeStation();
             if (string.IsNullOrEmpty(branchId["BranchId"].ToString()))
@@ -84,7 +93,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "charge-stations/{id}/start-charge")] HttpRequestMessage httpRequestMessage, [Inject]INotificationService _notificationService, [Inject] IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, string id)
         {
             var notificationPayloadBody = httpRequestMessage.GetBodyAsync<NotificationPayload>();
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (!notificationPayloadBody.IsValid)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", notificationPayloadBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
@@ -110,7 +119,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage GetById(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "charge-stations/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject] IChargeStationService _chargeStationService, [Inject]IErrorHandler errorHandler, string chargeStationId)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
             {
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
@@ -127,7 +136,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
             var jsonContent = httpRequestMessage.Content.ReadAsStringAsync().Result;
             var definition = new[] { new { Id = "", IsActive = "" } };
             var chargeStationsToSetActiveInActive = JsonConvert.DeserializeAnonymousType(jsonContent, definition);
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             if (chargeStationsToSetActiveInActive.Count() > 0)
             {
@@ -142,7 +151,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
         public HttpResponseMessage DetachFromBranch(
            [HttpTrigger(AuthorizationLevel.Anonymous, "Patch", Route = "charge-stations/{chargeStationId}")] HttpRequestMessage httpRequestMessage, [Inject]IChargeStationService _chargeStationService, [Inject]IErrorHandler _errorHandler, string chargeStationId, [Inject]IBranchService _branchService)
         {
-            if (!httpRequestMessage.IsAuthorized())
+            if (!httpRequestMessage.IsAuthorized(_apiAuthorization))
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             ChargeStation chargeStation = new ChargeStation { BranchId = null };
             var _chargeStation = _chargeStationService.GetById(Guid.Parse(chargeStationId));

@@ -13,12 +13,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
     public class BranchService : IBranchService
     {
         private readonly IBaseService<DAL.DataContracts.Branch> _baseService;
+        private readonly IBaseService<DAL.DataContracts.User> _userService;
         private readonly IMerchantService _merchantService;
         readonly string[] includedProperties = new string[] { "ChargeStation" };
-        public BranchService(IBaseService<DAL.DataContracts.Branch> baseService, IMerchantService merchantService)
+        public BranchService(IBaseService<DAL.DataContracts.Branch> baseService, IMerchantService merchantService, IBaseService<DAL.DataContracts.User> userService)
         {
             _baseService = baseService;
             _merchantService = merchantService;
+            _userService = userService;
         }
         public void AddBranch(Branch branch, int merchantId)
         {
@@ -31,10 +33,12 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 _merchantService.UpdateLocationCount(activeLocationCount, merchantId);
             }
         }
-        public IEnumerable<object> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, bool isActive = true)
+        public IEnumerable<object> Get(BaseSearchFilter branchSearchFilter, out int totalRecords, string email, bool isActive = true)
         {
             string[] navigationalProps = { "Merchant"};
             IEnumerable<Branch> _branches = null;
+
+            
             totalRecords = 0;
             if (!string.IsNullOrEmpty(branchSearchFilter.FromDate) && !string.IsNullOrEmpty(branchSearchFilter.ToDate))
             {
@@ -47,6 +51,14 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 _branches = _baseService.GetAll(navigationalProps).Select(t => MappingProfile.MapBranchModelObject(t)).ToList();
             }
+
+            //filtering based on user
+            var user = _userService.Where(x => x.Email == email,new string [] {"Role" ,"MappedMerchant"}).FirstOrDefault();
+            if (user?.Role?.Name == "user")
+            {
+                _branches = _branches.Where(x => user.MappedMerchant.Any(m=>m.MerchantId==x.MerchantId)).AsQueryable();
+            }
+
             totalRecords = _branches.Count();
             if (isActive)
             {

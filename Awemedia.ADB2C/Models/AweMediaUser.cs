@@ -16,7 +16,7 @@ namespace Awemedia.ADB2C.Models
         public string CountryName { get; set; }
         public int PostalCode { get; set; }
         public string Role { get; set; }
-        public string MappedMerchant { get; set; }
+        public int MappedMerchant { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }

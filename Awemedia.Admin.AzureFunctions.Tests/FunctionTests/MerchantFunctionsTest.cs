@@ -8,6 +8,7 @@ using Awemedia.chargestation.API.tests.Common;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using OidcApiAuthorization.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -26,6 +27,8 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         private readonly IMerchantService _merchantService;
         private readonly IBranchService _branchService;
         private readonly IErrorHandler _errorHandler;
+        private readonly IBaseRepository<User> _userRepository;
+        private readonly IBaseService<User> _userBaseService;
         private static DbContextOptions<AwemediaContext> dbContextOptions { get; set; }
         private static readonly string connectionString = string.Empty;
         private readonly MerchantFunctions merchantFunctions;
@@ -39,18 +42,20 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         .Options;
         }
 
-        public MerchantFunctionsTest()
+        public MerchantFunctionsTest(IApiAuthorization apiAuthorization)
         {
             var context = new AwemediaContext(dbContextOptions);
 
             _errorHandler = new ErrorHandler();
             _branchRepository = new BaseRepository<Branch>(context, _errorHandler);
             _branchBaseService = new BaseService<Branch>(_branchRepository);
-            _branchService = new BranchService(_branchBaseService,_merchantService);
+            _userRepository = new BaseRepository<User>(context, _errorHandler);
+            _userBaseService = new BaseService<User>(_userRepository);
+            _branchService = new BranchService(_branchBaseService,_merchantService,_userBaseService);
             _repository = new BaseRepository<Merchant>(context, _errorHandler);
             _merchantBaseService = new BaseService<Merchant>(_repository);
-            _merchantService = new MerchantService(_merchantBaseService);
-            merchantFunctions = new MerchantFunctions();
+            _merchantService = new MerchantService(_merchantBaseService, _userBaseService);
+            merchantFunctions = new MerchantFunctions(apiAuthorization);
         }
         [Fact]
         public void Post_WhenCalled_InsertNewMerchant()

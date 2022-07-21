@@ -8,6 +8,7 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
         public Merchant()
         {
             Branch = new HashSet<Branch>();
+            MappedMerchant = new HashSet<UserMerchantMapping>();
         }
 
         public int Id { get; set; }
@@ -30,5 +31,6 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
 
         public IndustryType IndustryType { get; set; }
         public ICollection<Branch> Branch { get; set; }
+        public ICollection<UserMerchantMapping> MappedMerchant { get; set; }
     }
 }

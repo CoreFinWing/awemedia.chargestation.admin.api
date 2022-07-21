@@ -128,7 +128,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 RoleId = user.RoleId,
                 State = user.State,
                 CreatedDate = user.CreatedDate.Value,
-                MappedMerchant = user.MappedMerchant,
+                //MappedMerchant = user.MappedMerchant,
                 ModifiedDate = user.ModifiedDate.Value
             };
         }
@@ -186,7 +186,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _user.Id = user.Id;
             _user.Email = user.Email;
             _user.Name = user.Name;
-            _user.MappedMerchant = user.MappedMerchant;
             _user.Mobile = user.Mobile;
             _user.PostalCode = user.PostalCode;
             _user.Role = MapRoleObject(user.Role);
@@ -197,6 +196,16 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _user.CreatedDate = user.Id == 0 ? DateTime.Now.ToUniversalTime() : user.CreatedDate.ToUniversalTime();
             _user.ModifiedDate = DateTime.Now.ToUniversalTime();
             _user.UserId = userId;
+            _user.MappedMerchant = new List<UserMerchantMapping>();
+            foreach (var merchantMapping in user.MappedMerchant)
+            {
+                _user.MappedMerchant.Add(new UserMerchantMapping() 
+                {
+                    UserId=_user.Id,
+                    MerchantId=merchantMapping.Id,
+                    CreatedDate=DateTime.Now
+                });
+            }
             return _user;
         }
         public static Role MapRoleObject(RoleModel role)
@@ -218,7 +227,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             _user.Id = user.Id;
             _user.Email = user.Email;
             _user.Name = user.Name;
-            _user.MappedMerchant = user.MappedMerchant;
+            //_user.MappedMerchant = user.MappedMerchant;
             _user.Mobile = user.Mobile;
             _user.PostalCode = user.PostalCode;
             _user.State = user.State;
