@@ -10,7 +10,6 @@ namespace Awemedia.Admin.AzureFunctions.Business.Models
     {
 
         public string Id { get; set; }
-        [Required]
         public string Geolocation { get; set; }
         [Required]
         public int? BranchId { get; set; }
