@@ -128,7 +128,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
                 RoleId = user.RoleId,
                 State = user.State,
                 CreatedDate = user.CreatedDate.Value,
-                //MappedMerchant = user.MappedMerchant,
+                MappedMerchant = user.MappedMerchant.Select(x => new MappedMerchant { Id = x.MerchantId, Name = x.Merchant?.BusinessName }).ToList(),
                 ModifiedDate = user.ModifiedDate.Value
             };
         }
@@ -208,6 +208,25 @@ namespace Awemedia.Admin.AzureFunctions.Business.Infrastructure
             }
             return _user;
         }
+
+        public static DAL.DataContracts.User MapUpdateUserObject(Models.UserModel user, DAL.DataContracts.User _user, string userId)
+        {
+            _user.Id = user.Id;
+            _user.Email = user.Email;
+            _user.Name = user.Name;
+            _user.Mobile = user.Mobile;
+            _user.PostalCode = user.PostalCode;
+            _user.Role = MapRoleObject(user.Role);
+            _user.RoleId = user.RoleId;
+            _user.State = user.State;
+            _user.City = user.City;
+            _user.CountryId = user.CountryId;
+            _user.CreatedDate = user.Id == 0 ? DateTime.Now.ToUniversalTime() : user.CreatedDate.ToUniversalTime();
+            _user.ModifiedDate = DateTime.Now.ToUniversalTime();
+            _user.UserId = userId;
+            return _user;
+        }
+
         public static Role MapRoleObject(RoleModel role)
         {
             if (role == null)

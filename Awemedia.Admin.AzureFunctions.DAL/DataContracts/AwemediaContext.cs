@@ -508,13 +508,13 @@ namespace Awemedia.Admin.AzureFunctions.DAL.DataContracts
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.MappedMerchant)
                     .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_UserMerchantMapping_User");
 
                 entity.HasOne(d => d.Merchant)
                     .WithMany(p => p.MappedMerchant)
                     .HasForeignKey(d => d.MerchantId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_UserMerchantMapping_Merchant");
 
             });

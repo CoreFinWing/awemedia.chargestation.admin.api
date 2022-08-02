@@ -10,34 +10,36 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text.Json;
 using User = Awemedia.Admin.AzureFunctions.DAL.DataContracts.User;
+using UserMerchantMapping = Awemedia.Admin.AzureFunctions.DAL.DataContracts.UserMerchantMapping;
 using CountryDB = Awemedia.Admin.AzureFunctions.DAL.DataContracts.Country;
 using UserModel = Awemedia.Admin.AzureFunctions.Business.Models.UserModel;
 using Role = Awemedia.Admin.AzureFunctions.DAL.DataContracts.Role;
-
 
 namespace Awemedia.Admin.AzureFunctions.Business.Services
 {
     public class UserService : IUserService
     {
         private readonly IBaseService<User> _baseService;
+        private readonly IBaseService<UserMerchantMapping> _mappingService;
         private readonly IBaseService<CountryDB> _countryService;
         private readonly IBaseService<Role> _roleService;
         private readonly IEmailService _emailService;
         private readonly IADB2CService _adb2cService;
         readonly string[] includedProperties = new string[] { "Country" };
-        public UserService(IBaseService<User> baseService, IBaseService<CountryDB> countryService, IEmailService emailService, IBaseService<Role> roleService, IADB2CService adb2cService)
+        public UserService(IBaseService<User> baseService, IBaseService<CountryDB> countryService, IEmailService emailService, IBaseService<Role> roleService, IBaseService<UserMerchantMapping> mappingService, IADB2CService adb2cService)
         {
             _baseService = baseService;
             _countryService = countryService;
             _emailService = emailService;
             _roleService = roleService;
             _adb2cService = adb2cService;
+            _mappingService = mappingService;
         }
         public IEnumerable<object> Get(BaseSearchFilter userSearchFilter, out int totalRecords, bool isActive = true)
         {
             IEnumerable<UserModel> _users = null;
             totalRecords = 0;
-            string[] navigationalProps = { "Country", "Role" };
+            string[] navigationalProps = { "Country", "Role", "MappedMerchant", "MappedMerchant.Merchant" };
             if (!string.IsNullOrEmpty(userSearchFilter.FromDate) && !string.IsNullOrEmpty(userSearchFilter.ToDate))
             {
                 DateTime fromDate = DateTime.Now.ToUniversalTime();
@@ -50,7 +52,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 _users = _baseService.GetAll(navigationalProps).Select(t => MappingProfile.MapUserModelObject(t)).ToList();
             }
             totalRecords = _users.Count();
-           
+
             if (userSearchFilter != null)
             {
                 if (!string.IsNullOrEmpty(userSearchFilter.Search) && !string.IsNullOrEmpty(userSearchFilter.Type))
@@ -83,7 +85,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 awUser.CountryName = _countryService.GetById(userModel.CountryId).CountryName;
                 awUser.Role = _roleService.GetById(userModel.RoleId).Name;
                 var adb2cUser = _adb2cService.CreateUserWithCustomAttribute(JsonSerializer.Serialize(awUser)).Result;
-                var user = _baseService.AddOrUpdate(MappingProfile.MapUserObject(userModel, new DAL.DataContracts.User(),adb2cUser.Item2), 0);
+                var user = _baseService.AddOrUpdate(MappingProfile.MapUserObject(userModel, new DAL.DataContracts.User(), adb2cUser.Item2), 0);
                 userModel.Id = user.Id;
 
 
@@ -103,7 +105,8 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
 
         public void UpdateUser(UserModel userModel, int id)
         {
-            var user = _baseService.GetById(id);
+            string[] navigationalProps = { "Country", "Role", "MappedMerchant" };
+            var user = _baseService.GetById(id,navigationalProps);
             string[] excludedProps = { "Id", "CreatedDate" };
             if (user != null)
             {
@@ -112,25 +115,45 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 MappingProfile.MapAweMediaUserObject(userModel, awUser);
                 awUser.CountryName = _countryService.GetById(userModel.CountryId).CountryName;
                 var userId = _baseService.GetById(userModel.Id).UserId;
-                _adb2cService.UpdateUser(JsonSerializer.Serialize(awUser),userId).Wait();
-                _baseService.AddOrUpdate(MappingProfile.MapUserObject(userModel, user,""), id, excludedProps);
+                _adb2cService.UpdateUser(JsonSerializer.Serialize(awUser), userId).Wait();
+                var ids = _mappingService.Where(x => x.UserId == userModel.Id).Select(u => u.Id).ToList();
+                foreach (var entry in ids)
+                {
+                    _mappingService.Remove(entry);
+                }
+                user = _baseService.GetById(id, navigationalProps);
+                _baseService.AddOrUpdate(MappingProfile.MapUpdateUserObject(userModel, user, ""), id, excludedProps);
+                List<UserMerchantMapping> newMapping = new List<UserMerchantMapping>();
+                foreach (var merchantMapping in userModel.MappedMerchant)
+                {
+                    newMapping.Add(new UserMerchantMapping()
+                    {
+                        UserId = user.Id,
+                        MerchantId = merchantMapping.Id,
+                        CreatedDate = DateTime.Now
+                    });
+                }
+                _mappingService.InsertBulk(newMapping);
             }
         }
-       
+
         public UserModel GetById(int id)
         {
-            IQueryable<User> users = _baseService.GetAll("Country", "Role").AsQueryable();
+            IQueryable<User> users = _baseService.GetAll("Country", "Role", "MappedMerchant", "MappedMerchant.Merchant").AsQueryable();
             var user = users.Where(u => u.Id == id).FirstOrDefault();
             if (user != null)
             {
-                return MappingProfile.MapUserModelObject(user);
+                UserModel model = MappingProfile.MapUserModelObject(user);
+                if (model.MappedMerchant != null && model.MappedMerchant.Count > 0)
+                    model.MappedMerchants = string.Join(",", model.MappedMerchant.Select(x => x.Name).ToList());
+                return model;
             }
             else
             {
                 return null;
             }
         }
-       
+
         public bool IsUserDuplicate(UserModel userModel)
         {
             bool isDuplicateUserFound = false;

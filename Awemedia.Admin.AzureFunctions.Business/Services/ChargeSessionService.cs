@@ -39,7 +39,13 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             if (days <= Convert.ToInt32(Environment.GetEnvironmentVariable("charge_session_initial_date_range")))
             {
                 _userSessions = _baseService.Where(a => a.CreatedDate >= fromDate && a.CreatedDate <= toDate, navigationalProps).Select(t => MappingProfile.MapUserSessionModelObject(t)).ToList();
-
+                //filtering based on user
+                var user = _userService.Where(x => x.Email == email, new string[] { "Role", "MappedMerchant", "MappedMerchant.Merchant" }).FirstOrDefault();
+                if (user?.Role?.Name == "user")
+                {
+                    _userSessions = _userSessions.Where(x => user.MappedMerchant.Any(m => m.MerchantId == x.ChargeStation.Branch.Merchant.Id)).AsQueryable();
+                }
+                
                 totalRecords = _userSessions.Count();
                 if (userSessionSearchFilter != null)
                 {
