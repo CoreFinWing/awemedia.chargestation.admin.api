@@ -145,7 +145,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
             {
                 UserModel model = MappingProfile.MapUserModelObject(user);
                 if (model.MappedMerchant != null && model.MappedMerchant.Count > 0)
-                    model.MappedMerchants = string.Join(",", model.MappedMerchant.Select(x => x.Name).ToList());
+                    model.AssignedMerchantsName = string.Join(",", model.MappedMerchant.Select(x => x.Name).ToList());
                 return model;
             }
             else

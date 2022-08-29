@@ -96,19 +96,27 @@ namespace Awemedia.Admin.AzureFunctions.Business.Repositories
         {
             if (entity == null) throw new ArgumentNullException(string.Format(_errorHandler.GetMessage(ErrorMessagesEnum.EntityNull), "", "Input data is null"));
 
-            _context.Entry(entity).State = EntityState.Modified;
-            if (excludedProps != null)
+            try
             {
-                if (excludedProps.Any())
+                _context.Entry(entity).State = EntityState.Modified;
+                if (excludedProps != null)
                 {
-                    foreach (var name in excludedProps)
+                    if (excludedProps.Any())
                     {
-                        _context.Entry(entity).Property(name).IsModified = false;
+                        foreach (var name in excludedProps)
+                        {
+                            _context.Entry(entity).Property(name).IsModified = false;
+                        }
                     }
                 }
-            }
 
-            _context.SaveChanges();
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                if (!ex.Message.Contains("Database operation expected to affect 1 row(s) but actually affected 0 row(s)"))
+                    throw;
+            }
         }
         public void Delete(T entity)
         {
