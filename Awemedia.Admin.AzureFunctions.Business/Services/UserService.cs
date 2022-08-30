@@ -114,6 +114,7 @@ namespace Awemedia.Admin.AzureFunctions.Business.Services
                 AweMediaUser awUser = new AweMediaUser();
                 MappingProfile.MapAweMediaUserObject(userModel, awUser);
                 awUser.CountryName = _countryService.GetById(userModel.CountryId).CountryName;
+                awUser.Role = _roleService.GetById(userModel.RoleId).Name;
                 var userId = _baseService.GetById(userModel.Id).UserId;
                 _adb2cService.UpdateUser(JsonSerializer.Serialize(awUser), userId).Wait();
                 var ids = _mappingService.Where(x => x.UserId == userModel.Id).Select(u => u.Id).ToList();
