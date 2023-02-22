@@ -21,4 +21,10 @@
     <ProjectReference Include="..\Awemedia.Admin.AzureFunctions\Awemedia.Admin.AzureFunctions\Awemedia.Admin.AzureFunctions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.test.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
