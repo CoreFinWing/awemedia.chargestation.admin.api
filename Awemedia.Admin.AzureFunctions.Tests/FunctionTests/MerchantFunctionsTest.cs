@@ -7,15 +7,19 @@ using Awemedia.Admin.AzureFunctions.Functions;
 using Awemedia.chargestation.API.tests.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Graph;
 using Moq;
 using OidcApiAuthorization.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using User = Awemedia.Admin.AzureFunctions.DAL.DataContracts.User;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 {
@@ -63,20 +67,78 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             merchantFunctions = new MerchantFunctions(auth.Object);
         }
 
-        [Fact]
-        public void Post_WhenCalled_InsertNewMerchant()
+        private static MerchantFunctions SetAuth(bool success = true, string claimValue = "owner")
+        {
+            var auth = new Mock<IApiAuthorization>();
+            if (success)
+            {
+                var ci = new ClaimsIdentity();
+                ci.AddClaim(new Claim("extension_UserRoles", claimValue));
+                ci.AddClaim(new Claim("emails", "baljeet@awepay.com"));
+                var claims = new ClaimsPrincipal(ci);
+
+                auth
+                    .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
+                    .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult(claims)));
+                return new MerchantFunctions(auth.Object);
+            }
+            auth
+                .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
+                .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult("BadLogin")));
+            return new MerchantFunctions(auth.Object);
+        }
+
+        [InlineData(true, "OK")]
+        [InlineData(false, "Unauthorized")]
+        [Theory]
+        public void GetMerchants_Tests(bool auth, string expected)
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
+            httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
+            var _merchantFunctions = SetAuth(auth);
+            var result = _merchantFunctions.Get(httpRequestMessage, _merchantService.Object, _errorHandler);
+            Assert.NotNull(result);
+            Assert.Equal(expected, result.StatusCode.ToString());
+        }
 
-            /*
-             "{\"RegisteredBusinessName\": \"test name 12\",\"LicenseNumber\": \"test lincense nu3\",\"Dba\": \"test DBA\",\"ContactName\": \"test contact\",\"PhoneNumber\": \"test phone\",\"Email\": \"test email\",\"ProfitSharePercentage\": \"test profit\",\"ChargeStationsOrdered\": \"3\",\"DepositMoneyPaid\": \"1000\",\"IndustryTypeId\": 1,\"SecondaryContact\": \"test sec contact\",\"SecondaryPhone\": \"test phone\",\"IndustryName\": \"ktv\",\"IndustryType\": null,\"Branch\": [{\"Name\": \"test test\",\"Address\": \"test test\",\"ContactName\": \"test 1\",\"PhoneNum\": \"test 1\",\"Email\": \"test@gmail.com\",\"MerchantId\": 3,\"Geolocation\": \"674999886298\",\"Merchant\": null,\"CreatedDate\": \"2019-05-31 07:42:57\",\"ModifiedDate\": \"2019-05-31 07:42:57\"},{\"Name\": \"test 2\",\"Address\": \"test 2\",\"ContactName\": \"test 2\",\"PhoneNum\": \"test 2\",\"Email\": \"test2@gmail.com\",\"MerchantId\": 3,\"Geolocation\": \"674999886298\",\"Merchant\": null,\"CreatedDate\": \"2019-05-31 07:43:11\",\"ModifiedDate\": \"2019-05-31 07:43:11\"}],\"CreatedDate\": \"2019-05-31 07:42:23\",\"ModifiedDate\": \"2019-05-31 07:42:23\"}"
-             */
-            var merchant = GetMerchantWithBrnaches();
-            httpRequestMessage.Content = new StringContent(merchant, Encoding.UTF8, "application/json");
+        [InlineData(true, "OK")]
+        [InlineData(false, "Unauthorized")]
+        [Theory]
+        public void GetAllNames_Tests(bool auth, string expected)
+        {
+            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
+            var _merchantFunctions = SetAuth(auth);
+            var result = _merchantFunctions.GetAllNames(httpRequestMessage, _merchantService.Object, _errorHandler);
+            Assert.NotNull(result);
+            Assert.Equal(expected, result.StatusCode.ToString());
+        }
 
-            var okResult = merchantFunctions.Post(httpRequestMessage, _merchantService.Object, _errorHandler);
+        [InlineData(true, "OK")]
+        [InlineData(false, "Unauthorized")]
+        [Theory]
+        public void GetMerchantById_Tests(bool auth, string expected)
+        {
+            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
+            var _merchantFunctions = SetAuth(auth);
+            var result = _merchantFunctions.GetById(httpRequestMessage, _merchantService.Object, _errorHandler, 1);
+            Assert.NotNull(result);
+            Assert.Equal(expected, result.StatusCode.ToString());
+        }
+
+        [InlineData(true, true, "OK")]
+        [InlineData(true, false, "BadRequest")]
+        [InlineData(false, false, "Unauthorized")]
+        [Theory]
+        public void AddMerchant_Tests(bool auth, bool isValid, string expected)
+        {
+            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
+            var merchant = GetMerchantWithBrnaches(isValid);
+            httpRequestMessage.Content = merchant;
+
+            var _merchantFunctions = SetAuth(auth);
+            var okResult = _merchantFunctions.Post(httpRequestMessage, _merchantService.Object, _errorHandler);
             Assert.NotNull(okResult);
-            Assert.Equal("OK", okResult.StatusCode.ToString());
+            Assert.Equal(expected, okResult.StatusCode.ToString());
         }
 
         [Fact]
@@ -84,7 +146,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             var merchant = GetMerchantWithBrnaches();
-            httpRequestMessage.Content = new StringContent(merchant, Encoding.UTF8, "application/json");
+            httpRequestMessage.Content = merchant;
             var okResult = merchantFunctions.Post(httpRequestMessage, _merchantService.Object, _errorHandler);
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
@@ -115,37 +177,42 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             return new List<Business.Models.Branch>() { branch };
         }
 
-        private string GetMerchantWithBrnaches()
+        private StringContent GetMerchantWithBrnaches(bool isValid = true)
         {
-            /* "\"Id\": \"6\",\"RegisteredBusinessName\": \"test name 12\",\"LicenseNumber\": \"test lincense nu3\",\"Dba\": \"test DBA\",\"ContactName\": \"test contact\",\"PhoneNumber\": \"test phone\",\"Email\": \"test email\",\"ProfitSharePercentage\": \"test profit\",\"ChargeStationsOrdered\": \"3\",\"DepositMoneyPaid\": \"1000\",\"IndustryTypeId\": 1,\"SecondaryContact\": \"test sec contact\",\"SecondaryPhone\": \"test phone\",\"IndustryName\": \"ktv\",\"IndustryType\": null,\"Branch\": [{\"Name\": \"test test\",\"Address\": \"test test\",\"ContactName\": \"test 1\",\"PhoneNum\": \"test 1\",\"Email\": \"test@gmail.com\",\"MerchantId\": 3,\"Geolocation\": \"674999886298\",\"Merchant\": null,\"CreatedDate\": \"2019-05-31 07:42:57\",\"ModifiedDate\": \"2019-05-31 07:42:57\"},{\"Name\": \"test 2\",\"Address\": \"test 2\",\"ContactName\": \"test 2\",\"PhoneNum\": \"test 2\",\"Email\": \"test2@gmail.com\",\"MerchantId\": 3,\"Geolocation\": \"674999886298\",\"Merchant\": null,\"CreatedDate\": \"2019-05-31 07:43:11\",\"ModifiedDate\": \"2019-05-31 07:43:11\"}],\"CreatedDate\": \"2019-05-31 07:42:23\",\"ModifiedDate\": \"2019-05-31 07:42:23\"";
-            */
-
-            var merchant = new Business.Models.Merchant()
+            Business.Models.Merchant merchant = null;
+            if (isValid)
             {
-                RegisteredBusinessName = "test name 12",
-                ChargeStationsOrdered = "3",
-                IndustryType = new IndustryType() { Id = 1, IsActive = true, Name = "Software" },
-                ContactName = "baljeet",
-                IndustryName = "ktv",
-                IndustryTypeId = 1,
-                Dba = "test DBA",
-                DepositMoneyPaid = "1500",
-                Email = "baljeet@awepay.com",
-                Id = 8,
-                IsActive = false,
-                LicenseNumber = "DL123456",
-                NumOfActiveLocations = 1,
-                PhoneNumber = "9876054313",
-                ProfitSharePercentage = "15",
-                SecondaryContact = "Vishal",
-                SecondaryPhone = "9976054322",
-                CreatedDate = DateTime.Now,
-                ModifiedDate = DateTime.Now,
-                Branch = GetBranches()
-            };
+                merchant = new Business.Models.Merchant()
+                {
+                    RegisteredBusinessName = "test name 12",
+                    ChargeStationsOrdered = "3",
+                    IndustryType = new IndustryType() { Id = 1, IsActive = true, Name = "Software" },
+                    ContactName = "baljeet",
+                    IndustryName = "ktv",
+                    IndustryTypeId = 1,
+                    Dba = "test DBA",
+                    DepositMoneyPaid = "1500",
+                    Email = "baljeet@awepay.com",
+                    Id = 8,
+                    IsActive = false,
+                    LicenseNumber = "DL123456",
+                    NumOfActiveLocations = 1,
+                    PhoneNumber = "9876054313",
+                    ProfitSharePercentage = "15",
+                    SecondaryContact = "Vishal",
+                    SecondaryPhone = "9976054322",
+                    CreatedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    Branch = GetBranches()
+                };
+            }
+            else
+            {
+                merchant = new Business.Models.Merchant();
+            }
 
-            var stringContent = Newtonsoft.Json.JsonConvert.SerializeObject(merchant);
-            return stringContent;
+            var content = Newtonsoft.Json.JsonConvert.SerializeObject(merchant);
+            return new StringContent(content, Encoding.UTF8, "application/json");
         }
 
         [Fact]
@@ -187,6 +254,6 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 
             var stringContent = Newtonsoft.Json.JsonConvert.SerializeObject(merchant);
             return stringContent;
-        }
+        }       
     }
 }
