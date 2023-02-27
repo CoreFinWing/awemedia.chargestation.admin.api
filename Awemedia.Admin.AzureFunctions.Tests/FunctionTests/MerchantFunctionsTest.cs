@@ -7,18 +7,17 @@ using Awemedia.Admin.AzureFunctions.Functions;
 using Awemedia.chargestation.API.tests.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Graph;
 using Moq;
 using OidcApiAuthorization.Abstractions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Merchant = Awemedia.Admin.AzureFunctions.Business.Models.Merchant;
 using User = Awemedia.Admin.AzureFunctions.DAL.DataContracts.User;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
@@ -28,8 +27,8 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         private const string Name = "AwemediaConnection";
         private readonly IBaseService<Merchant> _merchantBaseService;
         private readonly IBaseRepository<Merchant> _repository;
-        private readonly IBaseService<Branch> _branchBaseService;
-        private readonly IBaseRepository<Branch> _branchRepository;
+        private readonly IBaseService<DAL.DataContracts.Branch> _branchBaseService;
+        private readonly IBaseRepository<DAL.DataContracts.Branch> _branchRepository;
         private readonly Mock<IMerchantService> _merchantService;
         private readonly IBranchService _branchService;
         private readonly IErrorHandler _errorHandler;
@@ -50,8 +49,8 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             var context = new AwemediaContext(dbContextOptions);
             _errorHandler = new ErrorHandler();
-            _branchRepository = new BaseRepository<Branch>(context, _errorHandler);
-            _branchBaseService = new BaseService<Branch>(_branchRepository);
+            _branchRepository = new BaseRepository<DAL.DataContracts.Branch>(context, _errorHandler);
+            _branchBaseService = new BaseService<DAL.DataContracts.Branch>(_branchRepository);
             _userRepository = new BaseRepository<User>(context, _errorHandler);
             _userBaseService = new BaseService<User>(_userRepository);
             _repository = new BaseRepository<Merchant>(context, _errorHandler);
@@ -141,15 +140,57 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             Assert.Equal(expected, okResult.StatusCode.ToString());
         }
 
-        [Fact]
-        public void Put_WhenCalled_UpdateMerchant()
+        [InlineData(true, 1, "OK")]
+        [InlineData(true, 0, "BadRequest")]
+        [InlineData(false, 1, "Unauthorized")]
+        [Theory]
+        public void Active_InActive_Merchant_Tests(bool auth, int merchantCount, string expected)
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
+
+            var model = new object[] { };
+            if (merchantCount == 1)
+            {
+                model = new[] { new { Id = "1", IsActive = "true" } };
+            }
+            var content = Newtonsoft.Json.JsonConvert.SerializeObject(model);
+            httpRequestMessage.Content = new StringContent(content, Encoding.UTF8, "application/json");
+            var _merchantFunctions = SetAuth(auth);
+            var okResult = _merchantFunctions.Patch(httpRequestMessage, _merchantService.Object, _errorHandler);
+            Assert.NotNull(okResult);
+            Assert.Equal(expected, okResult.StatusCode.ToString());
+        }
+
+        [InlineData(true, 1, "OK")]
+        [InlineData(true, 0, "BadRequest")]
+        [InlineData(false, 1, "Unauthorized")]
+        [Theory]
+        public void UpdateMerchant_Tests(bool auth, int id, string expected)
+        {
+            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
+
             var merchant = GetMerchantWithBrnaches();
             httpRequestMessage.Content = merchant;
-            var okResult = merchantFunctions.Post(httpRequestMessage, _merchantService.Object, _errorHandler);
+            var _merchantFunctions = SetAuth(auth);
+            var okResult = _merchantFunctions.Put(httpRequestMessage, _merchantService.Object, _errorHandler, id);
             Assert.NotNull(okResult);
-            Assert.Equal("OK", okResult.StatusCode.ToString());
+            Assert.Equal(expected, okResult.StatusCode.ToString());
+        }
+
+        [InlineData(true, true, "OK")]
+        [InlineData(true, false, "BadRequest")]
+        [InlineData(false, true, "Unauthorized")]
+        [Theory]
+        public void AutoCompleteSearchMerchant_Tests(bool auth, bool withQuery, string expected)
+        {
+            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
+            string search = withQuery ? "?keyword=test" : "";
+            httpRequestMessage.RequestUri = new Uri($"http://localhost/test{search}");
+           
+            var _merchantFunctions = SetAuth(auth);
+            var okResult = _merchantFunctions.Search(httpRequestMessage, _merchantService.Object, _errorHandler);
+            Assert.NotNull(okResult);
+            Assert.Equal(expected, okResult.StatusCode.ToString());
         }
 
         private List<Business.Models.Branch> GetBranches()
@@ -254,6 +295,6 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 
             var stringContent = Newtonsoft.Json.JsonConvert.SerializeObject(merchant);
             return stringContent;
-        }       
+        }
     }
 }
