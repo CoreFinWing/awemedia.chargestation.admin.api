@@ -90,7 +90,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, "OK")]
         [InlineData(false, "Unauthorized")]
         [Theory]
-        public void GetMerchants_Tests(bool auth, string expected)
+        public void Get_WhenCalled_ReturnsFilteredItems(bool auth, string expected)
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
@@ -103,7 +103,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, "OK")]
         [InlineData(false, "Unauthorized")]
         [Theory]
-        public void GetAllNames_Tests(bool auth, string expected)
+        public void Get_WhenCalled_MerchantNames(bool auth, string expected)
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             var _merchantFunctions = SetAuth(auth);
@@ -115,7 +115,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, "OK")]
         [InlineData(false, "Unauthorized")]
         [Theory]
-        public void GetMerchantById_Tests(bool auth, string expected)
+        public void Get_WhenCalled_MerchantById(bool auth, string expected)
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             var _merchantFunctions = SetAuth(auth);
@@ -128,7 +128,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, false, "BadRequest")]
         [InlineData(false, false, "Unauthorized")]
         [Theory]
-        public void AddMerchant_Tests(bool auth, bool isValid, string expected)
+        public void Post_WhenCalled_AddMerchant(bool auth, bool isValid, string expected)
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             var merchant = GetMerchantWithBrnaches(isValid);
@@ -144,7 +144,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, 0, "BadRequest")]
         [InlineData(false, 1, "Unauthorized")]
         [Theory]
-        public void Active_InActive_Merchant_Tests(bool auth, int merchantCount, string expected)
+        public void Patch_WhenCalled_Active_InActive_Merchant(bool auth, int merchantCount, string expected)
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
 
@@ -165,7 +165,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, 0, "BadRequest")]
         [InlineData(false, 1, "Unauthorized")]
         [Theory]
-        public void UpdateMerchant_Tests(bool auth, int id, string expected)
+        public void Put_WhenCalled_UpdateMerchant(bool auth, int id, string expected)
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
 
@@ -181,7 +181,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, false, "BadRequest")]
         [InlineData(false, true, "Unauthorized")]
         [Theory]
-        public void AutoCompleteSearchMerchant_Tests(bool auth, bool withQuery, string expected)
+        public void Get_WhenCalled_AutoCompleteSearchMerchant(bool auth, bool withQuery, string expected)
         {
             HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             string search = withQuery ? "?keyword=test" : "";

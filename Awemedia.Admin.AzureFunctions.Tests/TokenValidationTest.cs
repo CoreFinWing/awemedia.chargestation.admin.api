@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Awemedia.Admin.AzureFunctions.Tests
 {
-    public class UnitTest1
+    public class TokenValidationTest
     {
         [Fact]
         public void Test1()

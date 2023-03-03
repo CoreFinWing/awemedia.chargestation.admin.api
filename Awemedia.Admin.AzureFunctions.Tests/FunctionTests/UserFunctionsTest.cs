@@ -34,7 +34,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, "OK")]
         [InlineData(false, "Unauthorized")]
         [Theory]
-        public void GetUsers_Tests(bool auth, string expected)
+        public void Get_WhenCalled_ReturnsFilteredItems(bool auth, string expected)
         {
             _httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
 
@@ -47,7 +47,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, "OK")]
         [InlineData(false, "Unauthorized")]
         [Theory]
-        public void GetUserById_Tests(bool auth, string expected)
+        public void Get_WhenCalled_UserById(bool auth, string expected)
         {
             var userFunctions = SetAuth(auth);
             var result = userFunctions.GetById(_httpRequestMessage, _userService.Object, _errorHandler, 1);
@@ -61,7 +61,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, true, true, "Conflict")]
         [InlineData(false, false, false, "Unauthorized")]
         [Theory]
-        public void AddUser_Tests(bool auth, bool isValid, bool duplicateUser, string expected)
+        public void Post_WhenCalled_AddUser(bool auth, bool isValid, bool duplicateUser, string expected)
         {
             var userContent = GetUserModel(isValid);
             _httpRequestMessage.Content = userContent;
@@ -78,7 +78,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, true, 0, "BadRequest")]
         [InlineData(false, false, 1, "Unauthorized")]
         [Theory]
-        public void UpdateUser_Tests(bool auth, bool isValid, int id, string expected)
+        public void Put_WhenCalled_UpdateUser(bool auth, bool isValid, int id, string expected)
         {
             var userContent = GetUserModel(isValid);
             _httpRequestMessage.Content = userContent;
@@ -93,7 +93,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, "not-owner", "OK")]
         [InlineData(false, "owner", "Unauthorized")]
         [Theory]
-        public void GetRoles_Tests(bool auth, string claimValue, string expected)
+        public void Get_WhenCalled_Roles(bool auth, string claimValue, string expected)
         {
             var userFunctions = SetAuth(auth, claimValue);
             var result = userFunctions.GetRoles(_httpRequestMessage, _roleService.Object, _errorHandler);
@@ -105,7 +105,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, "OK")]
         [InlineData(false, "Unauthorized")]
         [Theory]
-        public void GetRoleById_Tests(bool auth, string expected)
+        public void Get_WhenCalled_RolesById(bool auth, string expected)
         {
             var userFunctions = SetAuth(auth);
             var result = userFunctions.GetRoleById(_httpRequestMessage, _roleService.Object, _errorHandler, 1);
@@ -166,14 +166,5 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             return new StringContent(content, Encoding.UTF8, "application/json");
         }
 
-        [InlineData(1, 2, 3)]
-        [InlineData(1, 4, 5)]
-        [InlineData(1, 62, 63)]
-        [Theory]
-        public void SampleTest(int a, int b, int expected)
-        {
-            var actual = a + b;
-            Assert.Equal(expected, actual);
-        }
     }
 }
