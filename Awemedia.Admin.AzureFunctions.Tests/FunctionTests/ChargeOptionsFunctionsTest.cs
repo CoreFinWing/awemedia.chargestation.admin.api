@@ -23,42 +23,24 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 {
     public class ChargeOptionsFunctionsTest
     {
-        private const string Name = "AwemediaConnection";
-        private readonly ChargeOptionFunctions chargeOptionFunctions;
-        private readonly Mock<IChargeOptionService> chargeOptionsService;
-        private readonly IBaseService<ChargeOptions> _baseService;
-        private readonly IBaseRepository<ChargeOptions> _repository;
         private readonly IErrorHandler _errorHandler;
-        private static DbContextOptions<AwemediaContext> dbContextOptions { get; set; }
-        private static readonly string connectionString = string.Empty;
-
-        static ChargeOptionsFunctionsTest()
-        {
-            var config = Common.InitConfiguration();
-            connectionString = config.GetConnectionString(Name);
-            dbContextOptions = new DbContextOptionsBuilder<AwemediaContext>()
-                .UseSqlServer(connectionString)
-                .Options;
-        }
+        private readonly Mock<IChargeOptionService> _chargeOptionsService;
+        private readonly HttpRequestMessage _httpRequestMessage;
 
         public ChargeOptionsFunctionsTest()
         {
-            var context = new AwemediaContext(dbContextOptions);
             _errorHandler = new ErrorHandler();
-            _repository = new BaseRepository<ChargeOptions>(context, _errorHandler);
-            _baseService = new BaseService<ChargeOptions>(_repository);
-            chargeOptionsService = new Mock<IChargeOptionService>();
-            // chargeOptionFunctions = new ChargeOptionFunctions(apiAuthorization);
+            _chargeOptionsService = new Mock<IChargeOptionService>();
+            _httpRequestMessage = Common.CreateRequest();
         }
 
         [Fact]
         public void Get_WhenCalled_ReturnsAllItems()
         {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-            httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
-            httpRequestMessage.Headers.CacheControl.MaxAge = new TimeSpan(0, 2, 0);
-            var _chargeOptionFunctions = SetAuth(true);
-            var okResult = _chargeOptionFunctions.Get(httpRequestMessage, chargeOptionsService.Object, _errorHandler);
+            _httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
+            _httpRequestMessage.Headers.CacheControl.MaxAge = new TimeSpan(0, 2, 0);
+            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
+            var okResult = _chargeOptionFunctions.Get(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }
@@ -66,11 +48,10 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [Fact]
         public void Post_WhenCalled_InsertNewChargeOption()
         {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
             var content = GetChargeOptionModel(true);
-            httpRequestMessage.Content = content;
-            var _chargeOptionFunctions = SetAuth(true);
-            var okResult = _chargeOptionFunctions.Post(httpRequestMessage, chargeOptionsService.Object, _errorHandler);
+            _httpRequestMessage.Content = content;
+            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
+            var okResult = _chargeOptionFunctions.Post(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }
@@ -78,10 +59,9 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [Fact]
         public void Delete_WhenCalled_MarkActiveInActiveChargeOption()
         {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-            httpRequestMessage.Content = new StringContent("[{\"Id\":\"4\",\"IsActive\":\"true\"},{\"Id\":\"6\",\"IsActive\":\"false\"}]", Encoding.UTF8, "application/json");
-            var _chargeOptionFunctions = SetAuth(true);
-            var okResult = _chargeOptionFunctions.Put(httpRequestMessage, chargeOptionsService.Object, _errorHandler);
+            _httpRequestMessage.Content = new StringContent("[{\"Id\":\"4\",\"IsActive\":\"true\"},{\"Id\":\"6\",\"IsActive\":\"false\"}]", Encoding.UTF8, "application/json");
+            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
+            var okResult = _chargeOptionFunctions.Put(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }
@@ -95,42 +75,19 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [Fact]
         public void IsDuplicateRecord()
         {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-            
             var content = GetChargeOptionModel(true);
-            httpRequestMessage.Content = content;
+            _httpRequestMessage.Content = content;
 
             bool duplicate = false;
-            chargeOptionsService
+            _chargeOptionsService
                 .Setup(c => c.Add(It.IsAny<Business.Models.ChargeOption>(), out duplicate, It.IsAny<int>()))
                 .Callback(() => AddDelegate(null, out duplicate, 1))
                 .Returns(true);
-            
-            var _chargeOptionFunctions = SetAuth(true);
-            var okResult = _chargeOptionFunctions.Post(httpRequestMessage, chargeOptionsService.Object, _errorHandler);
+
+            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
+            var okResult = _chargeOptionFunctions.Post(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
             Assert.NotNull(okResult);
             Assert.True(duplicate);
-        }
-
-        private static ChargeOptionFunctions SetAuth(bool success = true, string claimValue = "owner")
-        {
-            var auth = new Mock<IApiAuthorization>();
-            if (success)
-            {
-                var ci = new ClaimsIdentity();
-                ci.AddClaim(new Claim("extension_UserRoles", claimValue));
-                ci.AddClaim(new Claim("emails", "baljeet@awepay.com"));
-                var claims = new ClaimsPrincipal(ci);
-
-                auth
-                    .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
-                    .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult(claims)));
-                return new ChargeOptionFunctions(auth.Object);
-            }
-            auth
-                .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
-                .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult("BadLogin")));
-            return new ChargeOptionFunctions(auth.Object);
         }
 
         private StringContent GetChargeOptionModel(bool isValid)

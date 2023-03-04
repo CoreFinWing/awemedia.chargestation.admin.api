@@ -1,33 +1,19 @@
-﻿using AutoMapper;
-using Awemedia.Admin.AzureFunctions.Business.Infrastructure;
-using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
+﻿using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
-using Awemedia.Admin.AzureFunctions.Business.Repositories;
-using Awemedia.Admin.AzureFunctions.Business.Services;
-using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System.Net.Http;
-using Xunit;
-using Awemedia.Admin.AzureFunctions;
-using System.Text;
-using System.Net.Http.Headers;
-using Awemedia.Admin.AzureFunctions.Business;
-using Awemedia.chargestation.API.tests.Common;
 using Awemedia.Admin.AzureFunctions.Functions;
-using OidcApiAuthorization.Abstractions;
+using Awemedia.chargestation.API.tests.Common;
 using Moq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using System;
-using Microsoft.Graph;
+using System.Net.Http;
+using System.Text;
+using Xunit;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 {
     public class ChargeStationFunctionsTest
     {
-        private readonly Mock<IChargeStationService> _chargeStationService;
         private readonly IErrorHandler _errorHandler;
+        private readonly Mock<IChargeStationService> _chargeStationService;
         private readonly HttpRequestMessage _httpRequestMessage;
 
         public ChargeStationFunctionsTest()
@@ -40,23 +26,23 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(true, "OK")]
         [InlineData(false, "Unauthorized")]
         [Theory]
-        public void GetChargeStations_Tests(bool auth, string expected)
+        public void Get_WhenCalled_ReturnsFilteredItems(bool auth, string expected)
         {
             var request = Common.CreateRequest();
             request.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
 
-            var chargStationFunctions = SetAuth(auth);
+            var chargStationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
             var result = chargStationFunctions.GetFiltered(request, _chargeStationService.Object, _errorHandler);
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
         }
 
-        [InlineData(true, true, false, "OK")]        
+        [InlineData(true, true, false, "OK")]
         [InlineData(true, false, false, "BadRequest")]
         [InlineData(true, true, true, "OK")]//Todo: This case should be corrected. and return conflict.
         [InlineData(false, false, false, "Unauthorized")]
         [Theory]
-        public void AddChargeStation_Tests(bool auth, bool isValid, bool isDuplicate, string expected)
+        public void Post_WhenCalled_AddChargeStation(bool auth, bool isValid, bool isDuplicate, string expected)
         {
             var stationContent = GetUserModel(isValid);
             _httpRequestMessage.Content = stationContent;
@@ -69,32 +55,11 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             {
                 _chargeStationService.Setup(u => u.IsChargeStationExists(It.IsAny<Guid>())).Returns(DBNull.Value);
             }
-            var stationFunctions = SetAuth(auth);
+            var stationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
             var result = stationFunctions.Post(_httpRequestMessage, _chargeStationService.Object, _errorHandler);
 
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
-        }
-
-        private static ChargeStationFuntions SetAuth(bool success = true, string claimValue = "owner")
-        {
-            var auth = new Mock<IApiAuthorization>();
-            if (success)
-            {
-                var ci = new ClaimsIdentity();
-                ci.AddClaim(new Claim("extension_UserRoles", claimValue));
-                ci.AddClaim(new Claim("emails", "baljeet@awepay.com"));
-                var claims = new ClaimsPrincipal(ci);
-
-                auth
-                    .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
-                    .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult(claims)));
-                return new ChargeStationFuntions(auth.Object);
-            }
-            auth
-                .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
-                .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult("BadLogin")));
-            return new ChargeStationFuntions(auth.Object);
         }
 
         private StringContent GetUserModel(bool isValid)
