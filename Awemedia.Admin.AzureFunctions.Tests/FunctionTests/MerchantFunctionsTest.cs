@@ -1,12 +1,8 @@
 ﻿using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
-using Awemedia.Admin.AzureFunctions.Business.Repositories;
-using Awemedia.Admin.AzureFunctions.Business.Services;
 using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Awemedia.Admin.AzureFunctions.Functions;
 using Awemedia.chargestation.API.tests.Common;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using OidcApiAuthorization.Abstractions;
 using System;
@@ -17,53 +13,118 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using Merchant = Awemedia.Admin.AzureFunctions.Business.Models.Merchant;
-using User = Awemedia.Admin.AzureFunctions.DAL.DataContracts.User;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 {
     public class MerchantFunctionsTest
     {
-        private const string Name = "AwemediaConnection";
-        private readonly IBaseService<Merchant> _merchantBaseService;
-        private readonly IBaseRepository<Merchant> _repository;
-        private readonly IBaseService<DAL.DataContracts.Branch> _branchBaseService;
-        private readonly IBaseRepository<DAL.DataContracts.Branch> _branchRepository;
-        private readonly Mock<IMerchantService> _merchantService;
-        private readonly IBranchService _branchService;
         private readonly IErrorHandler _errorHandler;
-        private readonly IBaseRepository<User> _userRepository;
-        private readonly IBaseService<User> _userBaseService;
-        private static DbContextOptions<AwemediaContext> dbContextOptions { get; set; }
-        private static readonly string connectionString = string.Empty;
-        private readonly MerchantFunctions merchantFunctions;
-
-        static MerchantFunctionsTest()
-        {
-            var config = Common.InitConfiguration();
-            connectionString = config.GetConnectionString(Name);
-            dbContextOptions = new DbContextOptionsBuilder<AwemediaContext>().UseSqlServer(connectionString).Options;
-        }
-
+        private readonly Mock<IMerchantService> _merchantService;
+        private readonly HttpRequestMessage _httpRequestMessage;
         public MerchantFunctionsTest()
         {
-            var context = new AwemediaContext(dbContextOptions);
             _errorHandler = new ErrorHandler();
-            _branchRepository = new BaseRepository<DAL.DataContracts.Branch>(context, _errorHandler);
-            _branchBaseService = new BaseService<DAL.DataContracts.Branch>(_branchRepository);
-            _userRepository = new BaseRepository<User>(context, _errorHandler);
-            _userBaseService = new BaseService<User>(_userRepository);
-            _repository = new BaseRepository<Merchant>(context, _errorHandler);
-            _merchantBaseService = new BaseService<Merchant>(_repository);
-            //_merchantService = new MerchantService(_merchantBaseService, _userBaseService);
+
             _merchantService = new Mock<IMerchantService>();
             _merchantService.Setup(m => m.AddMerchant(It.IsAny<Business.Models.Merchant>(), 1)).Returns(1);
-            _branchService = new BranchService(_branchBaseService, _merchantService.Object, _userBaseService);
-            var auth = new Mock<IApiAuthorization>();
-            auth
-                .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
-                .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult()));
-            merchantFunctions = new MerchantFunctions(auth.Object);
+            _httpRequestMessage = Common.CreateRequest();
+        }
+
+        [InlineData(true, "OK")]
+        [InlineData(false, "Unauthorized")]
+        [Theory]
+        public void Get_WhenCalled_ReturnsFilteredItems(bool auth, string expected)
+        {
+            _httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
+            var _merchantFunctions = SetAuth(auth);
+            var result = _merchantFunctions.Get(_httpRequestMessage, _merchantService.Object, _errorHandler);
+            Assert.NotNull(result);
+            Assert.Equal(expected, result.StatusCode.ToString());
+        }
+
+        [InlineData(true, "OK")]
+        [InlineData(false, "Unauthorized")]
+        [Theory]
+        public void Get_WhenCalled_MerchantNames(bool auth, string expected)
+        {            
+            var _merchantFunctions = SetAuth(auth);
+            var result = _merchantFunctions.GetAllNames(_httpRequestMessage, _merchantService.Object, _errorHandler);
+            Assert.NotNull(result);
+            Assert.Equal(expected, result.StatusCode.ToString());
+        }
+
+        [InlineData(true, "OK")]
+        [InlineData(false, "Unauthorized")]
+        [Theory]
+        public void Get_WhenCalled_MerchantById(bool auth, string expected)
+        {
+            var _merchantFunctions = SetAuth(auth);
+            var result = _merchantFunctions.GetById(_httpRequestMessage, _merchantService.Object, _errorHandler, 1);
+            Assert.NotNull(result);
+            Assert.Equal(expected, result.StatusCode.ToString());
+        }
+
+        [InlineData(true, true, "OK")]
+        [InlineData(true, false, "BadRequest")]
+        [InlineData(false, false, "Unauthorized")]
+        [Theory]
+        public void Post_WhenCalled_AddMerchant(bool auth, bool isValid, string expected)
+        {
+            var merchant = GetMerchantWithBrnaches(isValid);
+            _httpRequestMessage.Content = merchant;
+
+            var _merchantFunctions = SetAuth(auth);
+            var okResult = _merchantFunctions.Post(_httpRequestMessage, _merchantService.Object, _errorHandler);
+            Assert.NotNull(okResult);
+            Assert.Equal(expected, okResult.StatusCode.ToString());
+        }
+
+        [InlineData(true, 1, "OK")]
+        [InlineData(true, 0, "BadRequest")]
+        [InlineData(false, 1, "Unauthorized")]
+        [Theory]
+        public void Patch_WhenCalled_Active_InActive_Merchant(bool auth, int merchantCount, string expected)
+        {
+            var model = new object[] { };
+            if (merchantCount == 1)
+            {
+                model = new[] { new { Id = "1", IsActive = "true" } };
+            }
+            var content = Newtonsoft.Json.JsonConvert.SerializeObject(model);
+            _httpRequestMessage.Content = new StringContent(content, Encoding.UTF8, "application/json");
+            var _merchantFunctions = SetAuth(auth);
+            var okResult = _merchantFunctions.Patch(_httpRequestMessage, _merchantService.Object, _errorHandler);
+            Assert.NotNull(okResult);
+            Assert.Equal(expected, okResult.StatusCode.ToString());
+        }
+
+        [InlineData(true, 1, "OK")]
+        [InlineData(true, 0, "BadRequest")]
+        [InlineData(false, 1, "Unauthorized")]
+        [Theory]
+        public void Put_WhenCalled_UpdateMerchant(bool auth, int id, string expected)
+        {
+            var merchant = GetMerchantWithBrnaches();
+            _httpRequestMessage.Content = merchant;
+            var _merchantFunctions = SetAuth(auth);
+            var okResult = _merchantFunctions.Put(_httpRequestMessage, _merchantService.Object, _errorHandler, id);
+            Assert.NotNull(okResult);
+            Assert.Equal(expected, okResult.StatusCode.ToString());
+        }
+
+        [InlineData(true, true, "OK")]
+        [InlineData(true, false, "BadRequest")]
+        [InlineData(false, true, "Unauthorized")]
+        [Theory]
+        public void Get_WhenCalled_AutoCompleteSearchMerchant(bool auth, bool withQuery, string expected)
+        {
+            string search = withQuery ? "?keyword=test" : "";
+            _httpRequestMessage.RequestUri = new Uri($"http://localhost/test{search}");
+
+            var _merchantFunctions = SetAuth(auth);
+            var okResult = _merchantFunctions.Search(_httpRequestMessage, _merchantService.Object, _errorHandler);
+            Assert.NotNull(okResult);
+            Assert.Equal(expected, okResult.StatusCode.ToString());
         }
 
         private static MerchantFunctions SetAuth(bool success = true, string claimValue = "owner")
@@ -85,112 +146,6 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
                 .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
                 .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult("BadLogin")));
             return new MerchantFunctions(auth.Object);
-        }
-
-        [InlineData(true, "OK")]
-        [InlineData(false, "Unauthorized")]
-        [Theory]
-        public void Get_WhenCalled_ReturnsFilteredItems(bool auth, string expected)
-        {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-            httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
-            var _merchantFunctions = SetAuth(auth);
-            var result = _merchantFunctions.Get(httpRequestMessage, _merchantService.Object, _errorHandler);
-            Assert.NotNull(result);
-            Assert.Equal(expected, result.StatusCode.ToString());
-        }
-
-        [InlineData(true, "OK")]
-        [InlineData(false, "Unauthorized")]
-        [Theory]
-        public void Get_WhenCalled_MerchantNames(bool auth, string expected)
-        {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-            var _merchantFunctions = SetAuth(auth);
-            var result = _merchantFunctions.GetAllNames(httpRequestMessage, _merchantService.Object, _errorHandler);
-            Assert.NotNull(result);
-            Assert.Equal(expected, result.StatusCode.ToString());
-        }
-
-        [InlineData(true, "OK")]
-        [InlineData(false, "Unauthorized")]
-        [Theory]
-        public void Get_WhenCalled_MerchantById(bool auth, string expected)
-        {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-            var _merchantFunctions = SetAuth(auth);
-            var result = _merchantFunctions.GetById(httpRequestMessage, _merchantService.Object, _errorHandler, 1);
-            Assert.NotNull(result);
-            Assert.Equal(expected, result.StatusCode.ToString());
-        }
-
-        [InlineData(true, true, "OK")]
-        [InlineData(true, false, "BadRequest")]
-        [InlineData(false, false, "Unauthorized")]
-        [Theory]
-        public void Post_WhenCalled_AddMerchant(bool auth, bool isValid, string expected)
-        {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-            var merchant = GetMerchantWithBrnaches(isValid);
-            httpRequestMessage.Content = merchant;
-
-            var _merchantFunctions = SetAuth(auth);
-            var okResult = _merchantFunctions.Post(httpRequestMessage, _merchantService.Object, _errorHandler);
-            Assert.NotNull(okResult);
-            Assert.Equal(expected, okResult.StatusCode.ToString());
-        }
-
-        [InlineData(true, 1, "OK")]
-        [InlineData(true, 0, "BadRequest")]
-        [InlineData(false, 1, "Unauthorized")]
-        [Theory]
-        public void Patch_WhenCalled_Active_InActive_Merchant(bool auth, int merchantCount, string expected)
-        {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-
-            var model = new object[] { };
-            if (merchantCount == 1)
-            {
-                model = new[] { new { Id = "1", IsActive = "true" } };
-            }
-            var content = Newtonsoft.Json.JsonConvert.SerializeObject(model);
-            httpRequestMessage.Content = new StringContent(content, Encoding.UTF8, "application/json");
-            var _merchantFunctions = SetAuth(auth);
-            var okResult = _merchantFunctions.Patch(httpRequestMessage, _merchantService.Object, _errorHandler);
-            Assert.NotNull(okResult);
-            Assert.Equal(expected, okResult.StatusCode.ToString());
-        }
-
-        [InlineData(true, 1, "OK")]
-        [InlineData(true, 0, "BadRequest")]
-        [InlineData(false, 1, "Unauthorized")]
-        [Theory]
-        public void Put_WhenCalled_UpdateMerchant(bool auth, int id, string expected)
-        {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-
-            var merchant = GetMerchantWithBrnaches();
-            httpRequestMessage.Content = merchant;
-            var _merchantFunctions = SetAuth(auth);
-            var okResult = _merchantFunctions.Put(httpRequestMessage, _merchantService.Object, _errorHandler, id);
-            Assert.NotNull(okResult);
-            Assert.Equal(expected, okResult.StatusCode.ToString());
-        }
-
-        [InlineData(true, true, "OK")]
-        [InlineData(true, false, "BadRequest")]
-        [InlineData(false, true, "Unauthorized")]
-        [Theory]
-        public void Get_WhenCalled_AutoCompleteSearchMerchant(bool auth, bool withQuery, string expected)
-        {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-            string search = withQuery ? "?keyword=test" : "";
-            httpRequestMessage.RequestUri = new Uri($"http://localhost/test{search}");
-           
-            var _merchantFunctions = SetAuth(auth);
-            var okResult = _merchantFunctions.Search(httpRequestMessage, _merchantService.Object, _errorHandler);
-            Assert.NotNull(okResult);
-            Assert.Equal(expected, okResult.StatusCode.ToString());
         }
 
         private List<Business.Models.Branch> GetBranches()
@@ -254,47 +209,6 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 
             var content = Newtonsoft.Json.JsonConvert.SerializeObject(merchant);
             return new StringContent(content, Encoding.UTF8, "application/json");
-        }
-
-        [Fact]
-        public void Patch_WhenCalled_SoftDeleteMerchant()
-        {
-            HttpRequestMessage httpRequestMessage = Common.CreateRequest();
-
-            var merchant = GetMerchant();
-
-            httpRequestMessage.Content = new StringContent(merchant, Encoding.UTF8, "application/json");
-            var okResult = merchantFunctions.Post(httpRequestMessage, _merchantService.Object, _errorHandler);
-            Assert.NotNull(okResult);
-            Assert.Equal("OK", okResult.StatusCode.ToString());
-        }
-
-        private string GetMerchant()
-        {
-            var merchant = new Business.Models.Merchant()
-            {
-                RegisteredBusinessName = "awepay softwares",
-                ChargeStationsOrdered = "3",
-                IndustryType = new IndustryType() { Id = 1, IsActive = true, Name = "Software" },
-                ContactName = "baljeet",
-                IndustryTypeId = 1,
-                Dba = "test dba",
-                DepositMoneyPaid = "1150",
-                Email = "baljeet@awepay.com",
-                Id = 8,
-                IsActive = false,
-                LicenseNumber = "DL123456",
-                NumOfActiveLocations = 1,
-                PhoneNumber = "9876054313",
-                ProfitSharePercentage = "15",
-                SecondaryContact = "Vishal",
-                SecondaryPhone = "9976054322",
-                CreatedDate = DateTime.Now,
-                ModifiedDate = DateTime.Now
-            };
-
-            var stringContent = Newtonsoft.Json.JsonConvert.SerializeObject(merchant);
-            return stringContent;
         }
     }
 }
