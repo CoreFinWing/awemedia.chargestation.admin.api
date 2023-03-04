@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Mvc.WebApiCompatShim;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
+using OidcApiAuthorization.Abstractions;
 using System;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Awemedia.chargestation.API.tests.Common
@@ -62,6 +65,29 @@ namespace Awemedia.chargestation.API.tests.Common
             }
 
             return services.Object;
+        }
+
+        public static T SetAuth<T>(bool success = true, string claimValue = "owner") where T : class
+        {
+            var auth = new Mock<IApiAuthorization>();
+            if (success)
+            {
+                var ci = new ClaimsIdentity();
+                ci.AddClaim(new Claim("extension_UserRoles", claimValue));
+                ci.AddClaim(new Claim("emails", "baljeet@awepay.com"));
+                var claims = new ClaimsPrincipal(ci);
+
+                auth
+                    .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
+                    .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult(claims)));
+            }
+            else
+            {
+                auth
+                    .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
+                    .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult("BadLogin")));
+            }
+            return (T)Activator.CreateInstance(typeof(T), auth.Object);
         }
     }
 }
