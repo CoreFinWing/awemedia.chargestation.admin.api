@@ -66,7 +66,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 
         [InlineData(true, true, false, "OK")]
         [InlineData(true, false, false, "OK")]
-        [InlineData(true, true, true, "OK")]
+        [InlineData(true, false, true, "OK")]
         [InlineData(false, false, false, "Unauthorized")]
         [Theory]
         public void Put_WhenCalled_UpdateChargeStation(bool auth, bool isValid, bool isDuplicate, string expected)
