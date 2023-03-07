@@ -18,6 +18,17 @@ steps:
       **/*.csproj
     arguments: --output $(Build.ArtifactStagingDirectory) --configuration Release
 
+- task: VSTest@2
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*test*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    codeCoverageEnabled: true
+    testRunTitle: 'Awemedia Admin API Test Results'
+
 
 - task: ArchiveFiles@2
   displayName: 'Archive files'
