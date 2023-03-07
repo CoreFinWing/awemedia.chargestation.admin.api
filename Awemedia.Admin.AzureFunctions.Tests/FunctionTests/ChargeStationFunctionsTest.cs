@@ -14,12 +14,14 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
     {
         private readonly IErrorHandler _errorHandler;
         private readonly Mock<IChargeStationService> _chargeStationService;
+        private readonly Mock<IBranchService> _branchService;
         private readonly HttpRequestMessage _httpRequestMessage;
 
         public ChargeStationFunctionsTest()
         {
             _errorHandler = new ErrorHandler();
             _chargeStationService = new Mock<IChargeStationService>();
+            _branchService = new Mock<IBranchService>();
             _httpRequestMessage = Common.CreateRequest();
         }
 
@@ -39,7 +41,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 
         [InlineData(true, true, false, "OK")]
         [InlineData(true, false, false, "BadRequest")]
-        [InlineData(true, true, true, "OK")]//Todo: This case should be corrected. and return conflict.
+        [InlineData(true, true, true, "OK")]
         [InlineData(false, false, false, "Unauthorized")]
         [Theory]
         public void Post_WhenCalled_AddChargeStation(bool auth, bool isValid, bool isDuplicate, string expected)
@@ -57,6 +59,32 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             }
             var stationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
             var result = stationFunctions.Post(_httpRequestMessage, _chargeStationService.Object, _errorHandler);
+
+            Assert.NotNull(result);
+            Assert.Equal(expected, result.StatusCode.ToString());
+        }
+
+        [InlineData(true, true, false, "OK")]
+        [InlineData(true, false, false, "OK")]
+        [InlineData(true, true, true, "OK")]
+        [InlineData(false, false, false, "Unauthorized")]
+        [Theory]
+        public void Put_WhenCalled_UpdateChargeStation(bool auth, bool isValid, bool isDuplicate, string expected)
+        {
+            var stationContent = GetUserModel(isValid);
+            _httpRequestMessage.Content = stationContent;
+
+            if (isDuplicate)
+            {
+                _chargeStationService.Setup(u => u.IsChargeStationExists(It.IsAny<Guid>())).Returns(Guid.NewGuid());
+            }
+            else
+            {
+                _chargeStationService.Setup(u => u.IsChargeStationExists(It.IsAny<Guid>())).Returns(DBNull.Value);
+            }
+            _chargeStationService.Setup(c => c.GetById(It.IsAny<Guid>())).Returns(new Business.Models.ChargeStation() { Id = Guid.NewGuid().ToString() });
+            var stationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
+            var result = stationFunctions.Put(_httpRequestMessage, _chargeStationService.Object, _errorHandler, Guid.NewGuid().ToString(), _branchService.Object);
 
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
