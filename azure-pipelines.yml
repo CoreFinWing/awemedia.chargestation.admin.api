@@ -23,6 +23,7 @@ steps:
     command: 'test'
     projects: '**/*.csproj'
     publishTestResults: true
+    arguments: '--configuration Release --collect "Code coverage"'
     
 
 
