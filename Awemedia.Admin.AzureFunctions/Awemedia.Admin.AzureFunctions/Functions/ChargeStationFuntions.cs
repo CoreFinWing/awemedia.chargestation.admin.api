@@ -57,7 +57,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.BadRequest, $"Model is invalid: {string.Join(", ", chargeStationBody.ValidationResults.Select(s => s.ErrorMessage).ToArray())}");
             ChargeStation chargeStation = chargeStationBody.Value;
             Guid guid = chargeStation.DeviceId.StringToGuid();
-            object device = _chargeStationService.IsChargeStationExists(guid);
+            object device = _chargeStationService.IsChargeStationExists(guid);//todo: function should return boolean value.
             if (device != DBNull.Value)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DuplicateRecordFound));
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _chargeStationService.AddChargeStation(chargeStation));
@@ -82,7 +82,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                     return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, "Branch doesn't exist.");
             }
             var _chargeStation = _chargeStationService.GetById(Guid.Parse(chargeStationId));
-            object device = _chargeStationService.IsChargeStationExists(Guid.Parse(_chargeStation.Id));
+            object device = _chargeStationService.IsChargeStationExists(Guid.Parse(_chargeStation.Id));//todo: function should return boolean value.
             if (device == DBNull.Value)
                 return httpRequestMessage.CreateErrorResponse(HttpStatusCode.OK, _errorHandler.GetMessage(ErrorMessagesEnum.DeviceNotRegistered));
             return httpRequestMessage.CreateResponseWithData(HttpStatusCode.OK, _chargeStationService.UpdateChargeStation(chargeStation, Guid.Parse(_chargeStation.Id)));
