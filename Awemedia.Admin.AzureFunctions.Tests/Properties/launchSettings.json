@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Awemedia.Admin.AzureFunctions.Tests": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

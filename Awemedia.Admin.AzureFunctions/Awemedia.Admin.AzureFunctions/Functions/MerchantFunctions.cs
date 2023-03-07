@@ -113,7 +113,7 @@ namespace Awemedia.Admin.AzureFunctions.Functions
                 return httpRequestMessage.CreateResponse(HttpStatusCode.Unauthorized);
             }
             if (id <= 0)
-                httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
+                return httpRequestMessage.CreateResponse(HttpStatusCode.BadRequest);
             Merchant merchant = merchantBody.Value;
             _merchantService.UpdateMerchant(merchant, id);
             return httpRequestMessage.CreateResponse(HttpStatusCode.OK);
