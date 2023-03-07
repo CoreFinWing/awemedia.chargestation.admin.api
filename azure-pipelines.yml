@@ -17,6 +17,7 @@ steps:
     projects: |
       **/*.csproj
     arguments: --output $(Build.ArtifactStagingDirectory) --configuration Release
+    
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'
