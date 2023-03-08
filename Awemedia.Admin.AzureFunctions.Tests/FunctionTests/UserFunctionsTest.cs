@@ -4,13 +4,9 @@ using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.Functions;
 using Awemedia.chargestation.API.tests.Common;
 using Moq;
-using OidcApiAuthorization.Abstractions;
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
@@ -147,6 +143,5 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var content = Newtonsoft.Json.JsonConvert.SerializeObject(user);
             return new StringContent(content, Encoding.UTF8, "application/json");
         }
-
     }
 }

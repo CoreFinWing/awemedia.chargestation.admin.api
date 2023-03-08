@@ -35,7 +35,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             _httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
             var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var result = _merchantFunctions.Get(_httpRequestMessage, _merchantService.Object, _errorHandler);
-         
+
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
         }
@@ -47,7 +47,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var result = _merchantFunctions.GetAllNames(_httpRequestMessage, _merchantService.Object, _errorHandler);
-            
+
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
         }

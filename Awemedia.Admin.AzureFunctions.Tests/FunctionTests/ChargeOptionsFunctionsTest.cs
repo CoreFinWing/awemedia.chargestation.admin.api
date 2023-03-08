@@ -1,22 +1,12 @@
 ﻿using Awemedia.Admin.AzureFunctions.Business.Infrastructure.ErrorHandler;
 using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Business.Models;
-using Awemedia.Admin.AzureFunctions.Business.Repositories;
-using Awemedia.Admin.AzureFunctions.Business.Services;
-using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Awemedia.Admin.AzureFunctions.Functions;
 using Awemedia.chargestation.API.tests.Common;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Moq;
-using OidcApiAuthorization.Abstractions;
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
