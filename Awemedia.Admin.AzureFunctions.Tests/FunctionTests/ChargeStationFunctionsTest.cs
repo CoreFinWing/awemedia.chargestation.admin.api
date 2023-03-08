@@ -49,14 +49,10 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var stationContent = GetUserModel(isValid);
             _httpRequestMessage.Content = stationContent;
 
-            if (isDuplicate)
-            {
-                _chargeStationService.Setup(u => u.IsChargeStationExists(It.IsAny<Guid>())).Returns(Guid.NewGuid());
-            }
-            else
-            {
-                _chargeStationService.Setup(u => u.IsChargeStationExists(It.IsAny<Guid>())).Returns(DBNull.Value);
-            }
+            _chargeStationService
+                 .Setup(u => u.IsChargeStationExists(It.IsAny<Guid>()))
+                 .Returns<object>((a) => { if (isDuplicate) { return Guid.NewGuid(); } else { return DBNull.Value; } });
+
             var stationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
             var result = stationFunctions.Post(_httpRequestMessage, _chargeStationService.Object, _errorHandler);
 
@@ -74,15 +70,11 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var stationContent = GetUserModel(isValid);
             _httpRequestMessage.Content = stationContent;
 
-            if (isDuplicate)
-            {
-                _chargeStationService.Setup(u => u.IsChargeStationExists(It.IsAny<Guid>())).Returns(Guid.NewGuid());
-            }
-            else
-            {
-                _chargeStationService.Setup(u => u.IsChargeStationExists(It.IsAny<Guid>())).Returns(DBNull.Value);
-            }
+            _chargeStationService
+                .Setup(u => u.IsChargeStationExists(It.IsAny<Guid>()))
+                .Returns<object>((a) => { if (isDuplicate) { return Guid.NewGuid(); } else { return DBNull.Value; } });
             _chargeStationService.Setup(c => c.GetById(It.IsAny<Guid>())).Returns(new Business.Models.ChargeStation() { Id = Guid.NewGuid().ToString() });
+
             var stationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
             var result = stationFunctions.Put(_httpRequestMessage, _chargeStationService.Object, _errorHandler, Guid.NewGuid().ToString(), _branchService.Object);
 
