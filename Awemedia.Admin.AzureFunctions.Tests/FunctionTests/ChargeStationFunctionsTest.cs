@@ -46,7 +46,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [Theory]
         public void Post_WhenCalled_AddChargeStation(bool auth, bool isValid, bool isDuplicate, string expected)
         {
-            var stationContent = GetUserModel(isValid);
+            var stationContent = GetChargeStationModel(isValid);
             _httpRequestMessage.Content = stationContent;
 
             _chargeStationService
@@ -67,7 +67,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [Theory]
         public void Put_WhenCalled_UpdateChargeStation(bool auth, bool isValid, bool isDuplicate, string expected)
         {
-            var stationContent = GetUserModel(isValid);
+            var stationContent = GetChargeStationModel(isValid);
             _httpRequestMessage.Content = stationContent;
 
             _chargeStationService
@@ -82,7 +82,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             Assert.Equal(expected, result.StatusCode.ToString());
         }
 
-        private StringContent GetUserModel(bool isValid)
+        private StringContent GetChargeStationModel(bool isValid)
         {
             Business.Models.ChargeStation station = null;
             if (isValid)
