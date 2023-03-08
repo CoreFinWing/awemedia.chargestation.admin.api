@@ -41,6 +41,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             _httpRequestMessage.Headers.CacheControl.MaxAge = new TimeSpan(0, 2, 0);
             var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
             var okResult = _chargeOptionFunctions.Get(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
+
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }
@@ -52,6 +53,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             _httpRequestMessage.Content = content;
             var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
             var okResult = _chargeOptionFunctions.Post(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
+
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }
@@ -62,6 +64,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             _httpRequestMessage.Content = new StringContent("[{\"Id\":\"4\",\"IsActive\":\"true\"},{\"Id\":\"6\",\"IsActive\":\"false\"}]", Encoding.UTF8, "application/json");
             var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
             var okResult = _chargeOptionFunctions.Put(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
+
             Assert.NotNull(okResult);
             Assert.Equal("OK", okResult.StatusCode.ToString());
         }
@@ -86,6 +89,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 
             var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
             var okResult = _chargeOptionFunctions.Post(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
+
             Assert.NotNull(okResult);
             Assert.True(duplicate);
         }

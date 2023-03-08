@@ -4,14 +4,10 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Awemedia.Admin.AzureFunctions.Functions;
 using Awemedia.chargestation.API.tests.Common;
 using Moq;
-using OidcApiAuthorization.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
@@ -21,6 +17,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         private readonly IErrorHandler _errorHandler;
         private readonly Mock<IMerchantService> _merchantService;
         private readonly HttpRequestMessage _httpRequestMessage;
+
         public MerchantFunctionsTest()
         {
             _errorHandler = new ErrorHandler();
@@ -36,8 +33,9 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         public void Get_WhenCalled_ReturnsFilteredItems(bool auth, string expected)
         {
             _httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
-            var _merchantFunctions = SetAuth(auth);
+            var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var result = _merchantFunctions.Get(_httpRequestMessage, _merchantService.Object, _errorHandler);
+         
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
         }
@@ -46,9 +44,10 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [InlineData(false, "Unauthorized")]
         [Theory]
         public void Get_WhenCalled_MerchantNames(bool auth, string expected)
-        {            
-            var _merchantFunctions = SetAuth(auth);
+        {
+            var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var result = _merchantFunctions.GetAllNames(_httpRequestMessage, _merchantService.Object, _errorHandler);
+            
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
         }
@@ -58,8 +57,9 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [Theory]
         public void Get_WhenCalled_MerchantById(bool auth, string expected)
         {
-            var _merchantFunctions = SetAuth(auth);
+            var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var result = _merchantFunctions.GetById(_httpRequestMessage, _merchantService.Object, _errorHandler, 1);
+
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
         }
@@ -73,8 +73,9 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var merchant = GetMerchantWithBrnaches(isValid);
             _httpRequestMessage.Content = merchant;
 
-            var _merchantFunctions = SetAuth(auth);
+            var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var okResult = _merchantFunctions.Post(_httpRequestMessage, _merchantService.Object, _errorHandler);
+
             Assert.NotNull(okResult);
             Assert.Equal(expected, okResult.StatusCode.ToString());
         }
@@ -92,8 +93,9 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             }
             var content = Newtonsoft.Json.JsonConvert.SerializeObject(model);
             _httpRequestMessage.Content = new StringContent(content, Encoding.UTF8, "application/json");
-            var _merchantFunctions = SetAuth(auth);
+            var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var okResult = _merchantFunctions.Patch(_httpRequestMessage, _merchantService.Object, _errorHandler);
+
             Assert.NotNull(okResult);
             Assert.Equal(expected, okResult.StatusCode.ToString());
         }
@@ -106,8 +108,9 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             var merchant = GetMerchantWithBrnaches();
             _httpRequestMessage.Content = merchant;
-            var _merchantFunctions = SetAuth(auth);
+            var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var okResult = _merchantFunctions.Put(_httpRequestMessage, _merchantService.Object, _errorHandler, id);
+
             Assert.NotNull(okResult);
             Assert.Equal(expected, okResult.StatusCode.ToString());
         }
@@ -121,31 +124,11 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             string search = withQuery ? "?keyword=test" : "";
             _httpRequestMessage.RequestUri = new Uri($"http://localhost/test{search}");
 
-            var _merchantFunctions = SetAuth(auth);
+            var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var okResult = _merchantFunctions.Search(_httpRequestMessage, _merchantService.Object, _errorHandler);
+
             Assert.NotNull(okResult);
             Assert.Equal(expected, okResult.StatusCode.ToString());
-        }
-
-        private static MerchantFunctions SetAuth(bool success = true, string claimValue = "owner")
-        {
-            var auth = new Mock<IApiAuthorization>();
-            if (success)
-            {
-                var ci = new ClaimsIdentity();
-                ci.AddClaim(new Claim("extension_UserRoles", claimValue));
-                ci.AddClaim(new Claim("emails", "baljeet@awepay.com"));
-                var claims = new ClaimsPrincipal(ci);
-
-                auth
-                    .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
-                    .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult(claims)));
-                return new MerchantFunctions(auth.Object);
-            }
-            auth
-                .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
-                .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult("BadLogin")));
-            return new MerchantFunctions(auth.Object);
         }
 
         private List<Business.Models.Branch> GetBranches()

@@ -36,7 +36,7 @@ namespace Awemedia.chargestation.API.tests.Common
             return request;
         }
 
-        public static IServiceProvider CreateServices(IContentNegotiator contentNegotiator = null, MediaTypeFormatter formatter = null)
+        private static IServiceProvider CreateServices(IContentNegotiator contentNegotiator = null, MediaTypeFormatter formatter = null)
         {
             var options = new WebApiCompatShimOptions();
 

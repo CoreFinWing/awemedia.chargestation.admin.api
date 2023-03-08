@@ -38,8 +38,9 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             _httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
 
-            var userFunctions = SetAuth(auth);
+            var userFunctions = Common.SetAuth<UserFunctions>(auth);
             var result = userFunctions.Get(_httpRequestMessage, _userService.Object, _errorHandler);
+
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
         }
@@ -49,7 +50,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [Theory]
         public void Get_WhenCalled_UserById(bool auth, string expected)
         {
-            var userFunctions = SetAuth(auth);
+            var userFunctions = Common.SetAuth<UserFunctions>(auth);
             var result = userFunctions.GetById(_httpRequestMessage, _userService.Object, _errorHandler, 1);
 
             Assert.NotNull(result);
@@ -66,7 +67,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var userContent = GetUserModel(isValid);
             _httpRequestMessage.Content = userContent;
             _userService.Setup(u => u.IsUserDuplicate(It.IsAny<UserModel>())).Returns(duplicateUser);
-            var userFunctions = SetAuth(auth);
+            var userFunctions = Common.SetAuth<UserFunctions>(auth);
             var result = userFunctions.Post(_httpRequestMessage, _userService.Object, _errorHandler);
 
             Assert.NotNull(result);
@@ -82,7 +83,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         {
             var userContent = GetUserModel(isValid);
             _httpRequestMessage.Content = userContent;
-            var userFunctions = SetAuth(auth);
+            var userFunctions = Common.SetAuth<UserFunctions>(auth);
             var result = userFunctions.Put(_httpRequestMessage, _userService.Object, _errorHandler, id);
 
             Assert.NotNull(result);
@@ -95,7 +96,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [Theory]
         public void Get_WhenCalled_Roles(bool auth, string claimValue, string expected)
         {
-            var userFunctions = SetAuth(auth, claimValue);
+            var userFunctions = Common.SetAuth<UserFunctions>(auth, claimValue);
             var result = userFunctions.GetRoles(_httpRequestMessage, _roleService.Object, _errorHandler);
 
             Assert.NotNull(result);
@@ -107,30 +108,11 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [Theory]
         public void Get_WhenCalled_RolesById(bool auth, string expected)
         {
-            var userFunctions = SetAuth(auth);
+            var userFunctions = Common.SetAuth<UserFunctions>(auth);
             var result = userFunctions.GetRoleById(_httpRequestMessage, _roleService.Object, _errorHandler, 1);
+
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
-        }
-
-        private static UserFunctions SetAuth(bool success = true, string claimValue = "owner")
-        {
-            var auth = new Mock<IApiAuthorization>();
-            if (success)
-            {
-                var ci = new ClaimsIdentity();
-                ci.AddClaim(new Claim("extension_UserRoles", claimValue));
-                var claims = new ClaimsPrincipal(ci);
-
-                auth
-                    .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
-                    .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult(claims)));
-                return new UserFunctions(auth.Object);
-            }
-            auth
-                .Setup(s => s.AuthorizeAsync(It.IsAny<HttpRequestHeaders>()))
-                .Returns(Task.FromResult(new OidcApiAuthorization.Models.ApiAuthorizationResult("BadLogin")));
-            return new UserFunctions(auth.Object);
         }
 
         private StringContent GetUserModel(bool isValid = true)

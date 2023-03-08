@@ -30,11 +30,11 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         [Theory]
         public void Get_WhenCalled_ReturnsFilteredItems(bool auth, string expected)
         {
-            var request = Common.CreateRequest();
-            request.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
+            _httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
 
             var chargStationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
-            var result = chargStationFunctions.GetFiltered(request, _chargeStationService.Object, _errorHandler);
+            var result = chargStationFunctions.GetFiltered(_httpRequestMessage, _chargeStationService.Object, _errorHandler);
+
             Assert.NotNull(result);
             Assert.Equal(expected, result.StatusCode.ToString());
         }
