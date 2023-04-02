@@ -4,11 +4,12 @@ using Awemedia.Admin.AzureFunctions.DAL.DataContracts;
 using Awemedia.Admin.AzureFunctions.Functions;
 using Awemedia.chargestation.API.tests.Common;
 using Moq;
+using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
-using Xunit;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 {
@@ -21,54 +22,70 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         public MerchantFunctionsTest()
         {
             _errorHandler = new ErrorHandler();
-
             _merchantService = new Mock<IMerchantService>();
             _merchantService.Setup(m => m.AddMerchant(It.IsAny<Business.Models.Merchant>(), 1)).Returns(1);
+
             _httpRequestMessage = Common.CreateRequest();
         }
 
-        [InlineData(true, "OK")]
-        [InlineData(false, "Unauthorized")]
-        [Theory]
-        public void Get_WhenCalled_ReturnsFilteredItems(bool auth, string expected)
+        private static IEnumerable GetMerchantsTestData()
+        {
+            yield return new TestCaseData(true, "OK").SetName("GetMerchants_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(false, "Unauthorized").SetName("GetMerchants_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(GetMerchantsTestData))]
+        public void GetMerchants(bool auth, string expected)
         {
             _httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
             var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var result = _merchantFunctions.Get(_httpRequestMessage, _merchantService.Object, _errorHandler);
 
-            Assert.NotNull(result);
-            Assert.Equal(expected, result.StatusCode.ToString());
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
-        [InlineData(true, "OK")]
-        [InlineData(false, "Unauthorized")]
-        [Theory]
-        public void Get_WhenCalled_MerchantNames(bool auth, string expected)
+        private static IEnumerable GetAllNamesTestData()
+        {
+            yield return new TestCaseData(true, "OK").SetName("GetMerchantNames_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(false, "Unauthorized").SetName("GetMerchantNames_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(GetAllNamesTestData))]
+        public void GetMerchantNames(bool auth, string expected)
         {
             var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var result = _merchantFunctions.GetAllNames(_httpRequestMessage, _merchantService.Object, _errorHandler);
 
             Assert.NotNull(result);
-            Assert.Equal(expected, result.StatusCode.ToString());
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
-        [InlineData(true, "OK")]
-        [InlineData(false, "Unauthorized")]
-        [Theory]
-        public void Get_WhenCalled_MerchantById(bool auth, string expected)
+        private static IEnumerable GetMerchantByIdTestData()
+        {
+            yield return new TestCaseData(true, "OK").SetName("GetMerchantById_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(false, "Unauthorized").SetName("GetMerchantById_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(GetMerchantByIdTestData))]
+        public void GetMerchantById(bool auth, string expected)
         {
             var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
             var result = _merchantFunctions.GetById(_httpRequestMessage, _merchantService.Object, _errorHandler, 1);
 
             Assert.NotNull(result);
-            Assert.Equal(expected, result.StatusCode.ToString());
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
-        [InlineData(true, true, "OK")]
-        [InlineData(true, false, "BadRequest")]
-        [InlineData(false, false, "Unauthorized")]
-        [Theory]
-        public void Post_WhenCalled_AddMerchant(bool auth, bool isValid, string expected)
+        private static IEnumerable AddMerchantTestData()
+        {
+            yield return new TestCaseData(true, true, "OK").SetName("AddMerchant_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, false, "BadRequest").SetName("AddMerchant_WhenAuthorized_InvalidData_ReturnsBadRequestResult");
+            yield return new TestCaseData(false, false, "Unauthorized").SetName("AddMerchant_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(AddMerchantTestData))]
+        public void AddMerchant(bool auth, bool isValid, string expected)
         {
             var merchant = GetMerchantWithBrnaches(isValid);
             _httpRequestMessage.Content = merchant;
@@ -77,14 +94,18 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var okResult = _merchantFunctions.Post(_httpRequestMessage, _merchantService.Object, _errorHandler);
 
             Assert.NotNull(okResult);
-            Assert.Equal(expected, okResult.StatusCode.ToString());
+            Assert.AreEqual(expected, okResult.StatusCode.ToString());
         }
 
-        [InlineData(true, 1, "OK")]
-        [InlineData(true, 0, "BadRequest")]
-        [InlineData(false, 1, "Unauthorized")]
-        [Theory]
-        public void Patch_WhenCalled_Active_InActive_Merchant(bool auth, int merchantCount, string expected)
+        private static IEnumerable ToggleMerchantActiveStateTestData()
+        {
+            yield return new TestCaseData(true, 1, "OK").SetName("ActiveMerchant_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, 0, "BadRequest").SetName("ActiveMerchant_WhenAuthorized_MerchantNotExists_ReturnsBadRequestResult");
+            yield return new TestCaseData(false, 1, "Unauthorized").SetName("InActiveMerchant_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(ToggleMerchantActiveStateTestData))]
+        public void ActiveMerchant(bool auth, int merchantCount, string expected)
         {
             var model = new object[] { };
             if (merchantCount == 1)
@@ -97,14 +118,18 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var okResult = _merchantFunctions.Patch(_httpRequestMessage, _merchantService.Object, _errorHandler);
 
             Assert.NotNull(okResult);
-            Assert.Equal(expected, okResult.StatusCode.ToString());
+            Assert.AreEqual(expected, okResult.StatusCode.ToString());
         }
 
-        [InlineData(true, 1, "OK")]
-        [InlineData(true, 0, "BadRequest")]
-        [InlineData(false, 1, "Unauthorized")]
-        [Theory]
-        public void Put_WhenCalled_UpdateMerchant(bool auth, int id, string expected)
+        private static IEnumerable UpdateMerchantTestData()
+        {
+            yield return new TestCaseData(true, 1, "OK").SetName("UpdateMerchant_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, 0, "BadRequest").SetName("UpdateMerchant_WhenAuthorized_MerchantNotExists_ReturnsBadRequestResult");
+            yield return new TestCaseData(false, 1, "Unauthorized").SetName("UpdateMerchant_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(UpdateMerchantTestData))]
+        public void UpdateMerchant(bool auth, int id, string expected)
         {
             var merchant = GetMerchantWithBrnaches();
             _httpRequestMessage.Content = merchant;
@@ -112,14 +137,18 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var okResult = _merchantFunctions.Put(_httpRequestMessage, _merchantService.Object, _errorHandler, id);
 
             Assert.NotNull(okResult);
-            Assert.Equal(expected, okResult.StatusCode.ToString());
+            Assert.AreEqual(expected, okResult.StatusCode.ToString());
         }
 
-        [InlineData(true, true, "OK")]
-        [InlineData(true, false, "BadRequest")]
-        [InlineData(false, true, "Unauthorized")]
-        [Theory]
-        public void Get_WhenCalled_AutoCompleteSearchMerchant(bool auth, bool withQuery, string expected)
+        private static IEnumerable SearchMerchantTestData()
+        {
+            yield return new TestCaseData(true, true, "OK").SetName("SearchMerchant_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, false, "BadRequest").SetName("SearchMerchant_WhenAuthorized_WithoutQuery_ReturnsBadRequestResult");
+            yield return new TestCaseData(false, true, "Unauthorized").SetName("SearchMerchant_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(SearchMerchantTestData))]
+        public void SearchMerchant(bool auth, bool withQuery, string expected)
         {
             string search = withQuery ? "?keyword=test" : "";
             _httpRequestMessage.RequestUri = new Uri($"http://localhost/test{search}");
@@ -128,7 +157,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var okResult = _merchantFunctions.Search(_httpRequestMessage, _merchantService.Object, _errorHandler);
 
             Assert.NotNull(okResult);
-            Assert.Equal(expected, okResult.StatusCode.ToString());
+            Assert.AreEqual(expected, okResult.StatusCode.ToString());
         }
 
         private List<Business.Models.Branch> GetBranches()
