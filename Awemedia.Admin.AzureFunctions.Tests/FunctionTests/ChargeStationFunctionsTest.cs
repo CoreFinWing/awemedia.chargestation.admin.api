@@ -3,10 +3,11 @@ using Awemedia.Admin.AzureFunctions.Business.Interfaces;
 using Awemedia.Admin.AzureFunctions.Functions;
 using Awemedia.chargestation.API.tests.Common;
 using Moq;
+using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Net.Http;
 using System.Text;
-using Xunit;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 {
@@ -22,12 +23,16 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             _errorHandler = new ErrorHandler();
             _chargeStationService = new Mock<IChargeStationService>();
             _branchService = new Mock<IBranchService>();
+
             _httpRequestMessage = Common.CreateRequest();
         }
-
-        [InlineData(true, "OK")]
-        [InlineData(false, "Unauthorized")]
-        [Theory]
+        private static IEnumerable GetMerchantsTestData()
+        {
+            yield return new TestCaseData(true, "OK").SetName("GetChargStations_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(false, "Unauthorized").SetName("GetChargStations_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+        
+        [Test, TestCaseSource(nameof(GetMerchantsTestData))]
         public void Get_WhenCalled_ReturnsFilteredItems(bool auth, string expected)
         {
             _httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
@@ -35,16 +40,19 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var chargStationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
             var result = chargStationFunctions.GetFiltered(_httpRequestMessage, _chargeStationService.Object, _errorHandler);
 
-            Assert.NotNull(result);
-            Assert.Equal(expected, result.StatusCode.ToString());
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
-
-        [InlineData(true, true, false, "OK")]
-        [InlineData(true, false, false, "BadRequest")]
-        [InlineData(true, true, true, "OK")]
-        [InlineData(false, false, false, "Unauthorized")]
-        [Theory]
-        public void Post_WhenCalled_AddChargeStation(bool auth, bool isValid, bool isDuplicate, string expected)
+        private static IEnumerable AddChargeStationTestData()
+        {
+            yield return new TestCaseData(true, true, false, "OK").SetName("AddChargeStations_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, false, false, "BadRequest").SetName("AddChargeStations_WhenAuthorized_InvalidData_ReturnsBadRequestResult");
+            yield return new TestCaseData(true, true, true, "OK").SetName("AddChargeStations_WhenAuthorized_Duplicate_ReturnsOkResult");
+            yield return new TestCaseData(false, false, false, "Unauthorized").SetName("AddChargeStations_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+       
+        [Test, TestCaseSource(nameof(AddChargeStationTestData))]
+        public void AddChargeStation(bool auth, bool isValid, bool isDuplicate, string expected)
         {
             var stationContent = GetChargeStationModel(isValid);
             _httpRequestMessage.Content = stationContent;
@@ -56,16 +64,19 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var stationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
             var result = stationFunctions.Post(_httpRequestMessage, _chargeStationService.Object, _errorHandler);
 
-            Assert.NotNull(result);
-            Assert.Equal(expected, result.StatusCode.ToString());
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
-
-        [InlineData(true, true, false, "OK")]
-        [InlineData(true, false, false, "OK")]
-        [InlineData(true, false, true, "OK")]
-        [InlineData(false, false, false, "Unauthorized")]
-        [Theory]
-        public void Put_WhenCalled_UpdateChargeStation(bool auth, bool isValid, bool isDuplicate, string expected)
+        private static IEnumerable UpdateChargeStationTestData()
+        {
+            yield return new TestCaseData(true, true, false, "OK").SetName("UpdateChargeStations_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, false, false, "OK").SetName("UpdateChargeStations_WhenAuthorized_InvalidData_ReturnsOkResult");
+            yield return new TestCaseData(true, false, true, "OK").SetName("UpdateChargeStations_WhenAuthorized_Duplicate_ReturnsOkResult");
+            yield return new TestCaseData(false, false, false, "Unauthorized").SetName("UpdateChargeStations_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+      
+        [Test, TestCaseSource(nameof(UpdateChargeStationTestData))]
+        public void UpdateChargeStation(bool auth, bool isValid, bool isDuplicate, string expected)
         {
             var stationContent = GetChargeStationModel(isValid);
             _httpRequestMessage.Content = stationContent;
@@ -78,8 +89,8 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var stationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
             var result = stationFunctions.Put(_httpRequestMessage, _chargeStationService.Object, _errorHandler, Guid.NewGuid().ToString(), _branchService.Object);
 
-            Assert.NotNull(result);
-            Assert.Equal(expected, result.StatusCode.ToString());
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
         private StringContent GetChargeStationModel(bool isValid)
