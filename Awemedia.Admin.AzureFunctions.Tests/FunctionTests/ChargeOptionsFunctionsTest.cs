@@ -4,10 +4,11 @@ using Awemedia.Admin.AzureFunctions.Business.Models;
 using Awemedia.Admin.AzureFunctions.Functions;
 using Awemedia.chargestation.API.tests.Common;
 using Moq;
+using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Net.Http;
 using System.Text;
-using Xunit;
 
 namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
 {
@@ -24,39 +25,52 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             _httpRequestMessage = Common.CreateRequest();
         }
 
-        [Fact]
-        public void Get_WhenCalled_ReturnsAllItems()
+        private static IEnumerable GetChargeOptionsTestData()
+        {
+            yield return new TestCaseData(true, "OK").SetName("GetChargeOptions_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(false, "Unauthorized").SetName("GetChargeOptions_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(GetChargeOptionsTestData))]
+        public void GetChargeOptions(bool auth, string expected)
         {
             _httpRequestMessage.RequestUri = new Uri("http://localhost/test?Search=test&IsActive=true");//BaseSearchFilter model class
             _httpRequestMessage.Headers.CacheControl.MaxAge = new TimeSpan(0, 2, 0);
-            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
-            var okResult = _chargeOptionFunctions.Get(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
+            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(auth);
+            var result = _chargeOptionFunctions.Get(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
 
-            Assert.NotNull(okResult);
-            Assert.Equal("OK", okResult.StatusCode.ToString());
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
-        [Fact]
-        public void Post_WhenCalled_InsertNewChargeOption()
+        private static IEnumerable AddChargeOptionTestData()
         {
-            var content = GetChargeOptionModel(true);
+            yield return new TestCaseData(true, true, "OK").SetName("AddChargeOption_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, false, "BadRequest").SetName("AddChargeOption_WhenAuthorized_InvalidData_ReturnsBadRequestResult");
+            yield return new TestCaseData(false, false, "Unauthorized").SetName("AddChargeOption_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(AddChargeOptionTestData))]
+        public void AddChargeOption(bool auth, bool isValid, string expected)
+        {
+            var content = GetChargeOptionModel(isValid);
             _httpRequestMessage.Content = content;
-            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
+            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(auth);
             var okResult = _chargeOptionFunctions.Post(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
 
             Assert.NotNull(okResult);
-            Assert.Equal("OK", okResult.StatusCode.ToString());
+            Assert.AreEqual(expected, okResult.StatusCode.ToString());
         }
 
-        [Fact]
-        public void Delete_WhenCalled_MarkActiveInActiveChargeOption()
+        [Test]
+        public void Actvie_InActiveChargeOption()
         {
             _httpRequestMessage.Content = new StringContent("[{\"Id\":\"4\",\"IsActive\":\"true\"},{\"Id\":\"6\",\"IsActive\":\"false\"}]", Encoding.UTF8, "application/json");
             var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
             var okResult = _chargeOptionFunctions.Put(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
 
             Assert.NotNull(okResult);
-            Assert.Equal("OK", okResult.StatusCode.ToString());
+            Assert.AreEqual("OK", okResult.StatusCode.ToString());
         }
 
         private bool AddDelegate(ChargeOption chargeOption, out bool isDuplicateRecord, int id)
@@ -65,7 +79,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             return false;
         }
 
-        [Fact]
+        [Test]
         public void IsDuplicateRecord()
         {
             var content = GetChargeOptionModel(true);
