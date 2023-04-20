@@ -16,12 +16,14 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
     {
         private readonly IErrorHandler _errorHandler;
         private readonly Mock<IChargeOptionService> _chargeOptionsService;
+        private readonly Mock<ICountryService> _countryService;
         private readonly HttpRequestMessage _httpRequestMessage;
 
         public ChargeOptionsFunctionsTest()
         {
             _errorHandler = new ErrorHandler();
             _chargeOptionsService = new Mock<IChargeOptionService>();
+            _countryService = new Mock<ICountryService>();
             _httpRequestMessage = Common.CreateRequest();
         }
 
@@ -62,16 +64,46 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             Assert.AreEqual(expected, okResult.StatusCode.ToString());
         }
 
-        [Test]
-        public void Actvie_InActiveChargeOption()
+        private static IEnumerable UpdateChargeOptionTestData()
         {
-            _httpRequestMessage.Content = new StringContent("[{\"Id\":\"4\",\"IsActive\":\"true\"},{\"Id\":\"6\",\"IsActive\":\"false\"}]", Encoding.UTF8, "application/json");
-            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
+            yield return new TestCaseData(true, true, "OK").SetName("UpdateChargeOption_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, false, "OK").SetName("UpdateChargeOption_WhenAuthorized_InvalidData_ReturnsOkResult");
+            yield return new TestCaseData(false, true, "Unauthorized").SetName("UpdateChargeOption_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(UpdateChargeOptionTestData))]
+        public void UpdateChargeOption(bool auth, bool isValid, string expected)
+        {
+            var data = new[] { new { Id = "4", IsActive = true }, new { Id = "6", IsActive = false } };
+
+            var content = Newtonsoft.Json.JsonConvert.SerializeObject(data);
+            if (!isValid)
+            {
+                content = "[{}]";
+            }
+            _httpRequestMessage.Content = new StringContent(content, Encoding.UTF8, "application/json");
+            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(auth);
             var okResult = _chargeOptionFunctions.Put(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
 
             Assert.NotNull(okResult);
-            Assert.AreEqual("OK", okResult.StatusCode.ToString());
+            Assert.AreEqual(expected, okResult.StatusCode.ToString());
         }
+        private static IEnumerable GetCountriesTestData()
+        {
+            yield return new TestCaseData(true,  "OK").SetName("GetCountires_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(false, "Unauthorized").SetName("GetCountires_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(GetCountriesTestData))]
+        public void GetCountires(bool auth,  string expected)
+        {
+            var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(auth);
+            var okResult = _chargeOptionFunctions.GetCountries(_httpRequestMessage, _countryService.Object, _errorHandler);
+
+            Assert.NotNull(okResult);
+            Assert.AreEqual(expected, okResult.StatusCode.ToString());
+        }
+
 
         private bool AddDelegate(ChargeOption chargeOption, out bool isDuplicateRecord, int id)
         {
@@ -80,7 +112,7 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         }
 
         [Test]
-        public void IsDuplicateRecord()
+        public void DuplicateChargeOption()
         {
             var content = GetChargeOptionModel(true);
             _httpRequestMessage.Content = content;
