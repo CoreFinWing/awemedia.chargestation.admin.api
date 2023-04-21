@@ -101,9 +101,9 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
         private static IEnumerable GetChargeStationTestData()
         {
             yield return new TestCaseData(false, false, true, "Unauthorized").SetName("GetChargeStation_WhenNotAuthorized_ReturnsUnauthorizedResult");
-            yield return new TestCaseData(true, false, true, "BadRequest").SetName("GetChargeStation_WhenAuthorized_ReturnsBadRequestResult");
-            yield return new TestCaseData(true, true, false, "OK").SetName("GetChargeStation_WhenAuthorized_InvalidData_ReturnsOkResult");
-            yield return new TestCaseData(true, true, true, "BadRequest").SetName("GetChargeStation_WhenAuthorized_Duplicate_ReturnsBadRequestResult");
+            yield return new TestCaseData(true, false, true, "BadRequest").SetName("GetChargeStation_WhenAuthorized_InvalidData_ReturnsBadRequestResult");
+            yield return new TestCaseData(true, true, false, "OK").SetName("GetChargeStation_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, true, true, "BadRequest").SetName("GetChargeStation_WhenAuthorized_ValidationFailed_ReturnsBadRequestResult");
         }
 
         [Test, TestCaseSource(nameof(GetChargeStationTestData))]
@@ -127,6 +127,71 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var result = stationFunctions.Get(_httpRequestMessage, _notificationService.Object, _chargeStationService.Object, _errorHandler, "1");
 
             Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
+        }
+
+        private static IEnumerable GetChargeStationDetailByIdTestData()
+        {
+            yield return new TestCaseData(false, false, "Unauthorized").SetName("GetChargeStationDetailById_WhenNotAuthorized_ReturnsUnauthorizedResult");
+            yield return new TestCaseData(true, false, "OK").SetName("GetChargeStationDetailById_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, true, "BadRequest").SetName("GetChargeStationDetailById_WhenAuthorized_InvalidData_ReturnsBadRequestResult");
+        }
+
+        [Test, TestCaseSource(nameof(GetChargeStationDetailByIdTestData))]
+        public void GetChargeStationDetailById(bool auth, bool invalid, string expected)
+        {
+            _chargeStationService.Setup(c => c.GetById(It.IsAny<Guid>())).Returns(new Business.Models.ChargeStation() { });
+            var id = invalid ? "" : Guid.NewGuid().ToString();
+            var stationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
+            var result = stationFunctions.GetById(_httpRequestMessage, _chargeStationService.Object, _errorHandler, id);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
+        }
+
+        private static IEnumerable ToggleChargeStationActiveStateTestData()
+        {
+            yield return new TestCaseData(true, 1, "OK").SetName("ActiveChargeStation_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, 0, "BadRequest").SetName("ActiveChargeStation_WhenAuthorized_ChargeStationNotExists_ReturnsBadRequestResult");
+            yield return new TestCaseData(false, 1, "Unauthorized").SetName("InActiveChargeStation_WhenNotAuthorized_ReturnsUnauthorizedResult");
+        }
+
+        [Test, TestCaseSource(nameof(ToggleChargeStationActiveStateTestData))]
+        public void ActiveChargeStation(bool auth, int chargeStationCount, string expected)
+        {
+            var model = new object[] { };
+            if (chargeStationCount == 1)
+            {
+                model = new[] { new { Id = "1", IsActive = "true" } };
+            }
+            var content = Newtonsoft.Json.JsonConvert.SerializeObject(model);
+            _httpRequestMessage.Content = new StringContent(content, Encoding.UTF8, "application/json");
+            var stationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
+            var result = stationFunctions.Patch(_httpRequestMessage, _chargeStationService.Object, _errorHandler);
+
+            Assert.NotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
+        }
+
+        private static IEnumerable ChargeStationDetachFromBranchTestData()
+        {
+            yield return new TestCaseData(false, false, "Unauthorized").SetName("ChargeStationDetachFromBranch_WhenNotAuthorized_ReturnsUnauthorizedResult");
+            yield return new TestCaseData(true, false, "OK").SetName("ChargeStationDetachFromBranch_WhenAuthorized_ChargeStationNotExists_ReturnsBadRequestResult");
+            yield return new TestCaseData(true, true, "OK").SetName("ChargeStationDetachFromBranch_WhenAuthorized_ReturnsOkResult");
+        }
+
+        [Test, TestCaseSource(nameof(ChargeStationDetachFromBranchTestData))]
+        public void ChargeStationDetachFromBranch(bool auth, bool stationExists, string expected)
+        {
+            var stationFunctions = Common.SetAuth<ChargeStationFuntions>(auth);
+            _chargeStationService.Setup(c => c.GetById(It.IsAny<Guid>())).Returns(new Business.Models.ChargeStation() { Id = Guid.NewGuid().ToString() });
+            if (stationExists)
+            {
+                _chargeStationService.Setup(c => c.IsChargeStationExists(It.IsAny<Guid>())).Returns(new Business.Models.ChargeStation() { Id = Guid.NewGuid().ToString() });
+            }
+            var result = stationFunctions.DetachFromBranch(_httpRequestMessage, _chargeStationService.Object, _errorHandler, Guid.NewGuid().ToString(), _branchService.Object);
+
+            Assert.NotNull(result);
             Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
