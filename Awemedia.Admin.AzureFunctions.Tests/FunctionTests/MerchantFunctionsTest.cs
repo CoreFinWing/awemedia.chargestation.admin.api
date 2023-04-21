@@ -91,10 +91,10 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             _httpRequestMessage.Content = merchant;
 
             var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
-            var okResult = _merchantFunctions.Post(_httpRequestMessage, _merchantService.Object, _errorHandler);
+            var result = _merchantFunctions.Post(_httpRequestMessage, _merchantService.Object, _errorHandler);
 
-            Assert.NotNull(okResult);
-            Assert.AreEqual(expected, okResult.StatusCode.ToString());
+            Assert.NotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
         private static IEnumerable ToggleMerchantActiveStateTestData()
@@ -115,10 +115,10 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var content = Newtonsoft.Json.JsonConvert.SerializeObject(model);
             _httpRequestMessage.Content = new StringContent(content, Encoding.UTF8, "application/json");
             var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
-            var okResult = _merchantFunctions.Patch(_httpRequestMessage, _merchantService.Object, _errorHandler);
+            var result = _merchantFunctions.Patch(_httpRequestMessage, _merchantService.Object, _errorHandler);
 
-            Assert.NotNull(okResult);
-            Assert.AreEqual(expected, okResult.StatusCode.ToString());
+            Assert.NotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
         private static IEnumerable UpdateMerchantTestData()
@@ -134,10 +134,10 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var merchant = GetMerchantWithBrnaches();
             _httpRequestMessage.Content = merchant;
             var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
-            var okResult = _merchantFunctions.Put(_httpRequestMessage, _merchantService.Object, _errorHandler, id);
+            var result = _merchantFunctions.Put(_httpRequestMessage, _merchantService.Object, _errorHandler, id);
 
-            Assert.NotNull(okResult);
-            Assert.AreEqual(expected, okResult.StatusCode.ToString());
+            Assert.NotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
         private static IEnumerable SearchMerchantTestData()
@@ -154,10 +154,10 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             _httpRequestMessage.RequestUri = new Uri($"http://localhost/test{search}");
 
             var _merchantFunctions = Common.SetAuth<MerchantFunctions>(auth);
-            var okResult = _merchantFunctions.Search(_httpRequestMessage, _merchantService.Object, _errorHandler);
+            var result = _merchantFunctions.Search(_httpRequestMessage, _merchantService.Object, _errorHandler);
 
-            Assert.NotNull(okResult);
-            Assert.AreEqual(expected, okResult.StatusCode.ToString());
+            Assert.NotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
         private List<Business.Models.Branch> GetBranches()

@@ -58,16 +58,16 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var content = GetChargeOptionModel(isValid);
             _httpRequestMessage.Content = content;
             var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(auth);
-            var okResult = _chargeOptionFunctions.Post(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
+            var result = _chargeOptionFunctions.Post(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
 
-            Assert.NotNull(okResult);
-            Assert.AreEqual(expected, okResult.StatusCode.ToString());
+            Assert.NotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
 
         private static IEnumerable UpdateChargeOptionTestData()
         {
             yield return new TestCaseData(true, true, "OK").SetName("UpdateChargeOption_WhenAuthorized_ReturnsOkResult");
-            yield return new TestCaseData(true, false, "OK").SetName("UpdateChargeOption_WhenAuthorized_InvalidData_ReturnsOkResult");
+            yield return new TestCaseData(true, false, "BadRequest").SetName("UpdateChargeOption_WhenAuthorized_InvalidData_ReturnsBadRequestResult");
             yield return new TestCaseData(false, true, "Unauthorized").SetName("UpdateChargeOption_WhenNotAuthorized_ReturnsUnauthorizedResult");
         }
 
@@ -79,31 +79,31 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
             var content = Newtonsoft.Json.JsonConvert.SerializeObject(data);
             if (!isValid)
             {
-                content = "[{}]";
+                content = "[]";
             }
             _httpRequestMessage.Content = new StringContent(content, Encoding.UTF8, "application/json");
             var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(auth);
-            var okResult = _chargeOptionFunctions.Put(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
+            var result = _chargeOptionFunctions.Put(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
 
-            Assert.NotNull(okResult);
-            Assert.AreEqual(expected, okResult.StatusCode.ToString());
+            Assert.NotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
+
         private static IEnumerable GetCountriesTestData()
         {
-            yield return new TestCaseData(true,  "OK").SetName("GetCountires_WhenAuthorized_ReturnsOkResult");
+            yield return new TestCaseData(true, "OK").SetName("GetCountires_WhenAuthorized_ReturnsOkResult");
             yield return new TestCaseData(false, "Unauthorized").SetName("GetCountires_WhenNotAuthorized_ReturnsUnauthorizedResult");
         }
 
         [Test, TestCaseSource(nameof(GetCountriesTestData))]
-        public void GetCountires(bool auth,  string expected)
+        public void GetCountires(bool auth, string expected)
         {
             var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(auth);
-            var okResult = _chargeOptionFunctions.GetCountries(_httpRequestMessage, _countryService.Object, _errorHandler);
+            var result = _chargeOptionFunctions.GetCountries(_httpRequestMessage, _countryService.Object, _errorHandler);
 
-            Assert.NotNull(okResult);
-            Assert.AreEqual(expected, okResult.StatusCode.ToString());
+            Assert.NotNull(result);
+            Assert.AreEqual(expected, result.StatusCode.ToString());
         }
-
 
         private bool AddDelegate(ChargeOption chargeOption, out bool isDuplicateRecord, int id)
         {
@@ -124,9 +124,9 @@ namespace Awemedia.Admin.AzureFunctions.Tests.FunctionTests
                 .Returns(true);
 
             var _chargeOptionFunctions = Common.SetAuth<ChargeOptionFunctions>(true);
-            var okResult = _chargeOptionFunctions.Post(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
+            var result = _chargeOptionFunctions.Post(_httpRequestMessage, _chargeOptionsService.Object, _errorHandler);
 
-            Assert.NotNull(okResult);
+            Assert.NotNull(result);
             Assert.True(duplicate);
         }
 
