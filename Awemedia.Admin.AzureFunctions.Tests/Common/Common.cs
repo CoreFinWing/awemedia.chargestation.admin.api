@@ -20,6 +20,7 @@ namespace Awemedia.chargestation.API.tests.Common
         {
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.test.json", optional: true)
+                .AddEnvironmentVariables()
                 .Build();
             return config;
         }
