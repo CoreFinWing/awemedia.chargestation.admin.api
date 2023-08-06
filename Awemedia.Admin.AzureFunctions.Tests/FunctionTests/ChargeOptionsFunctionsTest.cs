@@ -13,7 +13,6 @@ using OidcApiAuthorization.Abstractions;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
